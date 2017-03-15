@@ -1,3 +1,6 @@
+# Build files
+src/client/public
+
 # Logs
 logs
 *.log
