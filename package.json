@@ -19,5 +19,8 @@
   "bugs": {
     "url": "https://github.com/coe-google-apps-support/DriveTransfer/issues"
   },
-  "homepage": "https://github.com/coe-google-apps-support/DriveTransfer#readme"
+  "homepage": "https://github.com/coe-google-apps-support/DriveTransfer#readme",
+  "dependencies": {
+    "webpack": "^2.2.1"
+  }
 }
