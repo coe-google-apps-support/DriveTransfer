@@ -1,4 +1,11 @@
 import React from 'react';
+import RaisedButton from 'material-ui/RaisedButton';
+
+const styles = {
+  incrementButton: {
+    margin: 16
+  }
+}
 
 class AwesomeComponent extends React.Component {
 
@@ -18,7 +25,9 @@ class AwesomeComponent extends React.Component {
     return (
       <div>
         Likes : <span>{this.state.likesCount}</span>
-        <div><button onClick={this.onLike}>Like Me</button></div>
+        <div>
+          <RaisedButton onTouchTap={this.onLike} label="Like Me" style={styles.incrementButton}/>
+        </div>
       </div>
     );
   }
