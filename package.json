@@ -1,0 +1,23 @@
+{
+  "name": "drive-transfer",
+  "version": "1.0.0",
+  "description": "This web app allows users to transfer their drive files and folders to others.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/coe-google-apps-support/DriveTransfer.git"
+  },
+  "keywords": [
+    "google",
+    "drive"
+  ],
+  "author": "Jared Rewerts",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/coe-google-apps-support/DriveTransfer/issues"
+  },
+  "homepage": "https://github.com/coe-google-apps-support/DriveTransfer#readme"
+}
