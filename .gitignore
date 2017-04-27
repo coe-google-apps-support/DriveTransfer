@@ -1,5 +1,8 @@
 # Build files
-src/client/public
+client/src/static/bundle.js
+
+# Secrets
+client_secret*
 
 # Logs
 logs
