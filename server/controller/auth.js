@@ -7,81 +7,109 @@
 
 var fs = require('fs');
 var readline = require('readline');
-var google = require('googleapis');
-var googleAuth = require('google-auth-library');
+var Google = require('googleapis');
+var OAuth2 = Google.auth.OAuth2;
+var readFile = require('../util/promisey-read-file.js').readFile;
 
 // If modifying these scopes, delete your previously saved credentials
 // at ~/.credentials/drive-nodejs-quickstart.json
-var SCOPES = ['https://www.googleapis.com/auth/drive.metadata.readonly'];
+var SCOPES = [
+  'https://www.googleapis.com/auth/drive.metadata.readonly',
+  'https://www.googleapis.com/auth/drive.readonly'
+];
 var TOKEN_DIR = (process.env.HOME || process.env.HOMEPATH ||
     process.env.USERPROFILE) + '/.credentials/';
 var TOKEN_PATH = TOKEN_DIR + 'drive-transfer-auth.json';
 
-// Load client secrets from a local file.
-fs.readFile('../client_secret_server.json', function processClientSecrets(err, content) {
-  if (err) {
-    console.log('Error loading client secret file: ' + err);
-    return;
+var clientPromise = null;
+var client = null;
+var oauthResolve = null;
+var oauthReject = null;
+
+exports.auth = function(req, res, next) {
+  res.status(200).json({
+    message: 'unimplemented'
+  });
+}
+
+exports.oauthCallback = function(req, res, next) {
+  console.log('OAUTH');
+  console.log(req.query.code);
+
+  if (clientPromise === null || client === null) {
+    throw new Error('Callback occurred with no requesting client.');
   }
-  // Authorize a client with the loaded credentials, then call the
-  // Drive API.
-  console.log(JSON.parse(content));
-  authorize(JSON.parse(content), listFiles);
-});
 
-/**
- * Create an OAuth2 client with the given credentials, and then execute the
- * given callback function.
- *
- * @param {Object} credentials The authorization client credentials.
- * @param {function} callback The callback to call with the authorized client.
- */
-function authorize(credentials, callback) {
-  var clientSecret = credentials.installed.client_secret;
-  var clientId = credentials.installed.client_id;
-  var redirectUrl = credentials.installed.redirect_uris[0];
-  var auth = new googleAuth();
-  var oauth2Client = new auth.OAuth2(clientId, clientSecret, redirectUrl);
-
-  // Check if we have previously stored a token.
-  fs.readFile(TOKEN_PATH, function(err, token) {
-    if (err) {
-      getNewToken(oauth2Client, callback);
-    } else {
-      oauth2Client.credentials = JSON.parse(token);
-      callback(oauth2Client);
+  client.getToken(req.query.code, function (err, tokens) {
+    // Now tokens contains an access_token and an optional refresh_token. Save them.
+    if (!err) {
+      client.setCredentials(tokens);
+      storeToken(tokens);
+      oauthResolve(client);
+    }
+    else {
+      console.log('Token retrieval failed: ' + err);
+      oauthReject(err);
     }
   });
 }
 
+exports.getAuthorizedClient = function(req, res, next) {
+  console.log('I WANT AUTH!!');
+  console.log(req.originalUrl);
+  if (clientPromise === null) {
+    clientPromise = new Promise(function(resolve, reject) {
+      oauthResolve = resolve;
+      oauthReject = reject;
+    });
+
+    readFile('../client_secret.json').then(
+      function(result) {
+        var credentials = JSON.parse(result);
+        var clientSecret = credentials.web.client_secret;
+        var clientId = credentials.web.client_id;
+        var redirectUrl = credentials.web.redirect_uris[0];
+        // var redirectUrl = 'http://localhost:3000/api/auth/oauth';
+
+        client = new OAuth2(clientId, clientSecret, redirectUrl);
+        return client;
+    }).catch(
+      function(err) {
+        console.log('Error loading client secret file: ' + err);
+    }).then(function(oauthClient) {
+      var url = oauthClient.generateAuthUrl({
+        access_type: 'offline',
+        scope: SCOPES,
+        state: req.originalUrl
+      });
+      console.log(url);
+      res.redirect(url);
+    });
+  }
+
+  return clientPromise;
+}
+
+exports.getClient = function() {
+  return client;
+};
+
 /**
- * Get and store new token after prompting for user authorization, and then
- * execute the given callback with the authorized OAuth2 client.
+ * Provides a Promise wrapper around Googles code for token exchanger.
  *
- * @param {google.auth.OAuth2} oauth2Client The OAuth2 client to get token for.
- * @param {getEventsCallback} callback The callback to call with the authorized
- *     client.
+ * @param {googleAuth.OAuth2} client The oauth client to use for the exchange.
+ * @param {string} code The code to be exchanged. Usually something like 4/afsd6hf743jf8ajfsd554sdq.
+ * @return {Promise} A Promise that has the tokens and the response Object as params.
  */
-function getNewToken(oauth2Client, callback) {
-  var authUrl = oauth2Client.generateAuthUrl({
-    access_type: 'offline',
-    scope: SCOPES
-  });
-  console.log('Authorize this app by visiting this url: ', authUrl);
-  var rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout
-  });
-  rl.question('Enter the code from that page here: ', function(code) {
-    rl.close();
-    oauth2Client.getToken(code, function(err, token) {
+function getToken(client, code) {
+  return new Promise(function(resolve, reject) {
+    client.getToken(code, function(err, tokens, response) {
       if (err) {
-        console.log('Error while trying to retrieve access token', err);
-        return;
+        reject(err);
       }
-      oauth2Client.credentials = token;
-      storeToken(token);
-      callback(oauth2Client);
+      else {
+        resolve(tokens, response);
+      }
     });
   });
 }
@@ -101,32 +129,4 @@ function storeToken(token) {
   }
   fs.writeFile(TOKEN_PATH, JSON.stringify(token));
   console.log('Token stored to ' + TOKEN_PATH);
-}
-
-/**
- * Lists the names and IDs of up to 10 files.
- *
- * @param {google.auth.OAuth2} auth An authorized OAuth2 client.
- */
-function listFiles(auth) {
-  var service = google.drive('v2');
-  service.files.list({
-    auth: auth,
-    maxResults: 10,
-  }, function(err, response) {
-    if (err) {
-      console.log('The API returned an error: ' + err);
-      return;
-    }
-    var files = response.items;
-    if (files.length == 0) {
-      console.log('No files found.');
-    } else {
-      console.log('Files:');
-      for (var i = 0; i < files.length; i++) {
-        var file = files[i];
-        console.log('%s (%s)', file.title, file.id);
-      }
-    }
-  });
 }
