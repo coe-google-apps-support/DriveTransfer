@@ -9,8 +9,8 @@ exports.redirect = function(req, res, next) {
     Auth.oauthCallback(req, res, next);
   }
 
-  if (queryString.state) {
-    console.log ('we got some state here!');
-    res.redirect(queryString.state);
-  }
+  // if (queryString.state) {
+  //   console.log ('we got some state here!');
+  //   res.redirect(queryString.state);
+  // }
 }
