@@ -13,6 +13,7 @@ var readFile = require('../util/promisey-read-file.js').readFile;
 
 // TEMP
 var User = require('../model/user.js');
+var Users = require('../model/authorized-users.js');
 
 // If modifying these scopes, delete your previously saved credentials
 // at ~/.credentials/drive-nodejs-quickstart.json
@@ -27,25 +28,27 @@ var clientPromise = null;
 var client = null;
 var oauthResolve = null;
 var oauthReject = null;
-var user;
+var users;
 
 exports.requireAuth = function(req, res, next) {
   console.log('Setting up user auth.');
-  // res.status(200).json({
-  //   message: 'unimplemented'
-  // });
+
+
+  let user = getUsers().getUser(req.sessionID);
   console.log(user);
   if (user && user.authorized) {
     console.log('User is already logged in.');
     next();
   }
-  else if (req.query.code) {
+  else if (req.query.code) { // TODO
     console.log('User is in the process of logging in.');
     next();
   }
   else {
     console.log('User must log in.');
-    user = new User(SCOPES);
+    let us = getUsers();
+    user = new User(SCOPES, req.sessionID);
+    us.addUser(user);
 
     user.promise.then((result) => {
       console.log('USER RESOLVED');
@@ -61,9 +64,10 @@ exports.requireAuth = function(req, res, next) {
 }
 
 exports.oauthCallback = function(req, res, next) {
-  console.log('OAUTH');
-  console.log(req.query.code);
+  console.log('OAUTH for ' + req.sessionID);
 
+  console.log(getUsers());
+  let user = getUsers().getUser(req.sessionID);
   if (user == null) {
     console.log('BUSTED');
     throw new Error('That user shouldn\'t be null!');
@@ -85,6 +89,14 @@ exports.getClient = function() {
   return user.client;
 };
 
+function getUsers() {
+  if (!users) {
+    users = new Users();
+  }
+
+  return users;
+}
+
 /**
  * Store token to disk be used in later program executions.
  *
@@ -101,3 +113,5 @@ function storeToken(token) {
   fs.writeFile(TOKEN_PATH, JSON.stringify(token));
   console.log('Token stored to ' + TOKEN_PATH);
 }
+
+exports.getUsers = getUsers;

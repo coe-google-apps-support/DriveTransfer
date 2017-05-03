@@ -9,7 +9,7 @@ exports.helloworld = function(req, res, next) {
 }
 
 exports.list = function(req, res, next) {
-  var client = Auth.getClient();
+  var client = Auth.getUsers().getUser(req.sessionID).client;
   console.log(client);
   var drive = Google.drive({ version: 'v3', auth: client });
   drive.files.list({

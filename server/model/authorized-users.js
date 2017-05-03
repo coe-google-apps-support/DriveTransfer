@@ -1,4 +1,4 @@
-exports.AuthorizedUsers = class AuthorizedUsers {
+class AuthorizedUsers {
 
   constructor() {
     console.log('Building user base.');
@@ -10,6 +10,8 @@ exports.AuthorizedUsers = class AuthorizedUsers {
   }
 
   addUser(user) {
-    this.users[user.key] = user;
+    this.users[user.id] = user;
   }
 }
+
+module.exports = AuthorizedUsers;

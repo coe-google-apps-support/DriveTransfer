@@ -2,9 +2,10 @@ var readFile = require('../util/promisey-read-file.js').readFile;
 var OAuth2 = require('googleapis').auth.OAuth2;
 
 class User {
-  constructor(scopes) {
+  constructor(scopes, id) {
     console.log('Building user.');
 
+    this.id = id;
     this.scopes = scopes;
     this.client = null;
     this.clientState = 'unset';
