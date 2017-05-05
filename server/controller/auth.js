@@ -33,7 +33,6 @@ exports.requireAuth = function(req, res, next) {
 
 
   let user = getUsers().getUser(req.sessionID);
-  console.log(user);
   if (user && user.authorized) {
     console.log('User is already logged in.');
     next();
@@ -64,7 +63,6 @@ exports.requireAuth = function(req, res, next) {
 exports.oauthCallback = function(req, res, next) {
   console.log('OAUTH for ' + req.sessionID);
 
-  console.log(getUsers());
   let user = getUsers().getUser(req.sessionID);
   if (user == null) {
     console.log('BUSTED');
