@@ -17,8 +17,7 @@ var Users = require('../model/authorized-users.js');
 
 // https://www.googleapis.com/auth/drive
 var SCOPES = [
-  'https://www.googleapis.com/auth/drive.metadata.readonly',
-  'https://www.googleapis.com/auth/drive.readonly'
+  'https://www.googleapis.com/auth/drive'
 ];
 //var TOKEN_DIR = (process.env.HOME || process.env.HOMEPATH || process.env.USERPROFILE) + '/.credentials/';
 //var TOKEN_PATH = TOKEN_DIR + 'drive-transfer-auth.json';
