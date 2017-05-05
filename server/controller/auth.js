@@ -15,8 +15,7 @@ var readFile = require('../util/promisey-read-file.js').readFile;
 var User = require('../model/user.js');
 var Users = require('../model/authorized-users.js');
 
-// If modifying these scopes, delete your previously saved credentials
-// at ~/.credentials/drive-nodejs-quickstart.json
+// https://www.googleapis.com/auth/drive
 var SCOPES = [
   'https://www.googleapis.com/auth/drive.metadata.readonly',
   'https://www.googleapis.com/auth/drive.readonly'
