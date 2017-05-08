@@ -1,5 +1,3 @@
-const sleep = require('./sleep.js');
-
 function exponentialBackoff(toTry, max, delay) {
   console.log('max', max, 'next delay', delay);
 
