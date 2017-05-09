@@ -8,7 +8,7 @@ const Task = require('./model/task.js');
 const Session = require('express-session');
 
 const sess = {
-  secret: 'keyboard cat',
+  secret: 'fasdkh7f4qjhadf6kashfr347ajpv',
   resave: false,
   saveUninitialized: true
 }
@@ -21,8 +21,6 @@ module.exports = function(app) {
   apiRoutes.get('/list', controller.list);
   apiRoutes.get('/transfer', controller.transfer);
   apiRoutes.get('/reset', (req, res, next) => req.session.destroy);
-  apiRoutes.get('/test', controller.test);
-
 
   const viewRoutes = express.Router();
   viewRoutes.get('/', mainView.view);

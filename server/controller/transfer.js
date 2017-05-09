@@ -5,6 +5,10 @@ const exponentialBackoff = require('../util/exponential-backoff.js');
 const MAX_TRIES = 4;
 const NAPTIME = 2000;
 
+/**
+ * Used to list all files and sub-files.
+ *
+ */
 exports.list = function(req, res, next) {
   let id = req.query.id;
 
@@ -26,6 +30,10 @@ exports.list = function(req, res, next) {
   });
 }
 
+/**
+ * Used to transfer all files and sub-files.
+ *
+ */
 exports.transfer = function(req, res, next) {
   var to = req.query.to;
   var id = req.query.id;
@@ -45,27 +53,11 @@ exports.transfer = function(req, res, next) {
     res.status(200).json({
       message: 'nailed it'
     });
-  }).catch((err) => {
-    console.log(err);
-  });
-}
-
-exports.test = function(req, res, next) {
-  var id = req.query.id;
-  if (id === null || id === '' || id === undefined) {
-    res.status(500).send('Request must contain a valid id.');
-    return;
-  }
-
-  var client = Auth.getUsers().getUser(req.sessionID).client;
-
-  getChildren(client, id).then((result) => {
-
-    res.status(200).json(result);
   }, (err) => {
+    console.log(err);
     res.status(500).send(err);
   });
-};
+}
 
 /**
  * This function recursively moves through a Google Drive given an authenticated client and a folder id.
@@ -95,24 +87,35 @@ function getItems(client, id) {
   });
 }
 
+/**
+ * Applies a function to every descendant starting at the file given by id. Failures are reattempted multiple times.
+ *
+ * @param {Google.auth.OAuth2} client An authenticated client capable of making requests.
+ * @param {string} id The id of a Google Drive folder.
+ * @param {Function} cb A function that returns a Promise. This callback is passed (client, id, param1, param2 ...).
+ * @param {Array<Object>} params Additional params to be passed to cb.
+ * @return {Promise} A Promise that has a JSON object as the result.
+ */
 function applyFunction(client, id, cb, params) {
   let drive = Google.drive({ version: 'v3', auth: client });
-  let folders;
 
-  return getChildren(client, id).then((response) => {
-    folders = response.files.filter((file) => {
-      return file.mimeType === 'application/vnd.google-apps.folder';
-    });
-
-    console.log('Running function on ' + staridtingID);
-    return cb(client, id, ...params);
+  console.log('Running function on ' + id);
+  return cb(client, id, ...params).then((response) => {
+    return getChildren(client, id);
   }).then((response) => {
-    return Promise.all(folders.map((folder) => {
+    return Promise.all(response.files.map((folder) => {
       return applyFunction(client, folder.id, cb, params);
     }));
   });
 }
 
+/**
+ * Gets the children of the file denoted by id.
+ *
+ * @param {Google.auth.OAuth2} client An authenticated client capable of making requests.
+ * @param {string} id The id of a Google Drive file or folder.
+ * @return {Promise} Contains the results of the query.
+ */
 function getChildren(client, id) {
   let drive = Google.drive({ version: 'v3', auth: client });
 
@@ -134,6 +137,8 @@ function getChildren(client, id) {
 
 /**
  * This function changes the owner of a Google Drive file.
+ * TODO Currently, every transfer results in an email AND in a new link to the file
+ * being placed at the root of the users Drive.
  *
  * @param {Google.auth.OAuth2} client An authenticated client capable of making requests.
  * @param {string} id The id of a Google Drive file or folder.
