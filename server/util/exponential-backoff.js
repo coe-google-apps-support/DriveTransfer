@@ -7,7 +7,6 @@
  * @return {Promise} Rejects when toTry has failed max times. Resolves if successful once.
  */
 function exponentialBackoff(toTry, max, delay) {
-  console.log('In expo baby!!');
 
   return toTry().catch((err) => {
     if (max <= 0) {
