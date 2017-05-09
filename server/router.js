@@ -20,6 +20,9 @@ module.exports = function(app) {
   const apiRoutes = express.Router();
   apiRoutes.get('/list', controller.list);
   apiRoutes.get('/transfer', controller.transfer);
+  apiRoutes.get('/reset', (req, res, next) => req.session.destroy);
+  apiRoutes.get('/test', controller.test);
+
 
   const viewRoutes = express.Router();
   viewRoutes.get('/', mainView.view);

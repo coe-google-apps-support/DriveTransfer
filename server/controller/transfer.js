@@ -1,21 +1,27 @@
-var Auth = require('./auth.js');
-var Google = require('googleapis');
+const Auth = require('./auth.js');
+const Google = require('googleapis');
+const exponentialBackoff = require('../util/exponential-backoff.js');
+
+const MAX_TRIES = 4;
+const NAPTIME = 2000;
 
 exports.list = function(req, res, next) {
-  var id = req.query.id;
+  let id = req.query.id;
 
   if (id === null || id === '' || id === undefined) {
     res.status(500).send('Request must contain a valid id.');
     return;
   }
 
-  var client = Auth.getUsers().getUser(req.sessionID).client;
+  let client = Auth.getUsers().getUser(req.sessionID).client;
 
   getItems(client, id).then((result) => {
+    console.log('Finished loading.');
     res.status(200).json({
       message: result
     });
   }, (err) => {
+    res.status(500).send(err);
     console.log(err);
   });
 }
@@ -35,15 +41,31 @@ exports.transfer = function(req, res, next) {
 
   var client = Auth.getUsers().getUser(req.sessionID).client;
 
-  changeOwner(client, id, to).then((result) => {
-
+  applyFunction(client, id, changeOwner, [to]).then((result) => {
     res.status(200).json({
-      message: result
+      message: 'nailed it'
     });
-  }, (err) => {
+  }).catch((err) => {
     console.log(err);
   });
 }
+
+exports.test = function(req, res, next) {
+  var id = req.query.id;
+  if (id === null || id === '' || id === undefined) {
+    res.status(500).send('Request must contain a valid id.');
+    return;
+  }
+
+  var client = Auth.getUsers().getUser(req.sessionID).client;
+
+  getChildren(client, id).then((result) => {
+
+    res.status(200).json(result);
+  }, (err) => {
+    res.status(500).send(err);
+  });
+};
 
 /**
  * This function recursively moves through a Google Drive given an authenticated client and a folder id.
@@ -58,30 +80,56 @@ exports.transfer = function(req, res, next) {
  * @return {Promise} A Promise that has a JSON object as the result.
  */
 function getItems(client, id) {
-  var drive = Google.drive({ version: 'v3', auth: client });
+  let drive = Google.drive({ version: 'v3', auth: client });
+  let files;
 
-  return new Promise((resolve, reject) => {
-    drive.files.list({
-      q: '\'' + id + '\' in parents'
-    }, function(err, response) {
-      if (err) {
-        reject(err);
-        return;
-      }
-
-      let folders = response.files.filter((file) => {
-        return file.mimeType === 'application/vnd.google-apps.folder';
+  return getChildren(client, id).then((response) => {
+    files = response
+    return Promise.all(response.files.map((folder) => {
+      return getItems(client, folder.id).then((subs) => {
+        folder.children = subs.files;
       });
+    }));
+  }).then(() => {
+    return files;
+  });
+}
 
-      Promise.all(folders.map((folder) => {
-        return getItems(client, folder.id).then((subs) => {
-          folder.children = subs.files;
-        });
-      })).then((result) => {
+function applyFunction(client, id, cb, params) {
+  let drive = Google.drive({ version: 'v3', auth: client });
+  let folders;
+
+  return getChildren(client, id).then((response) => {
+    folders = response.files.filter((file) => {
+      return file.mimeType === 'application/vnd.google-apps.folder';
+    });
+
+    console.log('Running function on ' + staridtingID);
+    return cb(client, id, ...params);
+  }).then((response) => {
+    return Promise.all(folders.map((folder) => {
+      return applyFunction(client, folder.id, cb, params);
+    }));
+  });
+}
+
+function getChildren(client, id) {
+  let drive = Google.drive({ version: 'v3', auth: client });
+
+  return exponentialBackoff(() => {
+    return new Promise((resolve, reject) => {
+      drive.files.list({
+        q: '\'' + id + '\' in parents'
+      }, function(err, response) {
+        if (err != null) {
+          reject(err);
+          return;
+        }
+
         resolve(response);
       });
     });
-  })
+  }, MAX_TRIES, NAPTIME);
 }
 
 /**
@@ -93,24 +141,26 @@ function getItems(client, id) {
  * @return {Promise} A Promise that has a JSON object as the result.
  */
 function changeOwner(client, id, to) {
-  var drive = Google.drive({ version: 'v3', auth: client });
+  let drive = Google.drive({ version: 'v3', auth: client });
 
-  return new Promise((resolve, reject) => {
-    drive.permissions.create({
-      fileId: id,
-      transferOwnership: true,
-      resource: {
-        emailAddress: to,
-        role: 'owner',
-        type: 'user'
-      }
-    }, (err, response) => {
-      if (err) {
-        reject(err);
-        return;
-      }
+  return exponentialBackoff(() => {
+    return new Promise((resolve, reject) => {
+      drive.permissions.create({
+        fileId: id,
+        transferOwnership: true,
+        resource: {
+          emailAddress: to,
+          role: 'owner',
+          type: 'user'
+        }
+      }, function(err, response) {
+        if (err != null) {
+          reject(err);
+          return;
+        }
 
-      resolve(response);
+        resolve(response);
+      });
     });
-  });
+  }, MAX_TRIES, NAPTIME);
 }
