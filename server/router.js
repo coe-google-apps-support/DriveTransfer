@@ -18,15 +18,15 @@ module.exports = function(app) {
   app.use(Session(sess));  // Use req.session to get and set user-specific properties.
 
   const apiRoutes = express.Router();
-  apiRoutes.get('/list', controller.list);
-  apiRoutes.get('/transfer', controller.transfer);
-  apiRoutes.get('/reset', (req, res, next) => req.session.destroy);
+  apiRoutes.get('/list', authAPI.requireAuth, controller.list);
+  apiRoutes.get('/transfer', authAPI.requireAuth, controller.transfer);
+  apiRoutes.get('/reset', (req) => req.session.destroy);
 
   const viewRoutes = express.Router();
   viewRoutes.get('/', mainView.view);
-  viewRoutes.get('/redirect', Redirect.redirect);
 
-  app.all('*', authAPI.requireAuth);
   app.use('/api', apiRoutes);
-  app.use('/', viewRoutes);
+  app.use('/view', viewRoutes);
+  app.use('/redirect', Redirect.redirect);
+  app.use('/auth', authAPI.requireAuth);
 }

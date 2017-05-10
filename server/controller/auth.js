@@ -11,11 +11,9 @@ var Google = require('googleapis');
 var OAuth2 = Google.auth.OAuth2;
 var readFile = require('../util/promisey-read-file.js').readFile;
 
-// TEMP
 var User = require('../model/user.js');
 var Users = require('../model/authorized-users.js');
 
-// https://www.googleapis.com/auth/drive
 var SCOPES = [
   'https://www.googleapis.com/auth/drive'
 ];
