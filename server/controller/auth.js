@@ -54,7 +54,7 @@ exports.requireAuth = function(req, res, next) {
     });
 
     user.createBasicClient().then((result) => {
-      var url = user.getURL(req.originalUrl);
+      let url = user.getURL(req.originalUrl);
       res.redirect(url);
     });
   }
@@ -65,8 +65,10 @@ exports.oauthCallback = function(req, res, next) {
 
   let user = getUsers().getUser(req.sessionID);
   if (user == null) {
-    console.log('BUSTED');
-    throw new Error('That user shouldn\'t be null!');
+    let err = new Error('Your session couldn\'t be found');
+    res.status(500).send(err);
+    console.log(err);
+    return;
   }
 
   user.getToken(req.query.code);
