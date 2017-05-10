@@ -16,7 +16,9 @@
     "google-auth-library": "^0.10.0",
     "googleapis": "^19.0.0",
     "morgan": "^1.8.1",
-    "nodemon": "^1.11.0"
+    "nodemon": "^1.11.0",
+    "request": "^2.81.0",
+    "request-promise-native": "^1.0.4"
   },
   "devDependencies": {
     "chai": "^3.5.0",

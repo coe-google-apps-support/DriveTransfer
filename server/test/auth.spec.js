@@ -3,31 +3,36 @@ const express = require('express');
 const auth = require('../controller/auth.js');
 const router = require('../router.js');
 const http = require('../util/promisey-http.js');
+const rp = require('request-promise-native');
+//const
 const app = express();
 
-const port = 3000;
+const port = 8000;
 const options = {
   host: 'localhost',
   path: '/api/auth'
 }
 let client;
+let server;
 
 before(() => {
   router(app);
 
-  app.listen(port);
+  server = app.listen(port);
 });
 
 describe('Establish OAuth', function() {
   it('establishes an oauthed client', () =>  {
-    /*return http.get('http://localhost:3000/api/auth').then((result) => {
-      expect(result.statusCode).to.be(200);
+    return rp('http://localhost:8000').then((result) => {
+      //console.log(result);
+      let client = auth.getUsers().getUser(result.req.sessionID).client;
+      expect(result.statusCode).to.be.equal(200);
     }, (err) => {
       throw err;
-    });*/
+    });
   });
 });
 
 after(() => {
-  app.close();
+  server.close();
 })
