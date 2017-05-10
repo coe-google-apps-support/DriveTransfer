@@ -169,3 +169,8 @@ function changeOwner(client, id, to) {
     });
   }, MAX_TRIES, NAPTIME);
 }
+
+exports.getChildren = getChildren;
+exports.changeOwner = changeOwner;
+exports.applyFunction = applyFunction;
+exports.getItems = getItems;
