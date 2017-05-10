@@ -6,6 +6,7 @@ const authAPI = require('./controller/auth.js');
 const Redirect = require('./controller/redirect.js');
 const Task = require('./model/task.js');
 const Session = require('express-session');
+const logger = require('morgan');
 
 const sess = {
   secret: 'fasdkh7f4qjhadf6kashfr347ajpv',
@@ -16,6 +17,7 @@ const sess = {
 module.exports = function(app) {
   app.use(express.static(path.resolve(__dirname, '..', 'client', 'src', 'static')));
   app.use(Session(sess));  // Use req.session to get and set user-specific properties.
+  app.use(logger('dev'));
 
   const apiRoutes = express.Router();
   apiRoutes.get('/list', authAPI.requireAuth, controller.list);
