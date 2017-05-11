@@ -2,6 +2,7 @@ import React from 'react';
 import Paper from 'material-ui/Paper';
 import TextField from 'material-ui/TextField';
 import RaisedButton from 'material-ui/RaisedButton';
+import TransferService from '../services/transfer.js';
 import {grey600} from 'material-ui/styles/colors';
 
 const baseDisplay = {
@@ -29,13 +30,15 @@ class Main extends React.Component {
     super(props);
     this.state = {
       disabled: false,
-      folderID: ''
+      folderID: '',
+      transferService: new TransferService()
     };
   }
 
   startTransfer() {
     this.setState({disabled: true});
     console.log('Value: ' + this.state.folderID);
+    this.state.transferService.getList(this.state.folderID);
   }
 
   setFolderID(event) {
