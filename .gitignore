@@ -1,5 +1,6 @@
 # Build files
-client/src/static/bundle.js
+bundle.js
+bundle.min.js
 
 # Secrets
 client_secret*
