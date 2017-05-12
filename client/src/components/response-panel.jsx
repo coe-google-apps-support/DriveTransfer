@@ -41,7 +41,7 @@ class ResponsePanel extends React.Component {
         <div style={dockStyle}>
           <FlatButton label="X" secondary={true} onClick={this.close} />
           <h1 style={bigTextStyle}>Response Data</h1>
-          <pre>{this.state.response}</pre>
+          <pre>{JSON.stringify(this.state.response, null, 2)}</pre>
         </div>
       </Dock>
     )
