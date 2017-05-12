@@ -51,7 +51,7 @@ exports.transfer = function(req, res, next) {
 
   applyFunction(client, id, changeOwner, [to]).then((result) => {
     res.status(200).json({
-      message: 'nailed it'
+      message: result
     });
   }, (err) => {
     console.log(err);
@@ -98,14 +98,21 @@ function getItems(client, id) {
  */
 function applyFunction(client, id, cb, params) {
   let drive = Google.drive({ version: 'v3', auth: client });
+  let responses = [];
 
   console.log('Running function on ' + id);
   return cb(client, id, ...params).then((response) => {
+    response.fileID = id;
+    responses.push(response);
     return getChildren(client, id);
   }).then((response) => {
     return Promise.all(response.files.map((folder) => {
       return applyFunction(client, folder.id, cb, params);
-    }));
+    })).then((newResponses) => {
+      responses.push(...newResponses);
+    });
+  }).then(() => {
+    return responses;
   });
 }
 
