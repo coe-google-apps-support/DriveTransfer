@@ -4,6 +4,7 @@ import TextField from 'material-ui/TextField';
 import RaisedButton from 'material-ui/RaisedButton';
 import TransferService from '../services/transfer.js';
 import {grey600} from 'material-ui/styles/colors';
+import State from '../model/state.js'
 
 const baseDisplay = {
   display: 'flex',
@@ -28,6 +29,9 @@ class Main extends React.Component {
 
   constructor(props) {
     super(props);
+
+    State.subscribe(this);
+
     this.state = {
       disabled: false,
       folderID: '',
@@ -36,13 +40,16 @@ class Main extends React.Component {
   }
 
   startTransfer() {
+    State.setState({
+      responseVisible: true,
+      selectedIndex: 1
+    });
     this.setState({disabled: true});
-    console.log('Value: ' + this.state.folderID);
     this.state.transferService.getList(this.state.folderID);
   }
 
   setFolderID(event) {
-    this.setState({folderID: event.target.value})
+    State.setState({folderID: event.target.value})
   }
 
   render () {
@@ -50,8 +57,13 @@ class Main extends React.Component {
       <Paper zDepth={0} style={baseDisplay}>
         <img width='200px' height='200px' src='icon.png'/>
         <h1 style={textStyle}>Drive Transfer</h1>
-        <TextField hintText='Folder ID' value={this.state.folderID} onChange={(e) => this.setFolderID(e)}/>
-        <RaisedButton disabled={this.state.disabled} label='Start' primary={true} style={buttonStyle} onTouchTap={(e) => this.startTransfer(e)}/>
+        <TextField hintText='Folder ID' value={this.state.folderID} onChange={this.setFolderID.bind(this)}/>
+        <RaisedButton
+          disabled={this.state.disabled}
+          label='Start'
+          primary={true}
+          style={buttonStyle}
+          onTouchTap={this.startTransfer.bind(this)}/>
       </Paper>
     );
   }

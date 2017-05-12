@@ -6,6 +6,7 @@ import {grey800} from 'material-ui/styles/colors';
 import BottomBar from './bottom-bar.jsx';
 import injectTapEventPlugin from 'react-tap-event-plugin';
 import Main from './main.jsx';
+import ResponsePanel from './response-panel.jsx';
 
 const muiTheme = getMuiTheme({
   bottomNavigation: {
@@ -25,12 +26,21 @@ const fillScreenStyle = {
 injectTapEventPlugin();
 
 class App extends React.Component {
+  contructor() {
+
+  }
+
+  triggerService(value) {
+    console.log(value);
+  }
+
   render () {
     return (
       <MuiThemeProvider muiTheme={muiTheme}>
         <div style={fillScreenStyle}>
           <Main></Main>
           <BottomBar/>
+          <ResponsePanel />
         </div>
       </MuiThemeProvider>
     );

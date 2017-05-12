@@ -3,6 +3,7 @@ import FontIcon from 'material-ui/FontIcon';
 import FontAwesome from 'react-fontawesome';
 import {BottomNavigation, BottomNavigationItem} from 'material-ui/BottomNavigation';
 import Paper from 'material-ui/Paper';
+import State from '../model/state.js';
 
 const iconStyle = {
   fontSize: '24px',
@@ -31,10 +32,31 @@ class BottomNavigationExampleSimple extends Component {
   constructor(props) {
     super(props);
     this.state = {selectedIndex: -1};
+    State.subscribe(this);
   }
 
-  select(index) {
-    this.setState({selectedIndex: index});
+  toggleSelect(index) {
+    if (this.state.selectedIndex === index) {
+      this.setState({selectedIndex: -1});
+    }
+    else {
+      this.setState({selectedIndex: index});
+    }
+  }
+
+  toggleSelectAndPanel(index) {
+    if (this.state.selectedIndex === index) {
+      State.setState({
+        responseVisible: false,
+        selectedIndex: -1
+      });
+    }
+    else {
+      State.setState({
+        responseVisible: true,
+        selectedIndex: index
+      });
+    }
   }
 
   render() {
@@ -44,22 +66,22 @@ class BottomNavigationExampleSimple extends Component {
           <BottomNavigationItem
             label="Support"
             icon={supportIcon}
-            onTouchTap={() => this.select(0)}
+            onTouchTap={() => this.toggleSelect(0)}
           />
           <BottomNavigationItem
             label="Code"
             icon={codeIcon}
-            onTouchTap={() => this.select(1)}
+            onTouchTap={() => this.toggleSelectAndPanel(1)}
           />
           <BottomNavigationItem
             label="Nearby"
             icon={nearbyIcon}
-            onTouchTap={() => this.select(2)}
+            onTouchTap={() => this.toggleSelect(2)}
           />
           <BottomNavigationItem
             label="Github"
             icon={githubIcon}
-            onTouchTap={() => this.select(3)}
+            onTouchTap={() => this.toggleSelect(3)}
           />
         </BottomNavigation>
       </Paper>

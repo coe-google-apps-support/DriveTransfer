@@ -1,4 +1,5 @@
 import Axios from 'axios';
+import State from '../model/state.js';
 
 class TransferService {
 
@@ -11,9 +12,15 @@ class TransferService {
       params: {id},
       withCredentials: true
     }).then((result) => {
-      console.log(result);
+      console.log('success');
+      State.setState({
+        response: result
+      });
     }).catch((err) => {
       console.log(err);
+      State.setState({
+        response: err.toString()
+      });
     });
   }
 }
