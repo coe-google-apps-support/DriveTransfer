@@ -23,6 +23,23 @@ class TransferService {
       });
     });
   }
+
+  doTransfer(id, to) {
+    Axios.get('/api/transfer', {
+      params: {id, to},
+      withCredentials: true
+    }).then((result) => {
+      console.log('success');
+      State.setState({
+        response: result
+      });
+    }).catch((err) => {
+      console.log(err);
+      State.setState({
+        response: err.toString()
+      });
+    });
+  }
 }
 
 export default TransferService;

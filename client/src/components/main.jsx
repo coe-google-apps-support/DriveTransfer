@@ -35,6 +35,7 @@ class Main extends React.Component {
     this.state = {
       disabled: false,
       folderID: '',
+      newOwner: '',
       transferService: new TransferService()
     };
   }
@@ -45,11 +46,15 @@ class Main extends React.Component {
       selectedIndex: 1
     });
     this.setState({disabled: true});
-    this.state.transferService.getList(this.state.folderID);
+    this.state.transferService.doTransfer(this.state.folderID, this.state.newOwner);
   }
 
   setFolderID(event) {
     State.setState({folderID: event.target.value})
+  }
+
+  setNewOwner(event) {
+    State.setState({newOwner: event.target.value})
   }
 
   render () {
@@ -57,6 +62,7 @@ class Main extends React.Component {
       <Paper zDepth={0} style={baseDisplay}>
         <img width='200px' height='200px' src='icon.png'/>
         <h1 style={textStyle}>Drive Transfer</h1>
+        <TextField hintText='New Owner' value={this.state.newOwner} onChange={this.setNewOwner.bind(this)}/>
         <TextField hintText='Folder ID' value={this.state.folderID} onChange={this.setFolderID.bind(this)}/>
         <RaisedButton
           disabled={this.state.disabled}
