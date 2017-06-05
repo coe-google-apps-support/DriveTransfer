@@ -19,7 +19,6 @@ const sitAtBottom = {
 
 const supportIcon = <FontIcon style={iconStyle} className="material-icons">help</FontIcon>;
 const codeIcon = <FontIcon style={iconStyle} className="material-icons">code</FontIcon>;
-const nearbyIcon = <FontIcon style={iconStyle} className="material-icons">location_on</FontIcon>;
 const githubIcon = <FontAwesome style={iconStyle} name="github" />
 
 /**
@@ -74,14 +73,9 @@ class BottomNavigationExampleSimple extends Component {
             onTouchTap={() => this.toggleSelectAndPanel(1)}
           />
           <BottomNavigationItem
-            label="Nearby"
-            icon={nearbyIcon}
-            onTouchTap={() => this.toggleSelect(2)}
-          />
-          <BottomNavigationItem
             label="Github"
             icon={githubIcon}
-            onTouchTap={() => this.toggleSelect(3)}
+            onTouchTap={() => this.toggleSelect(2)}
           />
         </BottomNavigation>
       </Paper>
