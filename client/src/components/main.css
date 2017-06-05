@@ -1,0 +1,16 @@
+.hideable {
+  -webkit-transition: 0.5s;
+  -moz-transition: 0.5s;
+  -o-transition: 0.5s;
+  transition: 0.5s;
+}
+
+.hideable.hidden {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.hideable.show {
+  opacity: 1;
+  visibility: visible;
+}
