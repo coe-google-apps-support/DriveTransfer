@@ -81,11 +81,7 @@ exports.oauthCallback = function(req, res, next) {
 
 }
 
-exports.getClient = function() {
-  return user.client;
-};
-
-function getUsers() {
+getUsers = function() {
   if (!users) {
     users = new Users();
   }

@@ -19,6 +19,7 @@ module.exports = function(app) {
   app.use(Session(sess));  // Use req.session to get and set user-specific properties.
   app.use(logger('dev'));
   app.use(cors());
+  app.set('view engine', 'ejs');
 
   app.get('/api/list', authAPI.requireAuth, controller.list);
   app.get('/api/transfer', authAPI.requireAuth, controller.transfer);
