@@ -4,6 +4,7 @@ import FlatButton from 'material-ui/FlatButton';
 import TextField from 'material-ui/TextField';
 import FontIcon from 'material-ui/FontIcon';
 import Paper from 'material-ui/Paper';
+import {validate} from 'email-validator';
 
 import State from '../model/state.js';
 
@@ -11,7 +12,6 @@ const styles = {
   root: {
     width: '100%',
     maxWidth: '400px',
-    height: '200px',
     display: '-webkit-box',
     display: '-moz-box',
     display: '-ms-flexbox',
@@ -33,30 +33,22 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    flex: 1,
+    flexDirection: 'column',
   },
   actions: {
-    marginTop: '12px',
+    margin: '24px 0px',
     display: '-webkit-box',
     display: '-moz-box',
     display: '-ms-flexbox',
     display: '-webkit-flex',
     display: 'flex',
     alignItems: 'center',
+    justifyContent: 'center',
   },
   folderPicker: {
-    display: '-webkit-box',
-    display: '-moz-box',
-    display: '-ms-flexbox',
-    display: '-webkit-flex',
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: '12px',
-    cursor: 'pointer',
-  },
-  backButton: {
-    marginRight: '12px',
+    height: '100px',
+    width: '300px',
+    margin: '12px 0px',
   },
 };
 
@@ -65,101 +57,83 @@ class Wizard extends React.Component {
   constructor(props) {
     super(props);
 
-    this.handleNext = this.handleNext.bind(this);
-    this.handlePrev = this.handlePrev.bind(this);
-
     this.state = {
-      stepIndex: 0,
-      stepDisabled: false,
-      finished: false,
-      newOwner: '',
+      startEnabled: true,
+      email: '',
       folder: '',
+      emailError: '',
+      validate: false,
     };
   };
 
-  handleNext() {
-    const {stepIndex} = this.state;
+  handleStart() {
+    // Cause validation
+    this.setState({
+      validate: true,
+    });
 
-    if (stepIndex + 1 >= 2) {
-      this.setState({
-        stepDisabled: true,
-        finished: true,
-      });
-    }
-    else {
-      this.setState({
-        stepIndex: stepIndex + 1,
-      });
-    }
+
+    this.validateEmailNow(this.state.email);
+
+    // If successful, make callback
   };
-
-  handlePrev() {
-    const {stepIndex} = this.state;
-
-    if (stepIndex > 0) {
-      this.setState({
-        stepIndex: stepIndex - 1,
-      });
-    }
-  };
-
-  setNewOwner(event) {
-    State.setState({newOwner: event.target.value});
-  }
-
+  
   selectFolder() {
     console.log('OPENING FOLDER PICKER');
   }
 
-  getStepContent(stepIndex) {
-    switch (stepIndex) {
-      case 0:
-      return (
-        <TextField hintText='New Owner' />
-      );
+  validateEmailNow(address) {
+    console.log('validating ' + address);
+    if (!validate(address)) {
+      this.setState({
+        emailError: `${address} is not a valid email`,
+      });
+    }
+    else {
+      this.setState({
+        emailError: '',
+      });
+    }
+  }
 
-      case 1:
-      return (
-        <FlatButton style={{
-          height: '100px',
-          width: '300px',
-        }} onClick={this.selectFolder.bind(this)}>
-          <FontIcon style={styles.icon} className="material-icons">folder</FontIcon>
-          <div>Select folder</div>
-        </FlatButton>
-      );
+  validateEmail(e) {
+    const address = e.target.value;
 
-      default:
-      return (
-        <Paper style={styles.folderPicker} zDepth={1} onClick={this.selectFolder.bind(this)}>
-          <FontIcon style={styles.icon} className="material-icons">folder</FontIcon>
-          <div>Select folder</div>
-        </Paper>
-      );
+    this.setState({
+      email: address,
+    });
+
+    if (this.state.validate) {
+      this.validateEmailNow(address);
+    }
+    else {
+      console.log('not validating');
+      return true;
     }
   }
 
   render() {
-    const {stepIndex, stepDisabled} = this.state;
-
     return (
       <div style={styles.root} className={this.props.className}>
         <div style={styles.content}>
-          {this.getStepContent(stepIndex)}
+
+          <FlatButton style={styles.folderPicker} onClick={this.selectFolder.bind(this)}>
+            <FontIcon style={styles.icon} className="material-icons">folder</FontIcon>
+            <div>Select folder</div>
+          </FlatButton>
+
+          <TextField
+            hintText='New Owner'
+            errorText={this.state.emailError}
+            onChange={this.validateEmail.bind(this)}/>
         </div>
         <div >
           <div style={styles.actions}>
-            <FlatButton
-              label="Back"
-              disabled={stepIndex === 0 || stepDisabled}
-              onTouchTap={this.handlePrev}
-              style={{marginRight: 12}}
-            />
             <RaisedButton
-              disabled={stepDisabled}
-              label={stepIndex === 1 ? 'Start' : 'Next'}
+              disabled={!this.state.startEnabled}
+              label={'Start'}
               primary={true}
-              onTouchTap={this.handleNext}
+              onTouchTap={this.handleStart.bind(this)}
             />
           </div>
         </div>
