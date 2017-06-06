@@ -36,11 +36,14 @@
     "react-dock": "^0.2.4",
     "react-dom": "^15.4.2",
     "react-fontawesome": "^1.6.1",
+    "react-motion": "^0.5.0",
     "react-tap-event-plugin": "^2.0.1",
     "webpack": "^2.2.1"
   },
   "devDependencies": {
     "babel-cli": "^6.24.1",
-    "react-router": "^4.1.1"
+    "css-loader": "^0.28.4",
+    "react-router": "^4.1.1",
+    "style-loader": "^0.18.2"
   }
 }
