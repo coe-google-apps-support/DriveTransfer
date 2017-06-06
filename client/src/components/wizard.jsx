@@ -72,12 +72,14 @@ class Wizard extends React.Component {
       validate: true,
     });
 
-
-    this.validateEmailNow(this.state.email);
+    const valid = this.validateEmailNow(this.state.email);
 
     // If successful, make callback
+    if (valid) {
+      console.log('Handling callback.')
+    }
   };
-  
+
   selectFolder() {
     console.log('OPENING FOLDER PICKER');
   }
@@ -88,11 +90,13 @@ class Wizard extends React.Component {
       this.setState({
         emailError: `${address} is not a valid email`,
       });
+      return false;
     }
     else {
       this.setState({
         emailError: '',
       });
+      return true;
     }
   }
 
