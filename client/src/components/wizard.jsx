@@ -84,8 +84,9 @@ class Wizard extends React.Component {
     }
   };
 
-  test() {
+  test(data) {
     console.log('TESSSSSST123');
+    console.log(data);
   }
 
   selectFolder() {
