@@ -4,6 +4,7 @@ const controller = require('./controller/transfer.js');
 const mainView = require('./view/main.js');
 const authAPI = require('./controller/auth.js');
 const Redirect = require('./controller/redirect.js');
+const reset = require('./controller/reset.js').reset;
 const Task = require('./model/task.js');
 const Session = require('express-session');
 const logger = require('morgan');
@@ -23,7 +24,7 @@ module.exports = function(app) {
 
   app.get('/api/list', authAPI.requireAuth, controller.list);
   app.get('/api/transfer', authAPI.requireAuth, controller.transfer);
-  app.get('/api/reset', (req) => req.session.destroy);
+  app.get('/api/reset', reset);
 
   app.get('/view', authAPI.requireAuth, mainView.view);
 

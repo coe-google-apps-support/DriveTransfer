@@ -7,6 +7,7 @@ import Paper from 'material-ui/Paper';
 import {validate} from 'email-validator';
 
 import State from '../model/state.js';
+import load from '../util/api-load.js';
 
 const styles = {
   root: {
@@ -64,6 +65,8 @@ class Wizard extends React.Component {
       emailError: '',
       validate: false,
     };
+
+    this.pickerPromise = load('picker');
   };
 
   handleStart() {
@@ -77,11 +80,26 @@ class Wizard extends React.Component {
     // If successful, make callback
     if (valid) {
       console.log('Handling callback.')
+
     }
   };
 
+  test() {
+    console.log('TESSSSSST123');
+  }
+
   selectFolder() {
     console.log('OPENING FOLDER PICKER');
+    this.pickerPromise.then(() => {
+      const token = client.credentials.access_token;
+
+      let picker = new google.picker.PickerBuilder()
+        .addView(google.picker.ViewId.FOLDERS)
+        .setOAuthToken(token)
+        .setCallback(this.test.bind(this))
+        .build();
+      picker.setVisible(true);
+    });
   }
 
   validateEmailNow(address) {
