@@ -79,14 +79,29 @@ class Wizard extends React.Component {
 
     // If successful, make callback
     if (valid) {
-      console.log('Handling callback.')
-
+      console.log('Handling callback.');
     }
   };
 
-  test(data) {
+  folderSelected(data) {
     console.log('TESSSSSST123');
     console.log(data);
+    console.log(google.picker.Action);
+
+    const action = data[google.picker.Response.ACTION];
+    if (action === google.picker.Action.CANCEL) {
+      console.log('cancelled');
+    }
+    else if(action === google.picker.Action.PICKED) {
+      const document = data.docs[0];
+      const id = document.id;
+      const title = document.name;
+
+      console.log(`picked ${id}`);
+    }
+    else {
+      console.log('Unknown type: ' + action);
+    }
   }
 
   selectFolder() {
@@ -94,10 +109,16 @@ class Wizard extends React.Component {
     this.pickerPromise.then(() => {
       const token = client.credentials.access_token;
 
+      let view = new google.picker.DocsView(google.picker.ViewId.FOLDERS)
+        .setIncludeFolders(true)
+        .setSelectFolderEnabled(true);
+
       let picker = new google.picker.PickerBuilder()
-        .addView(google.picker.ViewId.FOLDERS)
+        .addView(view)
         .setOAuthToken(token)
-        .setCallback(this.test.bind(this))
+        .setCallback(this.folderSelected.bind(this))
+        .setOrigin(window.location.protocol + '//' + window.location.host)
+        .setMaxItems(1)
         .build();
       picker.setVisible(true);
     });
