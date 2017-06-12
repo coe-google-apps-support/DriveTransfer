@@ -1,26 +1,58 @@
 import React from 'react';
-import {
-  Step,
-  Stepper,
-  StepLabel,
-} from 'material-ui/Stepper';
 import RaisedButton from 'material-ui/RaisedButton';
 import FlatButton from 'material-ui/FlatButton';
+import TextField from 'material-ui/TextField';
+import FontIcon from 'material-ui/FontIcon';
+import {validate} from 'email-validator';
+
+import State from '../model/state.js';
+import load from '../util/api-load.js';
 
 const styles = {
   root: {
     width: '100%',
-    maxWidth: 700,
+    maxWidth: '400px',
+    display: '-webkit-box',
+    display: '-moz-box',
+    display: '-ms-flexbox',
+    display: '-webkit-flex',
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  icon: {
+    fontSize: '48px',
+    color: 'rgb(66, 66, 66)',
+    margin: '12px',
   },
   content: {
     margin: '0 16px',
+    display: '-webkit-box',
+    display: '-moz-box',
+    display: '-ms-flexbox',
+    display: '-webkit-flex',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'column',
   },
   actions: {
-    marginTop: 12,
+    margin: '24px 0px',
+    display: '-webkit-box',
+    display: '-moz-box',
+    display: '-ms-flexbox',
+    display: '-webkit-flex',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  backButton: {
-    marginRight: 12,
+  folderPicker: {
+    height: '100px',
+    width: '300px',
+    margin: '12px 0px',
   },
+  error: {
+    color: 'rgb(244, 67, 54)',
+  }
 };
 
 class Wizard extends React.Component {
@@ -28,83 +60,167 @@ class Wizard extends React.Component {
   constructor(props) {
     super(props);
 
-    this.handleNext = this.handleNext.bind(this);
-    this.handlePrev = this.handlePrev.bind(this);
-
     this.state = {
-      finished: false,
-      stepIndex: 0,
+      startEnabled: true,
+      email: '',
+      folder: {
+        title: 'Select folder',
+      },
+      emailError: '',
+      folderError: false,
+      validate: false,
     };
+
+    this.pickerPromise = load('picker');
+    this.onStart = props.onStart;
   };
 
-  handleNext() {
-    const {stepIndex} = this.state;
-
+  /**
+   * Occurs when a transfer is initiated. Input is validate here.
+   *
+   */
+  handleStart() {
+    // Cause validation
     this.setState({
-      stepIndex: stepIndex + 1,
-      finished: stepIndex >= 2,
+      validate: true,
     });
-  };
 
-  handlePrev() {
-    const {stepIndex} = this.state;
-
-    if (stepIndex > 0) {
-      this.setState({
-        stepIndex: stepIndex - 1,
-      });
+    const validEmail = this.validateEmailNow(this.state.email);
+    const validFolder = this.validateFolder();
+    // If successful, make callback
+    if (validEmail && validFolder) {
+      console.log('Handling callback.');
+      this.onStart(this.state.folder.id, this.state.email);
     }
   };
 
-  getStepContent(stepIndex) {
-    switch (stepIndex) {
-      case 0:
-      return 'Select campaign settings...';
+  /**
+   * Called when the user has selected a folder.
+   *
+   * @param {Object} data An Object containing information related to the selection.
+   */
+  folderSelected(data) {
+    const action = data[google.picker.Response.ACTION];
 
-      case 1:
-      return 'What is an ad group anyways?';
+    if(action === google.picker.Action.PICKED) {
+      const document = data.docs[0];
+      const id = document.id;
+      const title = document.name;
 
-      case 2:
-      return 'This is the bit I really care about!';
+      this.setState({
+        folder: {
+          id,
+          title,
+        },
+        folderError: false,
+      })
+    }
+    else {
+      console.log('Unknown type: ' + action);
+    }
+  }
 
-      default:
-      return 'You\'re a long way from home sonny jim!';
+  /**
+   * This is called when the folder picker is needed.
+   *
+   */
+  buildPicker() {
+    this.pickerPromise.then(() => {
+      const token = client.credentials.access_token;
+
+      let view = new google.picker.DocsView(google.picker.ViewId.FOLDERS)
+        .setIncludeFolders(true)
+        .setSelectFolderEnabled(true);
+
+      let picker = new google.picker.PickerBuilder()
+        .addView(view)
+        .setOAuthToken(token)
+        .setCallback(this.folderSelected.bind(this))
+        .setOrigin(window.location.protocol + '//' + window.location.host)
+        .setMaxItems(1)
+        .build();
+      picker.setVisible(true);
+    });
+  }
+
+  /**
+   * Ensures the user has selected a folder to transfer.
+   *
+   * @return {boolean} True if the folder has been selected.
+   */
+  validateFolder() {
+    if (this.state.folder.id == null) {
+      console.log('Please select a folder');
+      this.setState({
+        folderError: true,
+      })
+      return false;
+    }
+
+    return true;
+  }
+
+  /**
+   * A non-event driven way to validate the new owner's email.
+   *
+   * @param {string} address The email address of the new owner.
+   * @return {boolean} True if the address is valid.
+   */
+  validateEmailNow(address) {
+    if (!validate(address)) {
+      this.setState({
+        emailError: `${address} is not a valid email`,
+      });
+      return false;
+    }
+    else {
+      this.setState({
+        emailError: '',
+      });
+      return true;
+    }
+  }
+
+  /**
+   * Validates an input's text as an email.
+   *
+   * @param {Event} e The event object.
+   */
+  validateEmail(e) {
+    const address = e.target.value;
+
+    this.setState({
+      email: address,
+    });
+
+    if (this.state.validate) {
+      this.validateEmailNow(address);
     }
   }
 
   render() {
-    const {finished, stepIndex} = this.state;
-    const contentStyle = {margin: '0 16px'};
-
     return (
       <div style={styles.root} className={this.props.className}>
-        <Stepper activeStep={stepIndex}>
-          <Step>
-            <StepLabel>Select campaign settings</StepLabel>
-          </Step>
-          <Step>
-            <StepLabel>Create an ad group</StepLabel>
-          </Step>
-          <Step>
-            <StepLabel>Create an ad</StepLabel>
-          </Step>
-        </Stepper>
-        <div style={contentStyle}>
-          <div>
-            <p>{this.getStepContent(stepIndex)}</p>
-            <div style={{marginTop: 12}}>
-              <FlatButton
-                label="Back"
-                disabled={stepIndex === 0}
-                onTouchTap={this.handlePrev}
-                style={{marginRight: 12}}
-              />
-              <RaisedButton
-                label={stepIndex === 2 ? 'Finish' : 'Next'}
-                primary={true}
-                onTouchTap={this.handleNext}
-              />
-            </div>
+        <div style={styles.content}>
+
+          <FlatButton style={styles.folderPicker} onClick={this.buildPicker.bind(this)}>
+            <FontIcon style={styles.icon} className="material-icons">folder</FontIcon>
+            <div style={this.state.folderError ? styles.error : {}}>{this.state.folder.title}</div>
+          </FlatButton>
+
+          <TextField
+            hintText='New Owner'
+            errorText={this.state.emailError}
+            onChange={this.validateEmail.bind(this)}/>
+        </div>
+        <div >
+          <div style={styles.actions}>
+            <RaisedButton
+              disabled={!this.state.startEnabled}
+              label={'Start'}
+              primary={true}
+              onTouchTap={this.handleStart.bind(this)}
+            />
           </div>
         </div>
       </div>
