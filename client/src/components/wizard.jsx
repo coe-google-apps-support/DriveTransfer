@@ -3,7 +3,6 @@ import RaisedButton from 'material-ui/RaisedButton';
 import FlatButton from 'material-ui/FlatButton';
 import TextField from 'material-ui/TextField';
 import FontIcon from 'material-ui/FontIcon';
-import Paper from 'material-ui/Paper';
 import {validate} from 'email-validator';
 
 import State from '../model/state.js';
@@ -51,6 +50,9 @@ const styles = {
     width: '300px',
     margin: '12px 0px',
   },
+  error: {
+    color: 'rgb(244, 67, 54)',
+  }
 };
 
 class Wizard extends React.Component {
@@ -61,51 +63,66 @@ class Wizard extends React.Component {
     this.state = {
       startEnabled: true,
       email: '',
-      folder: '',
+      folder: {
+        title: 'Select folder',
+      },
       emailError: '',
+      folderError: false,
       validate: false,
     };
 
     this.pickerPromise = load('picker');
   };
 
+  /**
+   * Occurs when a transfer is initiated. Input is validate here.
+   *
+   */
   handleStart() {
     // Cause validation
     this.setState({
       validate: true,
     });
 
-    const valid = this.validateEmailNow(this.state.email);
-
+    const validEmail = this.validateEmailNow(this.state.email);
+    const validFolder = this.validateFolder();
     // If successful, make callback
-    if (valid) {
+    if (validEmail && validFolder) {
       console.log('Handling callback.');
     }
   };
 
+  /**
+   * Called when the user has selected a folder.
+   *
+   * @param {Object} data An Object containing information related to the selection.
+   */
   folderSelected(data) {
-    console.log('TESSSSSST123');
-    console.log(data);
-    console.log(google.picker.Action);
-
     const action = data[google.picker.Response.ACTION];
-    if (action === google.picker.Action.CANCEL) {
-      console.log('cancelled');
-    }
-    else if(action === google.picker.Action.PICKED) {
+
+    if(action === google.picker.Action.PICKED) {
       const document = data.docs[0];
       const id = document.id;
       const title = document.name;
 
-      console.log(`picked ${id}`);
+      this.setState({
+        folder: {
+          id,
+          title,
+        },
+        folderError: false,
+      })
     }
     else {
       console.log('Unknown type: ' + action);
     }
   }
 
-  selectFolder() {
-    console.log('OPENING FOLDER PICKER');
+  /**
+   * This is called when the folder picker is needed.
+   *
+   */
+  buildPicker() {
     this.pickerPromise.then(() => {
       const token = client.credentials.access_token;
 
@@ -124,8 +141,30 @@ class Wizard extends React.Component {
     });
   }
 
+  /**
+   * Ensures the user has selected a folder to transfer.
+   *
+   * @return {boolean} True if the folder has been selected.
+   */
+  validateFolder() {
+    if (this.state.folder.id == null) {
+      console.log('Please select a folder');
+      this.setState({
+        folderError: true,
+      })
+      return false;
+    }
+
+    return true;
+  }
+
+  /**
+   * A non-event driven way to validate the new owner's email.
+   *
+   * @param {string} address The email address of the new owner.
+   * @return {boolean} True if the address is valid.
+   */
   validateEmailNow(address) {
-    console.log('validating ' + address);
     if (!validate(address)) {
       this.setState({
         emailError: `${address} is not a valid email`,
@@ -140,6 +179,11 @@ class Wizard extends React.Component {
     }
   }
 
+  /**
+   * Validates an input's text as an email.
+   *
+   * @param {Event} e The event object.
+   */
   validateEmail(e) {
     const address = e.target.value;
 
@@ -150,10 +194,6 @@ class Wizard extends React.Component {
     if (this.state.validate) {
       this.validateEmailNow(address);
     }
-    else {
-      console.log('not validating');
-      return true;
-    }
   }
 
   render() {
@@ -163,7 +203,7 @@ class Wizard extends React.Component {
 
           <FlatButton style={styles.folderPicker} onClick={this.selectFolder.bind(this)}>
             <FontIcon style={styles.icon} className="material-icons">folder</FontIcon>
-            <div>Select folder</div>
+            <div style={this.state.folderError ? styles.error : {}}>{this.state.folder.title}</div>
           </FlatButton>
 
           <TextField
