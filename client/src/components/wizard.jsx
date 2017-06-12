@@ -72,6 +72,7 @@ class Wizard extends React.Component {
     };
 
     this.pickerPromise = load('picker');
+    this.onStart = props.onStart;
   };
 
   /**
@@ -89,6 +90,7 @@ class Wizard extends React.Component {
     // If successful, make callback
     if (validEmail && validFolder) {
       console.log('Handling callback.');
+      this.onStart(this.state.folder.id, this.state.email);
     }
   };
 
@@ -201,7 +203,7 @@ class Wizard extends React.Component {
       <div style={styles.root} className={this.props.className}>
         <div style={styles.content}>
 
-          <FlatButton style={styles.folderPicker} onClick={this.selectFolder.bind(this)}>
+          <FlatButton style={styles.folderPicker} onClick={this.buildPicker.bind(this)}>
             <FontIcon style={styles.icon} className="material-icons">folder</FontIcon>
             <div style={this.state.folderError ? styles.error : {}}>{this.state.folder.title}</div>
           </FlatButton>

@@ -43,13 +43,13 @@ class Main extends React.Component {
     };
   }
 
-  startTransfer() {
+  startTransfer(folderID, newOwner) {
     State.setState({
       responseVisible: true,
       selectedIndex: 1
     });
     this.setState({disabled: true});
-    this.state.transferService.doTransfer(this.state.folderID, this.state.newOwner);
+    this.state.transferService.doTransfer(folderID, newOwner);
   }
 
   setFolderID(event) {
@@ -71,10 +71,10 @@ class Main extends React.Component {
       <Paper zDepth={0} style={baseDisplay}>
         <img width='200px' height='200px' src='icon.png'/>
         <h1 style={textStyle}>Drive Transfer</h1>
-        {/* <TextField hintText='New Owner' value={this.state.newOwner} onChange={this.setNewOwner.bind(this)}/>
-        <TextField hintText='Folder ID' value={this.state.folderID} onChange={this.setFolderID.bind(this)}/> */}
 
-        <Wizard className={styles.hideable + ' ' + (showWizard ? styles.show : styles.hidden)} />
+        <Wizard
+          className={styles.hideable + ' ' + (showWizard ? styles.show : styles.hidden)}
+          onStart={this.startTransfer.bind(this)}/>
 
         <RaisedButton
           className={styles.hideable + ' ' + (showWizard ? styles.hidden : styles.show)}
