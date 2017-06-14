@@ -7,13 +7,16 @@ const Redirect = require('./controller/redirect.js');
 const reset = require('./controller/reset.js').reset;
 const Task = require('./model/task.js');
 const Session = require('express-session');
+const MongoStore = require('connect-mongo')(Session);
 const logger = require('morgan');
 const cors = require('cors');
 
+const url = 'mongodb://localhost:27017';
 const sess = {
   secret: 'fasdkh7f4qjhadf6kashfr347ajpv',
   resave: false,
-  saveUninitialized: true
+  saveUninitialized: true,
+  store: new MongoStore({url}),
 }
 
 module.exports = function(app) {
