@@ -1,3 +1,4 @@
+const G = require('./global.js');
 
 const TaskStates = {
   CREATED: 'CREATED',
@@ -8,10 +9,14 @@ const TaskStates = {
 }
 
 class Task {
-  constructor(userID) {
+  constructor(userID, taskID) {
+    this.id = taskID;
     this.client = null;
     this.userID = userID;
     this.state = TaskStates.CREATED;
+
+    G.getUsers().getUser(userID).promise
+      .then((client) => {this.client = client});
   }
 
   /**
@@ -19,6 +24,14 @@ class Task {
    *
    */
   run() {
+    if (this.state !== TaskStates.CREATED && this.state !== TaskStates.PAUSED) {
+      throw new Error(`Task ${this.id} can only be run from CREATED or PAUSED, but was ${this.state}.`);
+    }
+    if (this.client === null) {
+      throw new Error(`Invalid client. Either the user running this task hasn't authenticated,
+        or the client hasn't been built yet.`)
+    }
+
     this.state = TaskStates.RUNNING;
   }
 

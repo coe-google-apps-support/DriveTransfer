@@ -1,8 +1,8 @@
-let Task = require('./task.js');
+const Task = require('./task.js');
 
 class TaskManager {
   constructor() {
-
+    this.tasks = [];
   }
 
   /**
@@ -12,7 +12,24 @@ class TaskManager {
    * @return {Task} The task given by taskID.
    */
   getTask(taskID) {
+    let foundTask = this.tasks.find((task) => {
+      return task.id === taskID;
+    });
 
+    if (foundTask === undefined) {
+      console.log(`No task ${taskID} found.`);
+    }
+
+    return foundTask;
+  }
+
+  /**
+   * Adds a Task to this TaskManager. This function could be used to easily limit users to a specific number of tasks.
+   *
+   * @param {Task} task A Task or Task descendant.
+   */
+  addTask(task) {
+    this.tasks.push(task);
   }
 
   /**
@@ -24,7 +41,15 @@ class TaskManager {
    * @return {Array<Task>} An Array of Tasks belonging to userID.
    */
   getUserTasks(userID) {
+    let foundTask = this.tasks.find((task) => {
+      return task.userID === userID;
+    });
 
+    if (foundTask === undefined) {
+      console.log(`No tasks for ${userID} found.`);
+    }
+
+    return foundTask;
   }
 }
 
