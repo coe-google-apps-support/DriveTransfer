@@ -17,6 +17,7 @@
     "express-session": "^1.15.2",
     "google-auth-library": "^0.10.0",
     "googleapis": "^19.0.0",
+    "mongodb": "^2.2.28",
     "morgan": "^1.8.1",
     "nodemon": "^1.11.0",
     "request": "^2.81.0",
