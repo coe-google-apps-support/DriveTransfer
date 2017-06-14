@@ -1,4 +1,5 @@
 const Auth = require('./auth.js');
+const G = require('../model/global.js');
 const Google = require('googleapis');
 const exponentialBackoff = require('../util/exponential-backoff.js');
 
@@ -17,7 +18,7 @@ exports.list = function(req, res, next) {
     return;
   }
 
-  let client = Auth.getUsers().getUser(req.sessionID).client;
+  let client = G.getUsers().getUser(req.sessionID).client;
 
   getItems(client, id).then((result) => {
     console.log('Finished loading.');
@@ -47,7 +48,7 @@ exports.transfer = function(req, res, next) {
     return;
   }
 
-  var client = Auth.getUsers().getUser(req.sessionID).client;
+  var client = G.getUsers().getUser(req.sessionID).client;
 
   applyFunction(client, id, changeOwner, [to]).then((result) => {
     res.status(200).json({
