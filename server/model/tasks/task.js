@@ -1,11 +1,11 @@
-const G = require('./global.js');
+const G = require('../global.js');
 const TaskStates = require('./task-states.js');
 const EventEmitter = require('events');
 
 class Task extends EventEmitter {
   constructor(userID, taskID) {
     super();
-    
+
     this.id = taskID;
     this.client = G.getUsers().getUser(userID).client;
     this.userID = userID;

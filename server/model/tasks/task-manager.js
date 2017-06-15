@@ -1,4 +1,7 @@
 const Task = require('./task.js');
+const List = require('./list.js');
+const G = require('../global.js');
+const uuid = require('uuid/v1');
 
 class TaskManager {
   constructor() {
@@ -29,6 +32,16 @@ class TaskManager {
    * @param {Task} task A Task or Task descendant.
    */
   addTask(task) {
+    this.tasks.push(task);
+  }
+
+  addListTask(userID, folderID) {
+    if (G.getUsers().getUser(userID) == null) {
+      throw new Error(`Couldn't find user ${userID}.`);
+    }
+
+    const taskID = uuid();
+    let task = new List(userID, taskID, folderID);
     this.tasks.push(task);
   }
 

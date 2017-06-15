@@ -1,9 +1,9 @@
 const Google = require('googleapis');
-const exponentialBackoff = require('../util/exponential-backoff.js');
+const exponentialBackoff = require('../../util/exponential-backoff.js');
 const unique = require('array-unique');
 const flatten = require('array-flatten');
-const Task = require('../model/task.js');
-const TaskStates = require('../model/task-states.js');
+const Task = require('./task.js');
+const TaskStates = require('./task-states.js');
 
 const MAX_TRIES = 4;
 const NAPTIME = 2000;
