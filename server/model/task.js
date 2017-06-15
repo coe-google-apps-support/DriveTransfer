@@ -11,12 +11,13 @@ const TaskStates = {
 class Task {
   constructor(userID, taskID) {
     this.id = taskID;
-    this.client = null;
+    this.client = G.getUsers().getUser(userID).client;
     this.userID = userID;
     this.state = TaskStates.CREATED;
 
-    G.getUsers().getUser(userID).promise
-      .then((client) => {this.client = client});
+    if (this.client === null) {
+      throw new Error('Task must be created after clients are fully authorized.');
+    }
   }
 
   /**
