@@ -1,15 +1,17 @@
 const express = require('express');
 const path = require('path');
-const controller = require('./controller/transfer.js');
-const mainView = require('./view/main.js');
-const authAPI = require('./controller/auth.js');
-const Redirect = require('./controller/redirect.js');
-const reset = require('./controller/reset.js').reset;
-const Task = require('./model/task.js');
 const Session = require('express-session');
 const MongoStore = require('connect-mongo')(Session);
 const logger = require('morgan');
 const cors = require('cors');
+
+// Routing files
+const authAPI = require('./controller/auth.js');
+const list = require('./controller/temp.js').list;
+const Redirect = require('./controller/redirect.js');
+const reset = require('./controller/reset.js').reset;
+const mainView = require('./view/main.js');
+const controller = require('./controller/transfer.js');
 
 const url = 'mongodb://localhost:27017';
 const sess = {
@@ -25,7 +27,7 @@ module.exports = function(app) {
   app.use(cors());
   app.set('view engine', 'ejs');
 
-  app.get('/api/list', authAPI.requireAuth, controller.list);
+  app.get('/api/list', authAPI.requireAuth, list);
   app.get('/api/transfer', authAPI.requireAuth, controller.transfer);
   app.get('/api/reset', reset);
 

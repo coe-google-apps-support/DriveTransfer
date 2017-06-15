@@ -1,4 +1,4 @@
-const TaskManager = require('./task-manager.js');
+const TaskManager = require('./tasks/task-manager.js');
 const Users = require('./authorized-users.js');
 
 let users;
