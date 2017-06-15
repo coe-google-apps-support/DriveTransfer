@@ -1,19 +1,16 @@
 const G = require('./global.js');
+const TaskStates = require('./task-states.js');
+const EventEmitter = require('events');
 
-const TaskStates = {
-  CREATED: 'CREATED',
-  RUNNING: 'RUNNING',
-  PAUSED: 'PAUSED',
-  FINISHED: 'FINISHED',
-  FAILED: 'FAILED',
-}
-
-class Task {
+class Task extends EventEmitter {
   constructor(userID, taskID) {
+    super();
+    
     this.id = taskID;
     this.client = G.getUsers().getUser(userID).client;
     this.userID = userID;
     this.state = TaskStates.CREATED;
+    this.result = {};
 
     if (this.client === null) {
       throw new Error('Task must be created after clients are fully authorized.');
@@ -24,7 +21,7 @@ class Task {
    * Runs this Task. Only works when the Task is in CREATED or PAUSED states.
    *
    */
-  run() {
+  async run() {
     if (this.state !== TaskStates.CREATED && this.state !== TaskStates.PAUSED) {
       throw new Error(`Task ${this.id} can only be run from CREATED or PAUSED, but was ${this.state}.`);
     }
@@ -34,6 +31,12 @@ class Task {
     }
 
     this.state = TaskStates.RUNNING;
+    this.emit(TaskStates.RUNNING);
+
+    while(this.state == TaskStates.RUNNING){
+      let value = this.doUnitOfWork();
+      await value;
+    }
   }
 
   /**
@@ -42,14 +45,15 @@ class Task {
    */
   pause() {
     this.state = TaskStates.PAUSED;
+    this.emit(TaskStates.PAUSED);
   }
 
-  doUnitOfWork() {
-
+  async doUnitOfWork() {
+    throw new Error('doUnitOfWork must be implemented in a descendant.');
   }
 
   getRecentWork() {
-    throw new Error('This function must be implemented in a descendant.');
+    throw new Error('getRecentWork must be implemented in a descendant.');
   }
 }
 

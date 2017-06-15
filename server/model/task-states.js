@@ -1,0 +1,7 @@
+module.exports = {
+  CREATED: 'CREATED',
+  RUNNING: 'RUNNING',
+  PAUSED: 'PAUSED',
+  FINISHED: 'FINISHED',
+  FAILED: 'FAILED',
+};
