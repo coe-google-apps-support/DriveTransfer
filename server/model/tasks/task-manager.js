@@ -27,14 +27,12 @@ class TaskManager {
   }
 
   /**
-   * Adds a Task to this TaskManager. This function could be used to easily limit users to a specific number of tasks.
+   * Adds a new List Task.
    *
-   * @param {Task} task A Task or Task descendant.
+   * @param {string} userID The ID of the requesting user.
+   * @param {string} folderID The id of the folder to list.
+   * @return {string} The id of this task.
    */
-  addTask(task) {
-    this.tasks.push(task);
-  }
-
   addListTask(userID, folderID) {
     if (G.getUsers().getUser(userID) == null) {
       throw new Error(`Couldn't find user ${userID}.`);
@@ -43,6 +41,22 @@ class TaskManager {
     const taskID = uuid();
     let task = new List(userID, taskID, folderID);
     this.tasks.push(task);
+    return taskID;
+  }
+
+  runTask(taskID) {
+    let task = this.getTask(taskID);
+    task.run();
+  }
+
+  pauseTask(taskID) {
+    let task = this.getTask(taskID);
+    task.pause();
+  }
+
+  getTaskResult(taskID) {
+    let task = this.getTask(taskID);
+    return task.getResult();
   }
 
   /**

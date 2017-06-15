@@ -7,7 +7,8 @@ const cors = require('cors');
 
 // Routing files
 const authAPI = require('./controller/auth.js');
-const list = require('./controller/temp.js').list;
+const list = require('./controller/list.js').list;
+const task = require('./controller/task.js');
 const Redirect = require('./controller/redirect.js');
 const reset = require('./controller/reset.js').reset;
 const mainView = require('./view/main.js');
@@ -30,6 +31,9 @@ module.exports = function(app) {
   app.get('/api/list', authAPI.requireAuth, list);
   app.get('/api/transfer', authAPI.requireAuth, controller.transfer);
   app.get('/api/reset', reset);
+  app.get('/api/task/run', authAPI.requireAuth, task.run);
+  app.get('/api/task/pause', authAPI.requireAuth, task.pause);
+  app.get('/api/task/getResult', authAPI.requireAuth, task.getResult);
 
   app.get('/view', authAPI.requireAuth, mainView.view);
 

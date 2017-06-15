@@ -55,6 +55,10 @@ class Task extends EventEmitter {
   getRecentWork() {
     throw new Error('getRecentWork must be implemented in a descendant.');
   }
+
+  getResult() {
+    return this.result;
+  }
 }
 
 module.exports = Task;
