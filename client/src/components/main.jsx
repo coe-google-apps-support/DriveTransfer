@@ -6,6 +6,7 @@ import TransferService from '../services/transfer.js';
 import {grey600} from 'material-ui/styles/colors';
 import State from '../model/state.js'
 import Wizard from './wizard.jsx';
+import Login from './login.jsx';
 import styles from './main.css';
 
 const baseDisplay = {
@@ -71,6 +72,8 @@ class Main extends React.Component {
       <Paper zDepth={0} style={baseDisplay}>
         <img width='200px' height='200px' src='icon.png'/>
         <h1 style={textStyle}>Drive Transfer</h1>
+
+        <Login />
 
         <Wizard
           className={styles.hideable + ' ' + (showWizard ? styles.show : styles.hidden)}
