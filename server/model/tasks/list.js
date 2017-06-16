@@ -27,7 +27,7 @@ class List extends Task {
     let idYield = this._it.next();
     let childrenYield = this._it.next();
     await childrenYield.value;
-
+    
     if (idYield.done || childrenYield.done) {
       this.state = TaskStates.FINISHED;
       this.emit(TaskStates.FINISHED);

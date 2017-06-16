@@ -8,11 +8,11 @@ const cors = require('cors');
 // Routing files
 const authAPI = require('./controller/auth.js');
 const list = require('./controller/list.js').list;
+const transfer = require('./controller/transfer.js').transfer;
 const task = require('./controller/task.js');
 const Redirect = require('./controller/redirect.js');
 const reset = require('./controller/reset.js').reset;
 const mainView = require('./view/main.js');
-const controller = require('./controller/transfer.js');
 
 const url = 'mongodb://localhost:27017';
 const sess = {
@@ -29,7 +29,7 @@ module.exports = function(app) {
   app.set('view engine', 'ejs');
 
   app.get('/api/list', authAPI.requireAuth, list);
-  app.get('/api/transfer', authAPI.requireAuth, controller.transfer);
+  app.get('/api/transfer', authAPI.requireAuth, transfer);
   app.get('/api/reset', reset);
   app.get('/api/task/run', authAPI.requireAuth, task.run);
   app.get('/api/task/pause', authAPI.requireAuth, task.pause);
@@ -38,7 +38,6 @@ module.exports = function(app) {
   app.get('/view', authAPI.requireAuth, mainView.view);
 
   app.get('/', (req, res) => {
-    console.log('redirect');
     res.redirect('/view');
 
   });

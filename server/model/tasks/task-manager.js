@@ -1,5 +1,6 @@
 const Task = require('./task.js');
 const List = require('./list.js');
+const Transfer = require('./transfer.js');
 const G = require('../global.js');
 const uuid = require('uuid/v1');
 
@@ -40,6 +41,25 @@ class TaskManager {
 
     const taskID = uuid();
     let task = new List(userID, taskID, folderID);
+    this.tasks.push(task);
+    return taskID;
+  }
+
+  /**
+   * Adds a new Transfer Task.
+   *
+   * @param {string} userID The ID of the initiating user.
+   * @param {string} folderID The id of the folder to list.
+   * @param {string} newOwner The email address of the owner to transfer to.
+   * @return {string} The id of this task.
+   */
+  addTransferTask(userID, folderID, newOwner) {
+    if (G.getUsers().getUser(userID) == null) {
+      throw new Error(`Couldn't find user ${userID}.`);
+    }
+
+    const taskID = uuid();
+    let task = new Transfer(userID, taskID, folderID, newOwner);
     this.tasks.push(task);
     return taskID;
   }
