@@ -49,7 +49,7 @@ class Main extends React.Component {
       selectedIndex: 1
     });
     this.setState({disabled: true});
-    this.state.transferService.doTransfer(folderID, newOwner);
+    this.state.transferService.createTransfer(folderID, newOwner);
   }
 
   setFolderID(event) {
