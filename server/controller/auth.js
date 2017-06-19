@@ -6,6 +6,7 @@
  */
 
 const fs = require('fs');
+const path = require('path');
 const readline = require('readline');
 const Google = require('googleapis');
 const OAuth2 = Google.auth.OAuth2;
@@ -15,47 +16,18 @@ const User = require('../model/user.js');
 const Users = require('../model/authorized-users.js');
 const G = require('../model/global.js');
 
-const SCOPES = [
-  'https://www.googleapis.com/auth/drive'
-];
-//var TOKEN_DIR = (process.env.HOME || process.env.HOMEPATH || process.env.USERPROFILE) + '/.credentials/';
-//var TOKEN_PATH = TOKEN_DIR + 'drive-transfer-auth.json';
-
-var clientPromise = null;
-var client = null;
-var oauthResolve = null;
-var oauthReject = null;
-var users;
-
 exports.requireAuth = function(req, res, next) {
   console.log('Setting up user auth.');
-
 
   let user = G.getUsers().getUser(req.sessionID);
   if (user && user.authorized) {
     console.log('User is already logged in.');
     next();
   }
-  else if (req.query.code) { // TODO
-    console.log('User is in the process of logging in.');
-    next();
-  }
   else {
     console.log('User must log in.');
-    let us = G.getUsers();
-    user = new User(SCOPES, req.sessionID);
-    us.addUser(user);
-
-    user.promise.then((result) => {
-      console.log('USER RESOLVED');
-    }, (err) => {
-      console.log('USER REJECTED');
-    });
-
-    user.createBasicClient().then((result) => {
-      let url = user.getURL(req.originalUrl);
-      res.redirect(url);
-    });
+    const url = path.resolve(__dirname, '..', '..', 'client', 'src', 'static', 'login');
+    res.render(url);
   }
 }
 
@@ -79,5 +51,4 @@ exports.oauthCallback = function(req, res, next) {
       res.redirect(req.query.state);
     }
   });
-
 }

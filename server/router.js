@@ -13,6 +13,7 @@ const task = require('./controller/task.js');
 const Redirect = require('./controller/redirect.js');
 const reset = require('./controller/reset.js').reset;
 const mainView = require('./view/main.js');
+const login = require('./controller/login.js').login;
 
 const url = 'mongodb://localhost:27017';
 const sess = {
@@ -36,6 +37,7 @@ module.exports = function(app) {
   app.get('/api/task/getResult', authAPI.requireAuth, task.getResult);
 
   app.get('/view', authAPI.requireAuth, mainView.view);
+  app.get('/login', login);
 
   app.get('/', (req, res) => {
     res.redirect('/view');
