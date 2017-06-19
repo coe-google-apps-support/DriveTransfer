@@ -1,6 +1,7 @@
 # Build files
 bundle.js
 bundle.min.js
+*.entry.js
 
 # Secrets
 client_secret*
