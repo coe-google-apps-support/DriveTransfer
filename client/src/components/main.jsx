@@ -45,23 +45,39 @@ class Main extends React.Component {
         id: '',
         title: '',
       },
-      email: ''
+      email: '',
+      buttonText: states.START,
     };
   }
 
-  startTransfer(folderID, newOwner) {
-    if (this.wizard.validate()) {
-      State.setState({
-        responseVisible: true,
-        selectedIndex: 1
-      });
-
+  onClick() {
+    if (this.state.buttonText === states.START) {
       TransferService.createTransfer(this.state.folder.id, this.state.email)
       .then((taskID) => {
+        State.setState({taskID});
         return TaskService.startTask(taskID);
       }).then((result) => {
-        // Toggle run state.
+        this.setState({
+          buttonText: states.PAUSE,
+        });
       });
+    }
+    else if (this.state.buttonText === states.PAUSE) {
+      TaskService.pauseTask(this.state.taskID).then(() => {
+        this.setState({
+          buttonText: states.RESUME,
+        });
+      });
+    }
+    else if (this.state.buttonText === states.RESUME) {
+      TaskService.startTask(this.state.taskID).then(() => {
+        this.setState({
+          buttonText: states.PAUSE,
+        });
+      });
+    }
+    else {
+      console.log(`Unknown state ${this.state.buttonText}.`);
     }
   }
 
@@ -91,9 +107,9 @@ class Main extends React.Component {
           onEmailChange={this.updateRecipient.bind(this)} />
 
         <RaisedButton
-          label={'Start'}
+          label={this.state.buttonText}
           primary={true}
-          onTouchTap={this.startTransfer.bind(this)}
+          onTouchTap={this.onClick.bind(this)}
         />
       </Paper>
     );
