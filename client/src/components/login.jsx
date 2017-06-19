@@ -12,7 +12,6 @@ class Login extends React.Component {
   }
 
   login() {
-    console.log('Logging in');
     LoginService.login();
   }
 
