@@ -1,5 +1,5 @@
 const path = require('path');
-const AuthAPI = require('../controller/auth.js');
+const G = require('../model/global.js');
 
 exports.view = function(req, res, next) {
   let data = {
@@ -9,7 +9,7 @@ exports.view = function(req, res, next) {
   };
   const url = path.resolve(__dirname, '..', '..', 'client', 'src', 'static', 'index');
 
-  const user = AuthAPI.getUsers().getUser(req.sessionID);
+  const user = G.getUsers().getUser(req.sessionID);
   if (user == null) {
     let err = new Error('Your session couldn\'t be found');
     res.status(500).send(err);
