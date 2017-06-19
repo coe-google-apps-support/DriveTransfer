@@ -1,11 +1,10 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import RaisedButton from 'material-ui/RaisedButton';
 import FlatButton from 'material-ui/FlatButton';
 import TextField from 'material-ui/TextField';
 import FontIcon from 'material-ui/FontIcon';
 import {validate} from 'email-validator';
-
-import State from '../model/state.js';
 import load from '../util/api-load.js';
 
 const styles = {
@@ -18,6 +17,9 @@ const styles = {
     display: '-webkit-flex',
     display: 'flex',
     flexDirection: 'column',
+  },
+  errorMargins: {
+    marginBottom: '16px',
   },
   icon: {
     fontSize: '48px',
@@ -61,37 +63,12 @@ class Wizard extends React.Component {
     super(props);
 
     this.state = {
-      startEnabled: true,
-      email: '',
-      folder: {
-        title: 'Select folder',
-      },
       emailError: '',
       folderError: false,
       validate: false,
     };
 
     this.pickerPromise = load('picker');
-    this.onStart = props.onStart;
-  };
-
-  /**
-   * Occurs when a transfer is initiated. Input is validate here.
-   *
-   */
-  handleStart() {
-    // Cause validation
-    this.setState({
-      validate: true,
-    });
-
-    const validEmail = this.validateEmailNow(this.state.email);
-    const validFolder = this.validateFolder();
-    // If successful, make callback
-    if (validEmail && validFolder) {
-      console.log('Handling callback.');
-      this.onStart(this.state.folder.id, this.state.email);
-    }
   };
 
   /**
@@ -107,13 +84,12 @@ class Wizard extends React.Component {
       const id = document.id;
       const title = document.name;
 
-      this.setState({
+      this.props.onFolderChange({
         folder: {
           id,
-          title,
-        },
-        folderError: false,
-      })
+          title
+        }
+      });
     }
     else {
       console.log('Unknown type: ' + action);
@@ -144,12 +120,29 @@ class Wizard extends React.Component {
   }
 
   /**
+   * Validates all input values.
+   *
+   */
+  validate() {
+    // Cause validation
+    this.setState({
+      validate: true,
+    });
+
+    const validEmail = this.validateEmail(this.props.email);
+    const validFolder = this.validateFolder(this.props.folder.id);
+
+    return validEmail && validFolder;
+  };
+
+  /**
    * Ensures the user has selected a folder to transfer.
    *
+   * @param {string} id The ID of the folder to validate.
    * @return {boolean} True if the folder has been selected.
    */
-  validateFolder() {
-    if (this.state.folder.id == null) {
+  validateFolder(id) {
+    if (id === '' || id == undefined) {
       console.log('Please select a folder');
       this.setState({
         folderError: true,
@@ -157,6 +150,9 @@ class Wizard extends React.Component {
       return false;
     }
 
+    this.setState({
+      folderError: false,
+    })
     return true;
   }
 
@@ -166,10 +162,10 @@ class Wizard extends React.Component {
    * @param {string} address The email address of the new owner.
    * @return {boolean} True if the address is valid.
    */
-  validateEmailNow(address) {
+  validateEmail(address) {
     if (!validate(address)) {
       this.setState({
-        emailError: `${address} is not a valid email`,
+        emailError: `Invalid email address`,
       });
       return false;
     }
@@ -181,51 +177,43 @@ class Wizard extends React.Component {
     }
   }
 
-  /**
-   * Validates an input's text as an email.
-   *
-   * @param {Event} e The event object.
-   */
-  validateEmail(e) {
-    const address = e.target.value;
-
-    this.setState({
-      email: address,
-    });
-
-    if (this.state.validate) {
-      this.validateEmailNow(address);
-    }
-  }
-
   render() {
+    let rootStyle;
+    if (this.state.emailError) {
+      rootStyle = {...styles.root, ...styles.errorMargins};
+    }
+    else {
+      rootStyle = styles.root;
+    }
+
     return (
-      <div style={styles.root} className={this.props.className}>
+      <div style={rootStyle}>
         <div style={styles.content}>
 
           <FlatButton style={styles.folderPicker} onClick={this.buildPicker.bind(this)}>
             <FontIcon style={styles.icon} className="material-icons">folder</FontIcon>
-            <div style={this.state.folderError ? styles.error : {}}>{this.state.folder.title}</div>
+            <div style={this.state.folderError ? styles.error : {}}>
+              {this.props.folder.title != '' ? this.props.folder.title : 'Select folder'}
+            </div>
           </FlatButton>
 
           <TextField
             hintText='New Owner'
             errorText={this.state.emailError}
-            onChange={this.validateEmail.bind(this)}/>
+            onChange={this.props.onEmailChange}
+            value={this.props.email} />
         </div>
-        <div >
-          <div style={styles.actions}>
-            <RaisedButton
-              disabled={!this.state.startEnabled}
-              label={'Start'}
-              primary={true}
-              onTouchTap={this.handleStart.bind(this)}
-            />
-          </div>
-        </div>
+
       </div>
     );
   }
 }
+
+Wizard.propTypes = {
+  folder: PropTypes.object.isRequired,
+  email: PropTypes.string.isRequired,
+  onFolderChange: PropTypes.func,
+  onEmailChange: PropTypes.func,
+};
 
 export default Wizard;

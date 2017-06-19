@@ -3,6 +3,7 @@ import Paper from 'material-ui/Paper';
 import TextField from 'material-ui/TextField';
 import RaisedButton from 'material-ui/RaisedButton';
 import TransferService from '../services/transfer.js';
+import TaskService from '../services/task.js';
 import {grey600} from 'material-ui/styles/colors';
 import State from '../model/state.js'
 import Wizard from './wizard.jsx';
@@ -27,63 +28,73 @@ const textStyle = {
   color: grey600
 }
 
+const states = {
+  START: 'START',
+  PAUSE: 'PAUSE',
+  RESUME: 'RESUME',
+}
+
 class Main extends React.Component {
 
   constructor(props) {
     super(props);
 
     State.subscribe(this);
-
     this.state = {
-      disabled: false,
-      folderID: '',
-      newOwner: '',
-      transferService: new TransferService(),
-      showWizard: false,
+      folder: {
+        id: '',
+        title: '',
+      },
+      email: ''
     };
   }
 
   startTransfer(folderID, newOwner) {
-    State.setState({
-      responseVisible: true,
-      selectedIndex: 1
-    });
-    this.setState({disabled: true});
-    this.state.transferService.createTransfer(folderID, newOwner);
+    if (this.wizard.validate()) {
+      State.setState({
+        responseVisible: true,
+        selectedIndex: 1
+      });
+
+      TransferService.createTransfer(this.state.folder.id, this.state.email)
+      .then((taskID) => {
+        return TaskService.startTask(taskID);
+      }).then((result) => {
+        // Toggle run state.
+      });
+    }
   }
 
-  setFolderID(event) {
-    State.setState({folderID: event.target.value})
+  updateFolderID(folder) {
+    this.setState(folder);
   }
 
-  setNewOwner(event) {
-    State.setState({newOwner: event.target.value})
+  updateRecipient(evt, value) {
+    this.setState({email: value});
   }
 
-  startWizard() {
-    this.setState({showWizard: true});
+  setWizard(instance) {
+    this.wizard = instance
   }
 
   render () {
-    const {showWizard} = this.state;
-
     return (
       <Paper zDepth={0} style={baseDisplay}>
         <img width='200px' height='200px' src='icon.png'/>
         <h1 style={textStyle}>Drive Transfer</h1>
 
         <Wizard
-          className={styles.hideable + ' ' + (showWizard ? styles.show : styles.hidden)}
-          onStart={this.startTransfer.bind(this)}/>
+          ref={this.setWizard.bind(this)}
+          folder={this.state.folder}
+          email={this.state.email}
+          onFolderChange={this.updateFolderID.bind(this)}
+          onEmailChange={this.updateRecipient.bind(this)} />
 
         <RaisedButton
-          className={styles.hideable + ' ' + (showWizard ? styles.hidden : styles.show)}
-          disabled={this.state.disabled}
-          label='Start'
+          label={'Start'}
           primary={true}
-          style={buttonStyle}
-          onTouchTap={this.startWizard.bind(this)}/>
-
+          onTouchTap={this.startTransfer.bind(this)}
+        />
       </Paper>
     );
   }
