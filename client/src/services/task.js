@@ -3,21 +3,21 @@ import Axios from 'axios';
 class TaskService {
   static getTaskResult(taskID) {
     return Axios.get('/api/task/getResult', {
-      params: {id},
+      params: {taskID},
       withCredentials: true
     });
   }
 
   static startTask(taskID) {
     return Axios.get('/api/task/run', {
-      params: {id},
+      params: {taskID},
       withCredentials: true
     });
   }
 
   static pauseTask(taskID) {
     return Axios.get('/api/task/pause', {
-      params: {id},
+      params: {taskID},
       withCredentials: true
     });
   }
