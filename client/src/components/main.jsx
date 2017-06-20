@@ -7,7 +7,7 @@ import TaskService from '../services/task.js';
 import {grey600} from 'material-ui/styles/colors';
 import State from '../model/state.js'
 import Wizard from './wizard.jsx';
-import TransferLog from './transfer-log.jsx';
+import TransferLog from './log/transfer-log.jsx';
 import styles from './main.css';
 
 const baseDisplay = {
@@ -48,6 +48,8 @@ class Main extends React.Component {
       },
       email: '',
       buttonText: states.START,
+      wizardClass: `${styles.hideable} ${styles.show}`,
+      logClass: `${styles.hideable} ${styles.hidden}`,
     };
   }
 
@@ -61,6 +63,8 @@ class Main extends React.Component {
         }).then((result) => {
           this.setState({
             buttonText: states.PAUSE,
+            wizardClass: `${styles.hideable} ${styles.hidden}`,
+            logClass: `${styles.hideable} ${styles.show}`,
           });
         });
       }
@@ -102,7 +106,7 @@ class Main extends React.Component {
         <img width='200px' height='200px' src='icon.png'/>
         <h1 style={textStyle}>Drive Transfer</h1>
 
-        <div className={`${styles.hideable} ${styles.show}`}>
+        <div className={this.state.wizardClass}>
           <Wizard
             ref={this.setWizard.bind(this)}
             folder={this.state.folder}
@@ -110,8 +114,8 @@ class Main extends React.Component {
             onFolderChange={this.updateFolderID.bind(this)}
             onEmailChange={this.updateRecipient.bind(this)} />
         </div>
-        <div className={`${styles.hideable} ${styles.hidden}`}>
-          <TransferLog/>
+        <div className={this.state.logClass}>
+          <TransferLog taskID='testerenoo' />
         </div>
 
         <RaisedButton
