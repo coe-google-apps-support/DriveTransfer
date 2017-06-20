@@ -7,6 +7,7 @@ import TaskService from '../services/task.js';
 import {grey600} from 'material-ui/styles/colors';
 import State from '../model/state.js'
 import Wizard from './wizard.jsx';
+import TransferLog from './transfer-log.jsx';
 import styles from './main.css';
 
 const baseDisplay = {
@@ -99,12 +100,17 @@ class Main extends React.Component {
         <img width='200px' height='200px' src='icon.png'/>
         <h1 style={textStyle}>Drive Transfer</h1>
 
-        <Wizard
-          ref={this.setWizard.bind(this)}
-          folder={this.state.folder}
-          email={this.state.email}
-          onFolderChange={this.updateFolderID.bind(this)}
-          onEmailChange={this.updateRecipient.bind(this)} />
+        <div className={`${styles.hideable} ${styles.show}`}>
+          <Wizard
+            ref={this.setWizard.bind(this)}
+            folder={this.state.folder}
+            email={this.state.email}
+            onFolderChange={this.updateFolderID.bind(this)}
+            onEmailChange={this.updateRecipient.bind(this)} />
+        </div>
+        <div className={`${styles.hideable} ${styles.hidden}`}>
+          <TransferLog/>
+        </div>
 
         <RaisedButton
           label={this.state.buttonText}
