@@ -20,10 +20,12 @@ class Transfer extends Task {
     super(userID, taskID);
     this.drive = Google.drive({ version: 'v3', auth: this.client });
 
+    this.recent = {};
+    this.recent.changes = [];
+    this.result.fileList = {};
+
     this.listTask = new List(userID, taskID, folderID);
     this.listTask.result.state = TaskStates.RUNNING;
-    this.recent = [];
-    this.result.fileList = {};
 
     this._it = this.changeOwner(this.listTask.result.fileList, newOwner);
   }
@@ -50,6 +52,7 @@ class Transfer extends Task {
 
       if (transferYield.done) {
         this.result.state = TaskStates.FINISHED;
+        this.recent.state = TaskStates.FINISHED;
         this.emit(TaskStates.FINISHED);
       }
       else {
@@ -64,14 +67,10 @@ class Transfer extends Task {
     }
   }
 
-  getRecentWork() {
-    return this.recent;
-  }
-
   addResult(value) {
     this.result.fileList[value.id] = value;
     value.file.state = TransferStates.TRANSFERED;
-    this.recent = [value, ...this.recent.slice(0, RECENT_ITEMS - 1)];
+    this.recent.changes = [value, ...this.recent.changes.slice(0, RECENT_ITEMS - 1)];
   }
 
   /**
