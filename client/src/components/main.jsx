@@ -53,15 +53,17 @@ class Main extends React.Component {
 
   onClick() {
     if (this.state.buttonText === states.START) {
-      TransferService.createTransfer(this.state.folder.id, this.state.email)
-      .then((taskID) => {
-        State.setState({taskID});
-        return TaskService.startTask(taskID);
-      }).then((result) => {
-        this.setState({
-          buttonText: states.PAUSE,
+      if (this.wizard.validate()) {
+        TransferService.createTransfer(this.state.folder.id, this.state.email)
+        .then((taskID) => {
+          State.setState({taskID});
+          return TaskService.startTask(taskID);
+        }).then((result) => {
+          this.setState({
+            buttonText: states.PAUSE,
+          });
         });
-      });
+      }
     }
     else if (this.state.buttonText === states.PAUSE) {
       TaskService.pauseTask(this.state.taskID).then(() => {
