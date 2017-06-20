@@ -21,6 +21,13 @@ class TaskService {
       withCredentials: true
     });
   }
+
+  static getRecent(taskID) {
+    return Axios.get('/api/task/getRecent', {
+      params: {taskID},
+      withCredentials: true
+    });
+  }
 }
 
 export default TaskService;
