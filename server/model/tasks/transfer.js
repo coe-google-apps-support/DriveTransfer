@@ -41,7 +41,6 @@ class Transfer extends Task {
 
       if (file === undefined) return;
 
-      console.log('list');
       file.state = TransferStates.UNTRANSFERED;
       return;
     }
@@ -49,15 +48,12 @@ class Transfer extends Task {
       let transferYield = this._it.next();
       await transferYield.value;
 
-      console.log('transfer');
       if (transferYield.done) {
         this.result.state = TaskStates.FINISHED;
         this.emit(TaskStates.FINISHED);
       }
       else {
         transferYield.value.then((value) => {
-          console.log('transfer yield');
-          console.log(value);
           this.addResult(value);
         }).catch((err) => {
           console.log(err);
@@ -73,7 +69,6 @@ class Transfer extends Task {
   }
 
   addResult(value) {
-    console.log('adding');
     this.result.fileList[value.id] = value;
     value.file.state = TransferStates.TRANSFERED;
     this.recent = [value, ...this.recent.slice(0, RECENT_ITEMS - 1)];
