@@ -79,6 +79,11 @@ class TaskManager {
     return task.getResult();
   }
 
+  getRecentWork(taskID) {
+    let task = this.getTask(taskID);
+    return task.getRecentWork();
+  }
+
   /**
    * Gets all of a given users tasks.
    * For now, the userID will simply be the email of the user.
