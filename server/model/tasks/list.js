@@ -12,8 +12,11 @@ class List extends Task {
   constructor(userID, taskID, folderID) {
     super(userID, taskID);
     this.drive = Google.drive({ version: 'v3', auth: this.client });
-    this._it = this.listIDsGenerator(folderID);
-    this.result.idList = [];
+    this.result.fileList = {};
+
+    this.getFirstFile(folderID).then((file) => {
+      this._it = this.listFiles(file);
+    });
   }
 
   /**
@@ -24,45 +27,48 @@ class List extends Task {
    * @return {Promise} A Promise that has a string id as it's response value.
    */
   async doUnitOfWork() {
-    let idYield = this._it.next();
+    if (this._it == undefined) {
+      throw new Error(`This task hasn't properly initialized.`);
+    }
+
+    let fileYield = this._it.next();
     let childrenYield = this._it.next();
     await childrenYield.value;
-    
-    if (idYield.done || childrenYield.done) {
-      this.state = TaskStates.FINISHED;
+
+    if (fileYield.done || childrenYield.done) {
+      this.result.state = TaskStates.FINISHED;
       this.emit(TaskStates.FINISHED);
     }
     else {
-      idYield.value.then((value) => {
-        this.result.idList.push(value)
+      fileYield.value.then((value) => {
+        this.result.fileList[value.id] = value;
       }).catch((err) => {
         console.log(err);
       });
     }
 
-    return idYield.value;
+    return fileYield.value;
   }
 
    /**
-    * This function recursively moves through a Google Drive folder given a folder id.
+    * This function recursively moves through a Google Drive folder given a file.
     * Generators are used to control the flow of this function.
-    * It yields the id, then that IDs children.
+    * It yields the file, then that file's children.
     * https://derickbailey.com/2015/07/19/using-es6-generators-to-recursively-traverse-a-nested-data-structure/
     * Limitations:
     * - Drive folders can appear in multiple places.
     *   This can mean you visit the same sub-folder structures multiple times.
-    * - Currently, the returned results aren't guaranteed to be unique. TODO.
     * - I've been trying to determine if you can have a loop in a Google Drive folder structure.
     *   It seems you can't, but if you could, this function would get stuck in an infinite loop.
     * http://stackoverflow.com/questions/43793895/is-it-possible-for-google-drives-folder-structure-to-contain-a-loop
     *
-    * @param {string} id The id of a Google Drive folder.
+    * @param {File} file A Google Drive File Object. See here: https://developers.google.com/drive/v3/reference/files
     */
-  *listIDsGenerator(id){
-    yield Promise.resolve(id);
+  *listFiles(file){
+    yield Promise.resolve(file);
 
     let children;
-    let doneChildren = this.getChildren(id).then((response) => {
+    let doneChildren = this.getChildren(file.id).then((response) => {
       children = response.files;
       return children;
     });
@@ -73,8 +79,7 @@ class List extends Task {
     }
 
     for (let folder of children) {
-      // yield *this.listIDsGenerator(folder.id);
-      yield *this.listIDsGenerator(folder.id);
+      yield *this.listFiles(folder);
     }
   }
 
@@ -89,6 +94,29 @@ class List extends Task {
       return new Promise((resolve, reject) => {
         this.drive.files.list({
           q: '\'' + id + '\' in parents and trashed=false'
+        }, function(err, response) {
+          if (err != null) {
+            reject(err);
+            return;
+          }
+
+          resolve(response);
+        });
+      });
+    }, MAX_TRIES, NAPTIME);
+  }
+
+  /**
+   * Gets the first file for initiating the generator function. This must be called prior to using listFiles.
+   *
+   * @param {string} id The id of the folder.
+   * @return {Promise} Contains the file as a result.
+   */
+  getFirstFile(id) {
+    return exponentialBackoff(() => {
+      return new Promise((resolve, reject) => {
+        this.drive.files.get({
+          fileId: id
         }, function(err, response) {
           if (err != null) {
             reject(err);
