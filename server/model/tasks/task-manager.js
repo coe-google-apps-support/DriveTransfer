@@ -41,8 +41,10 @@ class TaskManager {
 
     const taskID = uuid();
     let task = new List(userID, taskID, folderID);
-    this.tasks.push(task);
-    return taskID;
+    return task.setup().then(() => {
+      this.tasks.push(task);
+      return taskID;
+    });
   }
 
   /**
@@ -60,8 +62,10 @@ class TaskManager {
 
     const taskID = uuid();
     let task = new Transfer(userID, taskID, folderID, newOwner);
-    this.tasks.push(task);
-    return taskID;
+    return task.setup().then(() => {
+      this.tasks.push(task);
+      return taskID;
+    });
   }
 
   runTask(taskID) {

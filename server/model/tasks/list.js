@@ -13,8 +13,11 @@ class List extends Task {
     super(userID, taskID);
     this.drive = Google.drive({ version: 'v3', auth: this.client });
     this.result.fileList = {};
+    this.folderID = folderID;
+  }
 
-    this.getFirstFile(folderID).then((file) => {
+  setup() {
+    return this.getFirstFile(this.folderID).then((file) => {
       this._it = this.listFiles(file);
     });
   }

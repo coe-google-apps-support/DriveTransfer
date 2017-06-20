@@ -43,6 +43,16 @@ class Task extends EventEmitter {
   }
 
   /**
+   * Some tasks have additional setup needed after running the constructor. These tasks override this function.
+   *
+   */
+  setup() {
+    return new Promise((resolve, reject) => {
+      resolve();
+    });
+  }
+
+  /**
    * Pauses this Task. Only works when this Task is in RUNNING state.
    *
    */
