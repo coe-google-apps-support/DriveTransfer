@@ -30,6 +30,10 @@ class Transfer extends Task {
     this._it = this.changeOwner(this.listTask.result.fileList, newOwner);
   }
 
+  setup() {
+    return this.listTask.setup();
+  }
+
   /**
   * This is the overridden function from the parent Task class. This does a single iteration of the list operation.
   * In this case, this involves grabbing the current id and it's children. Every call to this function is a call
