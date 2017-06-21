@@ -20,8 +20,8 @@ exports.transfer = function(req, res, next) {
 
   G.getUsers().getUser(req.sessionID).promise.then(() => {
     let tm = G.getTaskManager();
-    let taskID = tm.addTransferTask(req.sessionID, id, to);
-
+    return tm.addTransferTask(req.sessionID, id, to);
+  }).then((taskID) => {
     res.status(200).json({
       message: taskID
     });

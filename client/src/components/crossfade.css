@@ -1,0 +1,23 @@
+.leave {
+  opacity: 1;
+}
+.leave.leaveActive {
+  opacity: 0;
+  transition: opacity 1s ease-in;
+}
+
+.enter {
+  opacity: 0;
+}
+.enter.enterActive {
+  opacity: 1;
+  transition: opacity 1s ease-in;
+}
+
+.height {
+  transition: height .5s ease-in-out;
+}
+
+.width {
+  transition: width .5s ease-in-out;
+}

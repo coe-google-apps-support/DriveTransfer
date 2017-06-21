@@ -15,8 +15,8 @@ exports.list = function(req, res, next) {
 
   G.getUsers().getUser(req.sessionID).promise.then(() => {
     let tm = G.getTaskManager();
-    let taskID = tm.addListTask(req.sessionID, id);
-
+    return tm.addListTask(req.sessionID, id);
+  }).then((taskID) => {
     res.status(200).json({
       message: taskID
     });

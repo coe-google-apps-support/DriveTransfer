@@ -8,6 +8,7 @@ const List = require('./list.js');
 
 const MAX_TRIES = 4;
 const NAPTIME = 2000;
+const RECENT_ITEMS = 10;
 
 const TransferStates = {
   UNTRANSFERED: 'UNTRANSFERED',
@@ -19,13 +20,18 @@ class Transfer extends Task {
     super(userID, taskID);
     this.drive = Google.drive({ version: 'v3', auth: this.client });
 
-    this.listTask = new List(userID, taskID, folderID);
-    this.listTask.state = TaskStates.RUNNING;
-    this.result.transfers = {};
-    this.result.transfers.ids = this.listTask.result.idList;
-    this.result.transfers.state = [];
+    this.recent = {};
+    this.recent.changes = [];
+    this.result.fileList = {};
 
-    this._it = this.changeOwner(this.result.transfers.ids, newOwner);
+    this.listTask = new List(userID, taskID, folderID);
+    this.listTask.result.state = TaskStates.RUNNING;
+
+    this._it = this.changeOwner(this.listTask.result.fileList, newOwner);
+  }
+
+  setup() {
+    return this.listTask.setup();
   }
 
   /**
@@ -36,13 +42,12 @@ class Transfer extends Task {
   * @return {Promise} A Promise that has a string id as it's response value.
   */
   async doUnitOfWork() {
-    if (this.listTask.state === TaskStates.RUNNING) {
-      let id = await this.listTask.doUnitOfWork();
+    if (this.listTask.result.state === TaskStates.RUNNING) {
+      let file = await this.listTask.doUnitOfWork();
 
-      if (id === undefined) return;
+      if (file === undefined) return;
 
-      this.result.transfers.state.push(TransferStates.UNTRANSFERED);
-      console.log('LIST');
+      file.state = TransferStates.UNTRANSFERED;
       return;
     }
     else {
@@ -50,12 +55,13 @@ class Transfer extends Task {
       await transferYield.value;
 
       if (transferYield.done) {
-        this.state = TaskStates.FINISHED;
+        this.result.state = TaskStates.FINISHED;
+        this.recent.state = TaskStates.FINISHED;
         this.emit(TaskStates.FINISHED);
       }
       else {
         transferYield.value.then((value) => {
-          this.result.transfers.state[value.index] = TransferStates.TRANSFERED;
+          this.addResult(value);
         }).catch((err) => {
           console.log(err);
         });
@@ -65,19 +71,27 @@ class Transfer extends Task {
     }
   }
 
+  addResult(value) {
+    this.result.fileList[value.id] = value;
+    value.file.state = TransferStates.TRANSFERED;
+    this.recent.changes = [value, ...this.recent.changes.slice(0, RECENT_ITEMS - 1)];
+  }
+
   /**
   * This function changes the owner of a Google Drive file.
   * TODO Currently, every transfer results in an email AND in a new link to the file
   * being placed at the root of the users Drive.
   *
-  * @param {string} id The id of a Google Drive file or folder.
+  * @param {Object} fileList An Object containing all the Files.
   * @param {string} to The user to receive ownership.
   * @return {Promise} A Promise that has a JSON object as the result.
   */
-  *changeOwner(ids, to) {
-    for (let index = 0; index < ids.length; index++) {
+  *changeOwner(fileList, to) {
+    let entries = Object.entries(fileList);
+
+    for (let index = 0; index < entries.length; index++) {
       yield exponentialBackoff(() => {
-        let id = ids[index];
+        let [id, file] = entries[index];
 
         return new Promise((resolve, reject) => {
           this.drive.permissions.create({
@@ -98,6 +112,7 @@ class Transfer extends Task {
               response,
               id,
               index,
+              file,
             });
           });
         });
