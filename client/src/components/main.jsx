@@ -1,4 +1,6 @@
 import React from 'react';
+import TransitionGroup from 'react-transition-group/TransitionGroup';
+import ReactCSSTransitionReplace from 'react-css-transition-replace';
 import Paper from 'material-ui/Paper';
 import TextField from 'material-ui/TextField';
 import RaisedButton from 'material-ui/RaisedButton';
@@ -9,6 +11,7 @@ import State from '../model/state.js'
 import Wizard from './wizard.jsx';
 import TransferLog from './log/transfer-log.jsx';
 import styles from './main.css';
+import crossfade from './crossfade.css';
 
 const baseDisplay = {
   display: 'flex',
@@ -51,6 +54,8 @@ class Main extends React.Component {
       wizardClass: `${styles.hideable} ${styles.show}`,
       logClass: `${styles.hideable} ${styles.hidden}`,
     };
+
+    this.showWizard = true;
   }
 
   onClick() {
@@ -63,8 +68,6 @@ class Main extends React.Component {
         }).then((result) => {
           this.setState({
             buttonText: states.PAUSE,
-            wizardClass: `${styles.hideable} ${styles.hidden}`,
-            logClass: `${styles.hideable} ${styles.show}`,
           });
         });
       }
@@ -89,34 +92,51 @@ class Main extends React.Component {
   }
 
   updateFolderID(folder) {
+    console.log('folder')
     this.setState(folder);
   }
 
   updateRecipient(evt, value) {
-    this.setState({email: value});
+    console.log('recip')
+    this.setState({
+      email: value,
+    });
   }
 
   setWizard(instance) {
     this.wizard = instance
   }
 
+  getPane() {
+    if (this.state.buttonText === states.START) {
+      return <Wizard
+        ref={this.setWizard.bind(this)}
+        folder={this.state.folder}
+        email={this.state.email}
+        onFolderChange={this.updateFolderID.bind(this)}
+        onEmailChange={this.updateRecipient.bind(this)}
+        key='wizard'/>
+    }
+    else {
+      return <TransferLog taskID='testerenoo' key='log'/>
+    }
+  }
+
   render () {
+    let pane = this.getPane();
+
     return (
       <Paper zDepth={0} style={baseDisplay}>
         <img width='200px' height='200px' src='icon.png'/>
-        <h1 style={textStyle}>Drive Transfer</h1>
+        <h1 style={textStyle} className={styles.hideable}>Drive Transfer</h1>
 
-        <div className={this.state.wizardClass}>
-          <Wizard
-            ref={this.setWizard.bind(this)}
-            folder={this.state.folder}
-            email={this.state.email}
-            onFolderChange={this.updateFolderID.bind(this)}
-            onEmailChange={this.updateRecipient.bind(this)} />
-        </div>
-        <div className={this.state.logClass}>
-          <TransferLog taskID='testerenoo' />
-        </div>
+        <ReactCSSTransitionReplace
+          transitionName={crossfade}
+          changeWidth={true}
+          transitionEnterTimeout={1000}
+          transitionLeaveTimeout={1000}>
+          {pane}
+        </ReactCSSTransitionReplace>
 
         <RaisedButton
           label={this.state.buttonText}

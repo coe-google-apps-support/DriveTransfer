@@ -35,11 +35,12 @@
     "material-ui": "^0.17.1",
     "prop-types": "^15.5.10",
     "react": "^15.4.2",
+    "react-css-transition-replace": "^2.2.1",
     "react-dock": "^0.2.4",
     "react-dom": "^15.4.2",
     "react-fontawesome": "^1.6.1",
-    "react-motion": "^0.5.0",
     "react-tap-event-plugin": "^2.0.1",
+    "react-transition-group": "^1.2.0",
     "webpack": "^2.2.1"
   },
   "devDependencies": {
