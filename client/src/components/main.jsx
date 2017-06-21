@@ -102,7 +102,7 @@ class Main extends React.Component {
         key='wizard'/>
     }
     else {
-      return <TransferLog taskID={this.state.taskID} key='log'/>
+      return <TransferLog pollTime={1000} taskID={this.state.taskID} key='log'/>
     }
   }
 
