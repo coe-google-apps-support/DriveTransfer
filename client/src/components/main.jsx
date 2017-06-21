@@ -18,7 +18,8 @@ const baseDisplay = {
   flexDirection: 'column',
   width: '100%',
   justifyContent: 'center',
-  alignItems: 'center'
+  alignItems: 'center',
+  flex: '1',
 };
 
 const buttonStyle = {
