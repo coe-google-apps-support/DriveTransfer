@@ -19,22 +19,24 @@ const muiTheme = getMuiTheme({
 const fillScreenStyle = {
   height: '100%',
   width: '100%',
-  margin: '0px'
+  margin: '0px',
+  display: 'flex',
+  flexDirection: 'column',
 }
 
 const textStyle = {
   fontFamily: 'Roboto, sans-serif',
   fontSize: '48px',
-  color: grey600
+  color: grey600,
 }
 
 const baseDisplay = {
   display: 'flex',
   flexDirection: 'column',
   width: '100%',
-  height: '100%',
+  flex: '1',
   justifyContent: 'center',
-  alignItems: 'center'
+  alignItems: 'center',
 };
 
 const buttonStyle = {
