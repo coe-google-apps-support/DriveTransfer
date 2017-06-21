@@ -6,6 +6,7 @@ import {List, ListItem} from 'material-ui/List';
 import Divider from 'material-ui/Divider';
 import Subheader from 'material-ui/Subheader';
 import Avatar from 'material-ui/Avatar';
+import FileFolder from 'material-ui/svg-icons/file/folder';
 import {blue500, yellow600} from 'material-ui/styles/colors';
 
 // Icons
@@ -17,29 +18,75 @@ class TransferLog extends React.Component {
   constructor(props) {
     super(props);
 
-    //this.setInterval(this.updateLog.bind(this), this.props.pollTime);
+    this.state = {
+      recent: [],
+    };
+  }
+
+  componentDidMount() {
+    let intervalId = setInterval(this.updateLog.bind(this), this.props.pollTime);
+    this.setState({intervalId: intervalId});
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.state.intervalId);
   }
 
   updateLog() {
-    Task.getRecent(this.props.taskID);
+    Task.getRecent(this.props.taskID).then((result) => {
+      console.log(result);
+      this.setState({
+        recent: result.data.message.changes,
+        state: result.data.message.state,
+      });
+    });
+  }
+
+  getRandom() {
+    let options = [
+      <ListItem
+        leftAvatar={<Avatar icon={<ActionAssignment />} backgroundColor={blue500} />}
+        rightIcon={<ActionInfo />}
+        primaryText="Vacation itinerary"
+        secondaryText="Jan 20, 2014"
+      />,
+      <ListItem
+        leftAvatar={<Avatar icon={<EditorInsertChart />} backgroundColor={yellow600} />}
+        rightIcon={<ActionInfo />}
+        primaryText="Kitchen remodel"
+        secondaryText="Jan 10, 2014"
+      />,
+      <ListItem
+        leftAvatar={<Avatar icon={<FileFolder />} />}
+        rightIcon={<ActionInfo />}
+        primaryText="Photos"
+        secondaryText="Jan 9, 2014"
+      />,
+      <ListItem
+        leftAvatar={<Avatar icon={<FileFolder />} />}
+        rightIcon={<ActionInfo />}
+        primaryText="Recipes"
+        secondaryText="Jan 17, 2014"
+      />,
+      <ListItem
+        leftAvatar={<Avatar icon={<FileFolder />} />}
+        rightIcon={<ActionInfo />}
+        primaryText="Work"
+        secondaryText="Jan 28, 2014"
+      />,
+    ];
+
+    return options[Math.floor(Math.random() * options.length)];
   }
 
   render() {
     return (
       <List>
-        <Subheader inset={true}>Transfers</Subheader>
-        <ListItem
-          leftAvatar={<Avatar icon={<ActionAssignment />} backgroundColor={blue500} />}
-          rightIcon={<ActionInfo />}
-          primaryText="Vacation itinerary"
-          secondaryText="Jan 20, 2014"
-        />
-        <ListItem
-          leftAvatar={<Avatar icon={<EditorInsertChart />} backgroundColor={yellow600} />}
-          rightIcon={<ActionInfo />}
-          primaryText="Kitchen remodel"
-          secondaryText="Jan 10, 2014"
-        />
+        {
+          this.state.recent.slice(5).map((value) => {
+            return this.getRandom();
+          })
+        }
       </List>
     );
   }
