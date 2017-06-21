@@ -23,27 +23,6 @@ exports.requireAuth = function(req, res, next) {
   if (user && user.authorized) {
     console.log('User is already logged in.');
 
-    // Lets do some MONGO STUUUFF
-    let test;
-    G.getMongoClient().then((db) => {
-      test = db.collection('test');
-      return test.insertMany([
-        {a: 1},
-        {b: 2},
-        {c: 3},
-      ]);
-    }).then((result) => {
-      return test.find({'a': 1}).toArray();
-      console.log('Successfully added stuff');
-    }).then((result) => {
-      console.log('found something: ')
-      console.log(result);
-    }).catch((err) => {
-      console.log(err);
-    });
-
-    // Lets do some MONGO STUUUFF
-
     next();
   }
   else {
