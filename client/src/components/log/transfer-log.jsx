@@ -5,10 +5,16 @@ import LogItem from './log-item.jsx';
 import {List, ListItem} from 'material-ui/List';
 import Divider from 'material-ui/Divider';
 import Subheader from 'material-ui/Subheader';
+import CircularProgress from 'material-ui/CircularProgress';
 
 const style = {
   list: {
     width: '400px',
+  },
+  subheader: {
+    display: 'flex',
+    justifyContent: 'center',
+    paddingLeft: '0px',
   }
 }
 
@@ -42,6 +48,10 @@ class TransferLog extends React.Component {
   render() {
     return (
       <List style={style.list}>
+        <Subheader style={style.subheader}>
+          <CircularProgress />
+        </Subheader>
+
         {
           this.state.recent.slice(5).map((value) => {
             return <LogItem file={value.file}/>;
