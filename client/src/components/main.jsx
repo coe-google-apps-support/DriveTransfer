@@ -19,7 +19,7 @@ const baseDisplay = {
   width: '100%',
   justifyContent: 'center',
   alignItems: 'center',
-  flex: '1',
+  flex: '1 0 auto',
 };
 
 const buttonStyle = {
@@ -126,6 +126,7 @@ class Main extends React.Component {
           label={this.state.buttonText}
           primary={true}
           onTouchTap={this.onClick.bind(this)}
+          style={buttonStyle}
         />
       </Paper>
     );

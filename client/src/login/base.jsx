@@ -34,7 +34,7 @@ const baseDisplay = {
   display: 'flex',
   flexDirection: 'column',
   width: '100%',
-  flex: '1',
+  flex: '1 0 auto',
   justifyContent: 'center',
   alignItems: 'center',
 };
