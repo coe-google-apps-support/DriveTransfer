@@ -18,7 +18,9 @@ const muiTheme = getMuiTheme({
 const fillScreenStyle = {
   height: '100%',
   width: '100%',
-  margin: '0px'
+  margin: '0px',
+  display: 'flex',
+  flexDirection: 'column',
 }
 
 // Needed for onTouchTap
