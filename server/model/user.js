@@ -1,5 +1,5 @@
-var readFile = require('../util/promisey-read-file.js').readFile;
-var OAuth2 = require('googleapis').auth.OAuth2;
+const readFile = require('../util/promisey-read-file.js').readFile;
+const OAuth2 = require('googleapis').auth.OAuth2;
 
 class User {
   constructor(scopes, id) {
@@ -15,10 +15,6 @@ class User {
       this._resolve = resolve;
       this._reject = reject;
     });
-  }
-
-  authorize(res, req, next) {
-    console.log('AUTHORIZING USER');
   }
 
   /************** Authorization steps **************/

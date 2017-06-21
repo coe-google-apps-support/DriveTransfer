@@ -22,6 +22,28 @@ exports.requireAuth = function(req, res, next) {
   let user = G.getUsers().getUser(req.sessionID);
   if (user && user.authorized) {
     console.log('User is already logged in.');
+
+    // Lets do some MONGO STUUUFF
+    let test;
+    G.getMongoClient().then((db) => {
+      test = db.collection('test');
+      return test.insertMany([
+        {a: 1},
+        {b: 2},
+        {c: 3},
+      ]);
+    }).then((result) => {
+      return test.find({'a': 1}).toArray();
+      console.log('Successfully added stuff');
+    }).then((result) => {
+      console.log('found something: ')
+      console.log(result);
+    }).catch((err) => {
+      console.log(err);
+    });
+
+    // Lets do some MONGO STUUUFF
+
     next();
   }
   else {
@@ -46,8 +68,6 @@ exports.oauthCallback = function(req, res, next) {
 
   user.promise.then((result) => {
     if (req.query.state) {
-      console.log('STATE HERE');
-      console.log(req.query);
       res.redirect(req.query.state);
     }
   });
