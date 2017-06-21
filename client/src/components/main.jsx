@@ -7,7 +7,7 @@ import RaisedButton from 'material-ui/RaisedButton';
 import TransferService from '../services/transfer.js';
 import TaskService from '../services/task.js';
 import {grey600} from 'material-ui/styles/colors';
-import State from '../model/state.js'
+import State from '../model/state.js';
 import Wizard from './wizard.jsx';
 import TransferLog from './log/transfer-log.jsx';
 import styles from './main.css';
@@ -91,18 +91,6 @@ class Main extends React.Component {
     }
   }
 
-  updateFolderID(folder) {
-    console.log('folder')
-    this.setState(folder);
-  }
-
-  updateRecipient(evt, value) {
-    console.log('recip')
-    this.setState({
-      email: value,
-    });
-  }
-
   setWizard(instance) {
     this.wizard = instance
   }
@@ -111,14 +99,10 @@ class Main extends React.Component {
     if (this.state.buttonText === states.START) {
       return <Wizard
         ref={this.setWizard.bind(this)}
-        folder={this.state.folder}
-        email={this.state.email}
-        onFolderChange={this.updateFolderID.bind(this)}
-        onEmailChange={this.updateRecipient.bind(this)}
         key='wizard'/>
     }
     else {
-      return <TransferLog taskID='testerenoo' key='log'/>
+      return <TransferLog taskID={this.state.taskID} key='log'/>
     }
   }
 

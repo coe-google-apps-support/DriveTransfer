@@ -4,6 +4,7 @@ import RaisedButton from 'material-ui/RaisedButton';
 import FlatButton from 'material-ui/FlatButton';
 import TextField from 'material-ui/TextField';
 import FontIcon from 'material-ui/FontIcon';
+import State from '../model/state.js';
 import {validate} from 'email-validator';
 import load from '../util/api-load.js';
 
@@ -62,10 +63,16 @@ class Wizard extends React.Component {
   constructor(props) {
     super(props);
 
+    State.subscribe(this);
     this.state = {
       emailError: '',
       folderError: false,
       validate: false,
+      folder: {
+        id: '',
+        title: '',
+      },
+      email: '',
     };
 
     this.pickerPromise = load('picker');
@@ -84,11 +91,9 @@ class Wizard extends React.Component {
       const id = document.id;
       const title = document.name;
 
-      this.props.onFolderChange({
-        folder: {
-          id,
-          title
-        }
+      this.onFolderChange({
+        id,
+        title
       });
     }
     else {
@@ -129,8 +134,8 @@ class Wizard extends React.Component {
       validate: true,
     });
 
-    const validEmail = this.validateEmail(this.props.email);
-    const validFolder = this.validateFolder(this.props.folder.id);
+    const validEmail = this.validateEmail(this.state.email);
+    const validFolder = this.validateFolder(this.state.folder.id);
 
     return validEmail && validFolder;
   };
@@ -177,6 +182,16 @@ class Wizard extends React.Component {
     }
   }
 
+  onFolderChange(folder) {
+    State.setState({folder});
+  }
+
+  onEmailChange(evt, value) {
+    State.setState({
+      email: value,
+    });
+  }
+
   render() {
     let rootStyle;
     if (this.state.emailError) {
@@ -193,27 +208,20 @@ class Wizard extends React.Component {
           <FlatButton style={styles.folderPicker} onClick={this.buildPicker.bind(this)}>
             <FontIcon style={styles.icon} className="material-icons">folder</FontIcon>
             <div style={this.state.folderError ? styles.error : {}}>
-              {this.props.folder.title != '' ? this.props.folder.title : 'Select folder'}
+              {this.state.folder.title != '' ? this.state.folder.title : 'Select folder'}
             </div>
           </FlatButton>
 
           <TextField
             hintText='New Owner'
             errorText={this.state.emailError}
-            onChange={this.props.onEmailChange}
-            value={this.props.email} />
+            onChange={this.onEmailChange.bind(this)}
+            value={this.state.email} />
         </div>
 
       </div>
     );
   }
 }
-
-Wizard.propTypes = {
-  folder: PropTypes.object.isRequired,
-  email: PropTypes.string.isRequired,
-  onFolderChange: PropTypes.func,
-  onEmailChange: PropTypes.func,
-};
 
 export default Wizard;
