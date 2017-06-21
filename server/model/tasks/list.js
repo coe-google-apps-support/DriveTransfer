@@ -96,6 +96,7 @@ class List extends Task {
     return exponentialBackoff(() => {
       return new Promise((resolve, reject) => {
         this.drive.files.list({
+          fields: 'files',
           q: '\'' + id + '\' in parents and trashed=false'
         }, function(err, response) {
           if (err != null) {
