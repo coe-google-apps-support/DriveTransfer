@@ -120,7 +120,8 @@ class List extends Task {
     return exponentialBackoff(() => {
       return new Promise((resolve, reject) => {
         this.drive.files.get({
-          fileId: id
+          fileId: id,
+          fields: 'createdTime, name, mimeType, webViewLink, id',
         }, function(err, response) {
           if (err != null) {
             reject(err);
