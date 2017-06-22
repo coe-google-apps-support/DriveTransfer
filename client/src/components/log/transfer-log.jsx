@@ -15,6 +15,9 @@ const style = {
     display: 'flex',
     justifyContent: 'center',
     paddingLeft: '0px',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
   }
 }
 
@@ -24,6 +27,7 @@ class TransferLog extends React.Component {
 
     this.state = {
       recent: [],
+      displayState: 'Finding files...',
     };
   }
 
@@ -38,6 +42,15 @@ class TransferLog extends React.Component {
 
   updateLog() {
     Task.getRecent(this.props.taskID).then((result) => {
+      if (result.data.message.state === 'FINISHED') {
+        this.setState({displayState: 'Done!'});
+        clearInterval(this.state.intervalId);
+        // Make a callback.
+      }
+      else if (result.data.message.changes.length > 0) {
+        this.setState({displayState: 'Transferring files...'});
+      }
+
       this.setState({
         recent: result.data.message.changes,
         state: result.data.message.state,
@@ -46,17 +59,39 @@ class TransferLog extends React.Component {
   }
 
   render() {
-    return (
-      <List style={style.list}>
+    let display;
+    let loading;
+    if (this.state.state === 'FINISHED') {
+      loading =
         <Subheader style={style.subheader}>
-          <CircularProgress />
+          {this.state.displayState}
         </Subheader>
 
-        {
-          this.state.recent.slice(5).map((value) => {
-            return <LogItem file={value.file}/>;
-          })
-        }
+      display = (
+        this.state.recent.slice(5).map((value) => {
+          return <LogItem file={value.file}/>;
+        })
+      );
+    }
+    else {
+      loading =
+      <Subheader style={style.subheader}>
+        <CircularProgress />
+        {this.state.displayState}
+      </Subheader>
+
+      display = (
+        this.state.recent.slice(5).map((value) => {
+          return <LogItem file={value.file}/>;
+        })
+      );
+    }
+
+    return (
+      <List style={style.list}>
+        {loading}
+        {display}
+
       </List>
     );
   }

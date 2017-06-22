@@ -18,14 +18,20 @@ class LogItem extends React.Component {
     super(props);
   }
 
+  openURL() {
+    window.open(this.props.file.webViewLink);
+  }
+
   render() {
     let icon = MIMEInfo.getIcon(this.props.file.mimeType);
+
     return (
       <ListItem
         leftAvatar={icon}
         rightIcon={<ActionInfo />}
         primaryText={this.props.file.name.substring(0, maxLength) + '...'}
         secondaryText="Jan 17, 2014"
+        onTouchTap={this.openURL.bind(this)}
       />
     );
   }
