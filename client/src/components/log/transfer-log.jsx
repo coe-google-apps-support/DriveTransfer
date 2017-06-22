@@ -7,6 +7,7 @@ import Divider from 'material-ui/Divider';
 import Subheader from 'material-ui/Subheader';
 import CircularProgress from 'material-ui/CircularProgress';
 import PubSub from 'pubsub-js';
+import FlipMove from 'react-flip-move';
 
 const style = {
   list: {
@@ -101,7 +102,10 @@ class TransferLog extends React.Component {
 
       display = (
         this.state.recent.slice(5).map((value) => {
-          return <LogItem file={value.file}/>;
+          return <LogItem
+            key={value.file.id}
+            file={value.file}
+          />;
         })
       );
     }
@@ -125,7 +129,16 @@ class TransferLog extends React.Component {
     return (
       <List style={style.list}>
         {loading}
-        {display}
+
+        <FlipMove
+          duration={700}
+          easing='ease'
+          delay={0}
+          staggerDelayBy={20}
+          staggerDurationBy={15}
+          >
+          {display}
+        </FlipMove>
       </List>
     );
   }
