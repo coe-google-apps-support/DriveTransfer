@@ -12,6 +12,7 @@ import Wizard from './wizard.jsx';
 import TransferLog from './log/transfer-log.jsx';
 import styles from './main.css';
 import crossfade from './crossfade.css';
+import PubSub from 'pubsub-js';
 
 const baseDisplay = {
   display: 'flex',
@@ -69,6 +70,7 @@ class Main extends React.Component {
           this.setState({
             buttonText: states.PAUSE,
           });
+          PubSub.publish('main button click', states.PAUSE);
         });
       }
     }
@@ -77,6 +79,7 @@ class Main extends React.Component {
         this.setState({
           buttonText: states.RESUME,
         });
+        PubSub.publish('main button click', states.RESUME);
       });
     }
     else if (this.state.buttonText === states.RESUME) {
@@ -84,6 +87,7 @@ class Main extends React.Component {
         this.setState({
           buttonText: states.PAUSE,
         });
+        PubSub.publish('main button click', states.PAUSE);
       });
     }
     else {
