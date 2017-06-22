@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import {ListItem} from 'material-ui/List';
 import MIMEInfo from '../../services/mime-info.jsx';
 import Moment from 'moment';
+import ActionInfo from 'material-ui/svg-icons/action/info';
 
 const maxLength = 26;
 
