@@ -82,7 +82,10 @@ class TransferLog extends React.Component {
 
       display = (
         this.state.recent.slice(5).map((value) => {
-          return <LogItem file={value.file}/>;
+          return <LogItem
+            key={value.file.id}
+            file={value.file}
+          />;
         })
       );
     }
