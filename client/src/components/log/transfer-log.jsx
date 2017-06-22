@@ -136,6 +136,8 @@ class TransferLog extends React.Component {
           delay={0}
           staggerDelayBy={20}
           staggerDurationBy={15}
+          enterAnimation='fade'
+          leaveAnimation='fade'
           >
           {display}
         </FlipMove>
