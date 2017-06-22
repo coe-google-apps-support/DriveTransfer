@@ -33,6 +33,7 @@
     "babel-preset-react": "^6.23.0",
     "email-validator": "^1.0.7",
     "material-ui": "^0.17.1",
+    "moment": "^2.18.1",
     "prop-types": "^15.5.10",
     "pubsub-js": "^1.5.7",
     "react": "^15.4.2",
