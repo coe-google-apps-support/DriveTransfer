@@ -11,13 +11,16 @@ const NAPTIME = 2000;
 class List extends Task {
   constructor(userID, taskID, folderID) {
     super(userID, taskID);
-    this.drive = Google.drive({ version: 'v3', auth: this.client });
+    this.drive = null;
     this.result.fileList = {};
     this.folderID = folderID;
   }
 
   setup() {
-    return this.getFirstFile(this.folderID).then((file) => {
+    return super.setup().then(() => {
+      this.drive = Google.drive({ version: 'v3', auth: this.client });
+      return this.getFirstFile(this.folderID);
+    }).then((file) => {
       this._it = this.listFiles(file);
     });
   }
@@ -96,6 +99,7 @@ class List extends Task {
     return exponentialBackoff(() => {
       return new Promise((resolve, reject) => {
         this.drive.files.list({
+          fields: 'files',
           q: '\'' + id + '\' in parents and trashed=false'
         }, function(err, response) {
           if (err != null) {
@@ -119,7 +123,8 @@ class List extends Task {
     return exponentialBackoff(() => {
       return new Promise((resolve, reject) => {
         this.drive.files.get({
-          fileId: id
+          fileId: id,
+          fields: 'createdTime, name, mimeType, webViewLink, id',
         }, function(err, response) {
           if (err != null) {
             reject(err);

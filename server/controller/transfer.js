@@ -18,7 +18,9 @@ exports.transfer = function(req, res, next) {
     return;
   }
 
-  G.getUsers().getUser(req.sessionID).promise.then(() => {
+  G.getUsers().getUser(req.sessionID).then((user) => {
+    return user.promise;
+  }).then(() => {
     let tm = G.getTaskManager();
     return tm.addTransferTask(req.sessionID, id, to);
   }).then((taskID) => {

@@ -21,7 +21,7 @@ class TaskManager {
     });
 
     if (foundTask === undefined) {
-      console.log(`No task ${taskID} found.`);
+      throw new Error(`No task ${taskID} found.`);
     }
 
     return foundTask;
@@ -35,15 +35,18 @@ class TaskManager {
    * @return {string} The id of this task.
    */
   addListTask(userID, folderID) {
-    if (G.getUsers().getUser(userID) == null) {
-      throw new Error(`Couldn't find user ${userID}.`);
-    }
+    let task;
+    return G.getUsers().getUser(userID).then((user) => {
+      if (user == null) {
+        throw new Error(`Couldn't find user ${userID}.`);
+      }
 
-    const taskID = uuid();
-    let task = new List(userID, taskID, folderID);
-    return task.setup().then(() => {
+      const taskID = uuid();
+      task = new List(userID, taskID, folderID);
+      return task.setup();
+    }).then(() => {
       this.tasks.push(task);
-      return taskID;
+      return task.id;
     });
   }
 
@@ -56,16 +59,19 @@ class TaskManager {
    * @return {string} The id of this task.
    */
   addTransferTask(userID, folderID, newOwner) {
-    if (G.getUsers().getUser(userID) == null) {
-      throw new Error(`Couldn't find user ${userID}.`);
-    }
+    let task;
+    return G.getUsers().getUser(userID).then((user) => {
+      if (user == null) {
+        throw new Error(`Couldn't find user ${userID}.`);
+      }
 
-    const taskID = uuid();
-    let task = new Transfer(userID, taskID, folderID, newOwner);
-    return task.setup().then(() => {
+      const taskID = uuid();
+      task = new Transfer(userID, taskID, folderID, newOwner);
+      return task.setup();
+    }).then(() => {
       this.tasks.push(task);
-      return taskID;
-    });
+      return task.id;
+    })
   }
 
   runTask(taskID) {

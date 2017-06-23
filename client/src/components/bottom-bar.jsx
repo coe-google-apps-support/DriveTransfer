@@ -60,7 +60,7 @@ class BottomNavigationExampleSimple extends Component {
 
   render() {
     return (
-      <Paper style={sitAtBottom} zDepth={0}>
+      <Paper zDepth={0}>
         <BottomNavigation selectedIndex={this.state.selectedIndex}>
           <BottomNavigationItem
             label="Support"

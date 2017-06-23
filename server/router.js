@@ -2,6 +2,7 @@ const express = require('express');
 const path = require('path');
 const Session = require('express-session');
 const MongoStore = require('connect-mongo')(Session);
+const mongoose = require('mongoose');
 const logger = require('morgan');
 const cors = require('cors');
 
@@ -15,13 +16,16 @@ const reset = require('./controller/reset.js').reset;
 const mainView = require('./view/main.js');
 const login = require('./controller/login.js').login;
 
-const url = 'mongodb://localhost:27017';
+const url = 'mongodb://localhost:27017/test';
 const sess = {
   secret: 'fasdkh7f4qjhadf6kashfr347ajpv',
   resave: false,
   saveUninitialized: true,
   store: new MongoStore({url}),
 }
+
+mongoose.Promise = global.Promise;
+mongoose.connect(url);
 
 module.exports = function(app) {
   app.use(Session(sess));  // Use req.session to get and set user-specific properties.

@@ -18,7 +18,7 @@ const TransferStates = {
 class Transfer extends Task {
   constructor(userID, taskID, folderID, newOwner) {
     super(userID, taskID);
-    this.drive = Google.drive({ version: 'v3', auth: this.client });
+    this.drive = null;
 
     this.recent = {};
     this.recent.changes = [];
@@ -31,7 +31,11 @@ class Transfer extends Task {
   }
 
   setup() {
-    return this.listTask.setup();
+    return super.setup().then(() => {
+      this.drive = Google.drive({ version: 'v3', auth: this.client });
+    }).then(() => {
+      return this.listTask.setup();
+    });
   }
 
   /**

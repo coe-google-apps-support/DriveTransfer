@@ -12,14 +12,15 @@ import Wizard from './wizard.jsx';
 import TransferLog from './log/transfer-log.jsx';
 import styles from './main.css';
 import crossfade from './crossfade.css';
+import PubSub from 'pubsub-js';
 
 const baseDisplay = {
   display: 'flex',
   flexDirection: 'column',
   width: '100%',
-  height: '100%',
   justifyContent: 'center',
-  alignItems: 'center'
+  alignItems: 'center',
+  flex: '1 0 auto',
 };
 
 const buttonStyle = {
@@ -69,6 +70,7 @@ class Main extends React.Component {
           this.setState({
             buttonText: states.PAUSE,
           });
+          PubSub.publish('main button click', states.PAUSE);
         });
       }
     }
@@ -77,6 +79,7 @@ class Main extends React.Component {
         this.setState({
           buttonText: states.RESUME,
         });
+        PubSub.publish('main button click', states.RESUME);
       });
     }
     else if (this.state.buttonText === states.RESUME) {
@@ -84,6 +87,7 @@ class Main extends React.Component {
         this.setState({
           buttonText: states.PAUSE,
         });
+        PubSub.publish('main button click', states.PAUSE);
       });
     }
     else {
@@ -126,6 +130,7 @@ class Main extends React.Component {
           label={this.state.buttonText}
           primary={true}
           onTouchTap={this.onClick.bind(this)}
+          style={buttonStyle}
         />
       </Paper>
     );

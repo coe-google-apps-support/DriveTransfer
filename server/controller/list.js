@@ -13,10 +13,13 @@ exports.list = function(req, res, next) {
     return;
   }
 
-  G.getUsers().getUser(req.sessionID).promise.then(() => {
+  G.getUsers().getUser(req.sessionID).then((user) => {
+    return user.promise;
+  }).then(() => {
     let tm = G.getTaskManager();
     return tm.addListTask(req.sessionID, id);
   }).then((taskID) => {
+    console.log(`Task is ${taskID}.`);
     res.status(200).json({
       message: taskID
     });

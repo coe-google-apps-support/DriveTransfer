@@ -7,16 +7,12 @@ class Task extends EventEmitter {
     super();
 
     this.id = taskID;
-    this.client = G.getUsers().getUser(userID).client;
+    this.client = null;
     this.userID = userID;
     this.result = {};
     this.recent = {};
     this.result.state = TaskStates.CREATED;
     this.recent.state = TaskStates.CREATED;
-
-    if (this.client === null) {
-      throw new Error('Task must be created after clients are fully authorized.');
-    }
   }
 
   /**
@@ -47,8 +43,8 @@ class Task extends EventEmitter {
    *
    */
   setup() {
-    return new Promise((resolve, reject) => {
-      resolve();
+    return G.getUsers().getUser(this.userID).then((user) => {
+      this.client = user.client;
     });
   }
 
