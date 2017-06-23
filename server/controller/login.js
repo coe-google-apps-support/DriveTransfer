@@ -6,21 +6,25 @@ const SCOPES = [
 ];
 
 exports.login = function(req, res, next) {
-  let user = G.getUsers().getUser(req.sessionID);
-  if (user && user.authorized) {
-    console.log('User is already logged in.');
-    next();
-  }
-  else {
-    console.log('User must log in.');
-    let us = G.getUsers();
-    user = new User(SCOPES, req.sessionID);
-    us.addUser(user);
+  let users = G.getUsers();
 
-    user.createBasicClient().then((result) => {
-      let referer = req.headers.referer;
-      let url = user.getURL(referer);
-      res.redirect(url);
-    });
-  }
+  users.getUser(req.sessionID).then((user) => {
+    if (user && user.authorized) {
+      console.log('User is already logged in.');
+      next();
+    }
+    else {
+      console.log('User must log in.');
+      user = new User(SCOPES, req.sessionID);
+      users.addUser(user);
+
+      return user.createBasicClient().then((user) => {
+        let referer = req.headers.referer;
+        let url = user.getURL(referer);
+        res.redirect(url);
+      });
+    }
+  }).catch((err) => {
+    console.log(err);
+  });
 }

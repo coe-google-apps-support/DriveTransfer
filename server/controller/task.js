@@ -8,7 +8,9 @@ exports.run = function(req, res, next) {
     return;
   }
 
-  G.getUsers().getUser(req.sessionID).promise.then(() => {
+  G.getUsers().getUser(req.sessionID).then((user) => {
+    return user.promise;
+  }).then(() => {
     let tm = G.getTaskManager();
     tm.runTask(taskID);
 
@@ -28,7 +30,9 @@ exports.pause = function(req, res, next) {
     return;
   }
 
-  G.getUsers().getUser(req.sessionID).promise.then(() => {
+  G.getUsers().getUser(req.sessionID).then((user) => {
+    return user.promise;
+  }).then(() => {
     let tm = G.getTaskManager();
     tm.pauseTask(taskID);
 
@@ -48,7 +52,9 @@ exports.getResult = function(req, res, next) {
     return;
   }
 
-  G.getUsers().getUser(req.sessionID).promise.then(() => {
+  G.getUsers().getUser(req.sessionID).then((user) => {
+    return user.promise;
+  }).then(() => {
     let tm = G.getTaskManager();
     let result = tm.getTaskResult(taskID);
 
@@ -68,7 +74,9 @@ exports.getRecentWork = function(req, res, next) {
     return;
   }
 
-  G.getUsers().getUser(req.sessionID).promise.then(() => {
+  G.getUsers().getUser(req.sessionID).then((user) => {
+    return user.promise;
+  }).then(() => {
     let tm = G.getTaskManager();
     let result = tm.getRecentWork(taskID);
 

@@ -19,33 +19,34 @@ const G = require('../model/global.js');
 exports.requireAuth = function(req, res, next) {
   console.log('Setting up user auth.');
 
-  let user = G.getUsers().getUser(req.sessionID);
-  if (user && user.authorized) {
-    console.log('User is already logged in.');
+  G.getUsers().getUser(req.sessionID).then((user) => {
+    if (user && user.authorized) {
+      console.log('User is already logged in.');
 
-    next();
-  }
-  else {
-    console.log('User must log in.');
-    const url = path.resolve(__dirname, '..', '..', 'client', 'src', 'static', 'login');
-    res.render(url);
-  }
+      next();
+    }
+    else {
+      console.log('User must log in.');
+      const url = path.resolve(__dirname, '..', '..', 'client', 'src', 'static', 'login');
+      res.render(url);
+    }
+  });
 }
 
 exports.oauthCallback = function(req, res, next) {
   console.log('OAUTH for ' + req.sessionID);
 
-  let user = G.getUsers().getUser(req.sessionID);
-  if (user == null) {
-    let err = new Error('Your session couldn\'t be found');
-    res.status(500).send(err);
-    console.log(err);
-    return;
-  }
+  G.getUsers().getUser(req.sessionID).then((user) => {
+    if (user == null) {
+      let err = new Error('Your session couldn\'t be found');
+      res.status(500).send(err);
+      console.log(err);
+      return;
+    }
 
-  user.getToken(req.query.code);
-
-  user.promise.then((result) => {
+    user.getToken(req.query.code);
+    return user.promise;
+  }).then(() => {
     if (req.query.state) {
       res.redirect(req.query.state);
     }

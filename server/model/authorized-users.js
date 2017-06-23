@@ -1,4 +1,6 @@
-const G = './global.js';
+const mongoose = require('mongoose');
+const MongooseUser = mongoose.model('MongooseUser');
+const User = require('./user.js');
 
 class AuthorizedUsers {
 
@@ -7,19 +9,22 @@ class AuthorizedUsers {
     this.users = {};
   }
 
-  reloadUsers() {
-    let collectionl
-    G.getMongoClient().then((db) => {
-      collection = db.collection('users');
-
-      return collection.find({}).toArray();
-    }).then((result) => {
-      console.log(result);
-    });
-  }
-
   getUser(key) {
-    return this.users[key];
+    // First look locally.
+    if (this.users[key] != null) {
+      return Promise.resolve(this.users[key]);
+    }
+
+    //Then check the db.
+    return MongooseUser.findOne({id: key}).then((mUser) => {
+      if (mUser == null) {
+        console.log(`User ${key} not found.`);
+        return null;
+      }
+
+      this.users[key] = User.fromDB(mUser);
+      return this.users[key];
+    });
   }
 
   addUser(user) {

@@ -1,5 +1,36 @@
 const readFile = require('../util/promisey-read-file.js').readFile;
 const OAuth2 = require('googleapis').auth.OAuth2;
+const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
+
+const UserSchema = new Schema({
+  id: {
+    type: String,
+    required: true,
+    index: true,
+    unique: true,
+  },
+  scopes: {
+    type: [String],
+    required: true,
+  },
+  tokens: {
+    access_token: {
+      type: String,
+      required: true,
+    },
+    token_type: {
+      type: String,
+      required: true,
+    },
+    expiry_date: {
+      type: Number,
+      required: true,
+    }
+  }
+});
+
+let MongooseUser = mongoose.model('MongooseUser', UserSchema);
 
 class User {
   constructor(scopes, id) {
@@ -10,11 +41,24 @@ class User {
     this.client = null;
     this.clientState = 'unset';
     this.authorized = false;
+    this.mongooseUser = null;
 
     this.promise = new Promise((resolve, reject) => {
       this._resolve = resolve;
       this._reject = reject;
     });
+  }
+
+  static fromDB(mongooseUser) {
+    let user = new User(mongooseUser.scopes, mongooseUser.id);
+    user.mongooseUser = mongooseUser;
+
+    return user.createBasicClient().then((thisUser) => {
+      thisUser.client.setCredentials(mongooseUser.tokens);
+      thisUser.authorized = true;
+      thisUser._resolve(thisUser.client);
+      return thisUser;
+    })
   }
 
   /************** Authorization steps **************/
@@ -23,20 +67,18 @@ class User {
   // Create the basic client.
 
   createBasicClient() {
-    return readFile('../client_secret.json').then(
-      (result) => {
-        let credentials = JSON.parse(result);
-        let clientSecret = credentials.web.client_secret;
-        let clientId = credentials.web.client_id;
-        let redirectUrl = credentials.web.redirect_uris[0];
+    return readFile('../client_secret.json').then((result) => {
+      let credentials = JSON.parse(result);
+      let clientSecret = credentials.web.client_secret;
+      let clientId = credentials.web.client_id;
+      let redirectUrl = credentials.web.redirect_uris[0];
 
-        this.client = new OAuth2(clientId, clientSecret, redirectUrl);
-        this.clientState = 'basic';
-        return this.client;
-    }).catch(
-      (err) => {
-        console.log('Error loading client secret file: ' + err);
-        throw err;
+      this.client = new OAuth2(clientId, clientSecret, redirectUrl);
+      this.clientState = 'basic';
+      return this;
+    }).catch((err) => {
+      console.log('Error loading client secret file: ' + err);
+      throw err;
     });
   }
 
@@ -67,8 +109,19 @@ class User {
         console.log('credentials set');
         this.client.setCredentials(tokens);
         this.authorized = true;
-        //storeToken(tokens);
-        this._resolve(this.client);
+
+        this.mongooseUser = new MongooseUser({
+          id: this.id,
+          scopes: this.scopes,
+          tokens: tokens,
+        });
+
+        this.mongooseUser.save().then((result) => {
+          this._resolve(this.client);
+        }).catch((err) => {
+          console.log(`Failed saving user ${this.id} to the database.`);
+          console.log(err);
+        });
       }
       else {
         console.log('Token retrieval failed: ' + err);

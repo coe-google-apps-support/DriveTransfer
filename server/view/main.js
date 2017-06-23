@@ -9,16 +9,22 @@ exports.view = function(req, res, next) {
   };
   const url = path.resolve(__dirname, '..', '..', 'client', 'src', 'static', 'index');
 
-  const user = G.getUsers().getUser(req.sessionID);
-  if (user == null) {
-    let err = new Error('Your session couldn\'t be found');
-    res.status(500).send(err);
-    console.log(err);
-    return;
-  }
+  G.getUsers().getUser(req.sessionID).then((user) => {
+    if (user == null) {
+      let customErr = new Error('Your session couldn\'t be found');
+      res.status(500).send(customErr);
+      console.log(customErr);
+      return;
+    }
 
-  user.promise.then((result) => {
+    return user.promise;
+  }).then((result) => {
     data.client = JSON.stringify(result);
     res.render(url, data);
+  }).catch((err) => {
+    console.log(err);
+    let customErr = new Error(`Drive Transfer has encountered an error.`);
+    res.status(500).send(customErr);
   });
+
 }
