@@ -26,6 +26,10 @@ const UserSchema = new Schema({
     expiry_date: {
       type: Number,
       required: true,
+    },
+    refresh_token: {
+      type: String,
+      required: true,
     }
   }
 });
@@ -88,7 +92,8 @@ class User {
     let url = this.client.generateAuthUrl({
       access_type: 'offline',
       scope: this.scopes,
-      state: redirect
+      state: redirect,
+      prompt: 'consent',
     });
 
     return url;
