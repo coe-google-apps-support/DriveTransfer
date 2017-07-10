@@ -176,7 +176,7 @@ class Transfer extends Task {
   *sendRequest(recipient) {
     yield getRequestEmail(recipient, 'jared.rewerts@edmonton.ca').then((result) => {
       console.log(result);
-      let encodedEmailBody = new Buffer(result).toString('base64');
+      let encodedEmailBody = new Buffer(result).toString('base64').replace(/\+/g, '-').replace(/\//g, '_');
 
       return exponentialBackoff(() => {
         return new Promise((resolve, reject) => {
