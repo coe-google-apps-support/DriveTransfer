@@ -74,6 +74,21 @@ class TaskManager {
     })
   }
 
+  /**
+   * Accepts or rejects an existing Transfer Task.
+   *
+   * @param {string} initiatorEmail The email of the initiating user.
+   * @param {string} folderID The id of the folder to list.
+   * @param {string} newOwnerEmail The email address of the owner to transfer to.
+   * @param {string} newOwnerID The ID of the new owner.
+   * @param {string} taskID The Task to accept or reject.
+   * @return {string} The id of this task.
+   */
+  authTransferTask(initiatorEmail, folderID, newOwnerEmail, newOwnerID, taskID) {
+    let task = this.getTask(taskID);
+    return task.authorize(newOwnerID);
+  }
+
   runTask(taskID) {
     let task = this.getTask(taskID);
     task.run();

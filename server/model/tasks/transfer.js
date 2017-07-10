@@ -28,6 +28,7 @@ class Transfer extends Task {
     super(userID, taskID);
     this.drive = null;
     this.newOwner = newOwner;
+    this.folderID = folderID;
 
     this.recent = {};
     this.recent.changes = [];
@@ -53,9 +54,12 @@ class Transfer extends Task {
   authorize(recipientID) {
     return G.getUsers().getUser(recipientID).then((user) => {
       this.recipient = user;
-      this.hasRecipientAgreed = true;
+
+      this.subState = TaskSubStates.RECIPIENT_ACCEPTED;
+      this.run();
+
       this.recipientDrive = Google.drive({ version: 'v3', auth: user.client });
-      this.recipientGmail = Google.mail({ version: 'v1', auth: user.client });
+      this.recipientGmail = Google.gmail({ version: 'v1', auth: user.client });
       // Start task if paused.
       return user;
     });
@@ -78,6 +82,7 @@ class Transfer extends Task {
       // Setup recipient credentials.
       console.log('Still waiting on credentials');
       this.result.state = TaskStates.PAUSED;
+      this.recent.state = TaskStates.PAUSED;
     }
     else if (this.listTask.result.state === TaskStates.RUNNING) {
       let file = await this.listTask.doUnitOfWork();
@@ -174,8 +179,7 @@ class Transfer extends Task {
   }
 
   *sendRequest(recipient) {
-    yield getRequestEmail(recipient, 'jared.rewerts@edmonton.ca').then((result) => {
-      console.log(result);
+    yield getRequestEmail(recipient, this.folderID, 'jared.rewerts@edmonton.ca', this.id).then((result) => {
       let encodedEmailBody = new Buffer(result).toString('base64').replace(/\+/g, '-').replace(/\//g, '_');
 
       return exponentialBackoff(() => {
