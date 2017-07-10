@@ -178,24 +178,26 @@ class Transfer extends Task {
       console.log(result);
       let encodedEmailBody = new Buffer(result).toString('base64');
 
-      exponentialBackoff(() => {
-        this.gmail.users.messages.send({
-          userId: 'me',
-          resource: {
-            raw: encodedEmailBody
+      return exponentialBackoff(() => {
+        return new Promise((resolve, reject) => {
+          this.gmail.users.messages.send({
+            userId: 'me',
+            resource: {
+              raw: encodedEmailBody
+            },
+            media: {
+              mimeType: 'message/rfc822'
+            },
           },
-          media: {
-            mimeType: 'message/rfc822'
-          },
-        },
-        function(err, response) {
-          if (err != null) {
-            console.log(err);
-            Promise.reject(err);
-          }
+          function(err, response) {
+            if (err != null) {
+              console.log(err);
+              reject(err);
+            }
 
-          return response;
-        });
+            resolve(response);
+          });
+        })
       }, MAX_TRIES, NAPTIME);
     });
   }

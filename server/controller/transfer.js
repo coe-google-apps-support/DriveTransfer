@@ -10,11 +10,11 @@ exports.transfer = function(req, res, next) {
   var id = req.query.id;
 
   if (id === null || id === '' || id === undefined) {
-    res.status(500).send('Request must contain a valid folder id.');
+    res.status(400).send('Request must contain a valid folder id.');
     return;
   }
   if (to === null || to === '' || to === undefined) {
-    res.status(500).send('Request must contain a valid recipient field.');
+    res.status(400).send('Request must contain a valid recipient field.');
     return;
   }
 
@@ -28,6 +28,7 @@ exports.transfer = function(req, res, next) {
       message: taskID
     });
   }).catch((err) => {
+    res.status(500).send('Server error.');
     console.log(err);
   });
 }
