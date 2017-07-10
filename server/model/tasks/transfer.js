@@ -5,6 +5,8 @@ const flatten = require('array-flatten');
 const Task = require('./task.js');
 const TaskStates = require('./task-states.js');
 const List = require('./list.js');
+const G = require('../global.js');
+const getRequestEmail = require('../../util/build-email.js').buildRequestEmail;
 
 const MAX_TRIES = 4;
 const NAPTIME = 2000;
@@ -15,14 +17,23 @@ const TransferStates = {
   TRANSFERED: 'TRANSFERED',
 };
 
+const TaskSubStates = {
+  CREATED: TaskStates.CREATED,
+  EMAIL_SENT: 'EMAIL_SENT',
+  RECIPIENT_ACCEPTED: 'RECIPIENT_ACCEPTED',
+}
+
 class Transfer extends Task {
   constructor(userID, taskID, folderID, newOwner) {
     super(userID, taskID);
     this.drive = null;
+    this.newOwner = newOwner;
 
     this.recent = {};
     this.recent.changes = [];
     this.result.fileList = {};
+
+    this.subState = TaskSubStates.CREATED;
 
     this.listTask = new List(userID, taskID, folderID);
     this.listTask.result.state = TaskStates.RUNNING;
@@ -33,8 +44,20 @@ class Transfer extends Task {
   setup() {
     return super.setup().then(() => {
       this.drive = Google.drive({ version: 'v3', auth: this.client });
+      this.gmail = Google.gmail({ version: 'v1', auth: this.client });
     }).then(() => {
       return this.listTask.setup();
+    });
+  }
+
+  authorize(recipientID) {
+    return G.getUsers().getUser(recipientID).then((user) => {
+      this.recipient = user;
+      this.hasRecipientAgreed = true;
+      this.recipientDrive = Google.drive({ version: 'v3', auth: user.client });
+      this.recipientGmail = Google.mail({ version: 'v1', auth: user.client });
+      // Start task if paused.
+      return user;
     });
   }
 
@@ -46,7 +69,17 @@ class Transfer extends Task {
   * @return {Promise} A Promise that has a string id as it's response value.
   */
   async doUnitOfWork() {
-    if (this.listTask.result.state === TaskStates.RUNNING) {
+    if (this.subState === TaskSubStates.CREATED) {
+      // Send email
+      await this.sendRequest(this.newOwner).next();
+      this.subState = TaskSubStates.EMAIL_SENT;
+    }
+    else if (this.subState === TaskSubStates.EMAIL_SENT) {
+      // Setup recipient credentials.
+      console.log('Still waiting on credentials');
+      this.result.state = TaskStates.PAUSED;
+    }
+    else if (this.listTask.result.state === TaskStates.RUNNING) {
       let file = await this.listTask.doUnitOfWork();
 
       if (file === undefined) return;
@@ -122,6 +155,65 @@ class Transfer extends Task {
         });
       }, MAX_TRIES, NAPTIME);
     }
+  }
+
+  *createFilter() {
+    yield exponentialBackoff(() => {
+      return new Promise((resolve, reject) => {
+        this.drive.permissions.create({},
+          function(err, response) {
+            if (err != null) {
+              reject(err);
+              return;
+            }
+
+            resolve();
+        });
+      });
+    }, MAX_TRIES, NAPTIME);
+  }
+
+  *sendRequest(recipient) {
+    yield getRequestEmail(recipient, 'jared.rewerts@edmonton.ca').then((result) => {
+      console.log(result);
+      let encodedEmailBody = new Buffer(result).toString('base64');
+
+      exponentialBackoff(() => {
+        this.gmail.users.messages.send({
+          userId: 'me',
+          resource: {
+            raw: encodedEmailBody
+          },
+          media: {
+            mimeType: 'message/rfc822'
+          },
+        },
+        function(err, response) {
+          if (err != null) {
+            console.log(err);
+            Promise.reject(err);
+          }
+
+          return response;
+        });
+      }, MAX_TRIES, NAPTIME);
+    });
+  }
+
+  *cleanFiles() {
+    yield exponentialBackoff(() => {
+      return new Promise((resolve, reject) => {
+        this.drive.permissions.create({},
+          function(err, response) {
+            if (err != null) {
+              reject(err);
+              return;
+            }
+
+            resolve();
+        });
+      });
+    }, MAX_TRIES, NAPTIME);
   }
 
 }

@@ -2,7 +2,7 @@ var fs = require('fs');
 
 exports.readFile = function(fileName) {
   return new Promise(function(resolve, reject) {
-    fs.readFile(fileName, function(err, data) {
+    fs.readFile(fileName, 'utf-8', function(err, data) {
       if (err) {
         reject(err);
       }
