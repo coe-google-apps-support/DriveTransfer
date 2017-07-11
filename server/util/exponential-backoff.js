@@ -1,3 +1,5 @@
+const retryCodes = [403, 429];
+
 /**
  * Attempts to try a function repeatedly until either success or max number of tries has been reached.
  *
@@ -11,6 +13,11 @@ function exponentialBackoff(toTry, max, delay) {
   return toTry().catch((err) => {
     if (max <= 0) {
       console.log('Too many failures.');
+      return Promise.reject(err);
+    }
+
+    // We only want to use retry certain codes
+    if (!retryCodes.includes(err.code)) {
       return Promise.reject(err);
     }
 
