@@ -12,6 +12,9 @@ const MAX_TRIES = 4;
 const NAPTIME = 2000;
 const RECENT_ITEMS = 10;
 
+const EMAIL_MESSAGE = 'drive-transfer-notification-email';
+const FILTER_QUERY = `"${EMAIL_MESSAGE}"`;
+
 const TransferStates = {
   UNTRANSFERED: 'UNTRANSFERED',
   TRANSFERED: 'TRANSFERED',
@@ -21,6 +24,7 @@ const TaskSubStates = {
   CREATED: TaskStates.CREATED,
   EMAIL_SENT: 'EMAIL_SENT',
   RECIPIENT_ACCEPTED: 'RECIPIENT_ACCEPTED',
+  EMAIL_FILTER_CREATED: 'EMAIL_FILTER_CREATED',
 }
 
 class Transfer extends Task {
@@ -55,12 +59,12 @@ class Transfer extends Task {
     return G.getUsers().getUser(recipientID).then((user) => {
       this.recipient = user;
 
+      this.recipientDrive = Google.drive({ version: 'v3', auth: user.client });
+      this.recipientGmail = Google.gmail({ version: 'v1', auth: user.client });
+
       this.subState = TaskSubStates.RECIPIENT_ACCEPTED;
       this.run();
 
-      this.recipientDrive = Google.drive({ version: 'v3', auth: user.client });
-      this.recipientGmail = Google.gmail({ version: 'v1', auth: user.client });
-      // Start task if paused.
       return user;
     });
   }
@@ -79,10 +83,14 @@ class Transfer extends Task {
       this.subState = TaskSubStates.EMAIL_SENT;
     }
     else if (this.subState === TaskSubStates.EMAIL_SENT) {
-      // Setup recipient credentials.
       console.log('Still waiting on credentials');
       this.result.state = TaskStates.PAUSED;
       this.recent.state = TaskStates.PAUSED;
+    }
+    else if (this.subState === TaskSubStates.RECIPIENT_ACCEPTED) {
+      console.log('Got creds. Will filter.');
+      await this.createFilter().next();
+      this.subState = TaskSubStates.EMAIL_FILTER_CREATED;
     }
     else if (this.listTask.result.state === TaskStates.RUNNING) {
       let file = await this.listTask.doUnitOfWork();
@@ -139,11 +147,12 @@ class Transfer extends Task {
           this.drive.permissions.create({
             fileId: id,
             transferOwnership: true,
+            emailMessage: EMAIL_MESSAGE,
             resource: {
               emailAddress: to,
               role: 'owner',
-              type: 'user'
-            }
+              type: 'user',
+            },
           }, function(err, response) {
             if (err != null) {
               reject(err);
@@ -165,14 +174,29 @@ class Transfer extends Task {
   *createFilter() {
     yield exponentialBackoff(() => {
       return new Promise((resolve, reject) => {
-        this.drive.permissions.create({},
-          function(err, response) {
-            if (err != null) {
-              reject(err);
-              return;
+        this.recipientGmail.users.settings.filters.create({
+          userId: 'me',
+          resource: {
+            action: {
+              addLabelIds: ['TRASH'],
+            },
+            criteria: {
+              query: FILTER_QUERY
             }
-
+          }
+        },
+        function(err, response) {
+          if (err != null && err.code === 400) {
+            // The filter already existed.
             resolve();
+            return;
+          }
+          else if (err != null) {
+            reject(err);
+            return;
+          }
+
+          resolve();
         });
       });
     }, MAX_TRIES, NAPTIME);
@@ -197,6 +221,7 @@ class Transfer extends Task {
             if (err != null) {
               console.log(err);
               reject(err);
+              return;
             }
 
             resolve(response);
