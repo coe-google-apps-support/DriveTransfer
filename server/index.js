@@ -2,6 +2,8 @@ const express = require('express');
 const app = express();
 const router = require('./router.js');
 
+require('./util/map-to-json.js');
+
 var port = 3000;
 
 // This grabs all unhandled Promise rejections and logs them. Otherwise, you get no stacktrace.
