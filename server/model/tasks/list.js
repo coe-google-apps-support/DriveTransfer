@@ -12,7 +12,7 @@ class List extends Task {
   constructor(userID, taskID, folderID) {
     super(userID, taskID);
     this.drive = null;
-    this.result.fileList = {};
+    this.result.fileList = new Map();
     this.folderID = folderID;
   }
 
@@ -47,7 +47,7 @@ class List extends Task {
     }
     else {
       fileYield.value.then((value) => {
-        this.result.fileList[value.id] = value;
+        this.result.fileList.set(value.id, value);
       }).catch((err) => {
         console.log(err);
       });
