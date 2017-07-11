@@ -4,6 +4,7 @@ const User = require('../model/user.js');
 const SCOPES = [
   'https://www.googleapis.com/auth/drive',
   'https://www.googleapis.com/auth/gmail.send',
+  'https://www.googleapis.com/auth/gmail.settings.basic',
 ];
 
 exports.login = function(req, res, next) {
