@@ -3,6 +3,7 @@ const app = express();
 const router = require('./router.js');
 
 require('./util/map-to-json.js');
+require('./util/object-filter.js');
 
 var port = 3000;
 
