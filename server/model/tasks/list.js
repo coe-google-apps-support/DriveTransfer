@@ -7,6 +7,16 @@ const TaskStates = require('./task-states.js');
 
 const MAX_TRIES = 4;
 const NAPTIME = 2000;
+const FIELDS = [
+  'id',
+  'name',
+  'createdTime',
+  'mimeType',
+  'webViewLink',
+  'iconLink',
+  'parents',
+];
+
 
 class List extends Task {
   constructor(userID, taskID, folderID) {
@@ -107,6 +117,13 @@ class List extends Task {
             return;
           }
 
+          //Transform each file to match
+          response.files.forEach((file, index) => {
+            response.files[index] = Object.filterByKey(file, (key) => {
+              return FIELDS.includes(key);
+            });
+          })
+
           resolve(response);
         });
       });
@@ -124,7 +141,7 @@ class List extends Task {
       return new Promise((resolve, reject) => {
         this.drive.files.get({
           fileId: id,
-          fields: 'createdTime, name, mimeType, webViewLink, id',
+          fields: FIELDS.join(', '),
         }, function(err, response) {
           if (err != null) {
             reject(err);
