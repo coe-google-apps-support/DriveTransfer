@@ -24,6 +24,8 @@ class List extends Task {
     this.drive = null;
     this.result.fileList = new Map();
     this.folderID = folderID;
+
+    this._predicate = this._predicate.bind(this);
   }
 
   setup() {
@@ -64,6 +66,20 @@ class List extends Task {
     }
 
     return fileYield.value;
+  }
+
+  _predicate(error) {
+    let firstError = error.errors[0];
+    if ((error.code === 403 && firstError.reason === 'userRateLimitExceeded') ||
+      (error.code === 403 && firstError.reason === 'rateLimitExceeded') ||
+      (error.code === 429 && firstError.reason === 'rateLimitExceeded') ||
+      (error.code === 500 && firstError.reason === 'backendError')) {
+      console.log('Retrying');
+      return true;
+    }
+
+    console.log('Don\'t retry');
+    return false;
   }
 
    /**
@@ -127,7 +143,7 @@ class List extends Task {
           resolve(response);
         });
       });
-    }, MAX_TRIES, NAPTIME);
+    }, MAX_TRIES, NAPTIME, this._predicate);
   }
 
   /**
@@ -151,7 +167,7 @@ class List extends Task {
           resolve(response);
         });
       });
-    }, MAX_TRIES, NAPTIME);
+    }, MAX_TRIES, NAPTIME, this._predicate);
   }
 }
 

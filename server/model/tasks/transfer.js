@@ -43,6 +43,7 @@ class Transfer extends Task {
     this.listTask = new List(userID, taskID, folderID);
     this.listTask.result.state = TaskStates.RUNNING;
 
+    this._transferPredicate = this._transferPredicate.bind(this);
     this.activeFileIterator = this.listTask.result.fileList[Symbol.iterator]();
   }
 
@@ -77,8 +78,10 @@ class Transfer extends Task {
   * @return {Promise} A Promise that has a string id as it's response value.
   */
   async doUnitOfWork() {
+    console.log('Doing work');
     if (this.subState === TaskSubStates.CREATED) {
       // Send email
+      console.log('Email sent');
       await this.sendRequest(this.newOwner).next().value;
       this.subState = TaskSubStates.EMAIL_SENT;
     }
@@ -93,6 +96,7 @@ class Transfer extends Task {
       this.subState = TaskSubStates.EMAIL_FILTER_CREATED;
     }
     else if (this.listTask.result.state === TaskStates.RUNNING) {
+      console.log('Listing')
       let file = await this.listTask.doUnitOfWork();
 
       if (file === undefined) return;
@@ -100,6 +104,7 @@ class Transfer extends Task {
       file.state = TransferStates.UNTRANSFERED;
     }
     else {
+      console.log('Transferring');
       let iteratorItem = this.activeFileIterator.next();
 
       if (iteratorItem.done) {
@@ -121,6 +126,20 @@ class Transfer extends Task {
     this.result.fileList.set(value.id, value);
     value.file.state = TransferStates.TRANSFERED;
     this.recent.changes = [value, ...this.recent.changes.slice(0, RECENT_ITEMS - 1)];
+  }
+
+  _transferPredicate(error) {
+    let firstError = error.errors[0];
+    if ((error.code === 403 && firstError.reason === 'userRateLimitExceeded') ||
+      (error.code === 403 && firstError.reason === 'rateLimitExceeded') ||
+      (error.code === 429 && firstError.reason === 'rateLimitExceeded') ||
+      (error.code === 500 && firstError.reason === 'backendError')) {
+        console.log('Retrying');
+      return true;
+    }
+
+    console.log('Don\'t retry');
+    return false;
   }
 
   /**
@@ -157,7 +176,7 @@ class Transfer extends Task {
           });
         });
       });
-    }, MAX_TRIES, NAPTIME);
+    }, MAX_TRIES, NAPTIME, this._transferPredicate);
   }
 
   *createFilter() {
@@ -243,7 +262,7 @@ class Transfer extends Task {
             resolve();
         });
       });
-    }, MAX_TRIES, NAPTIME);
+    }, MAX_TRIES, NAPTIME, this._transferPredicate);
   }
 
 }
