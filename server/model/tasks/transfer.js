@@ -36,14 +36,14 @@ class Transfer extends Task {
 
     this.recent = {};
     this.recent.changes = [];
-    this.result.fileList = {};
+    this.result.fileList = new Map();
 
     this.subState = TaskSubStates.CREATED;
 
     this.listTask = new List(userID, taskID, folderID);
     this.listTask.result.state = TaskStates.RUNNING;
 
-    this._it = this.changeOwner(this.listTask.result.fileList, newOwner);
+    this.activeFileIterator = this.listTask.result.fileList[Symbol.iterator]();
   }
 
   setup() {
@@ -98,31 +98,28 @@ class Transfer extends Task {
       if (file === undefined) return;
 
       file.state = TransferStates.UNTRANSFERED;
-      return;
     }
     else {
-      let transferYield = this._it.next();
-      await transferYield.value;
+      let iteratorItem = this.activeFileIterator.next();
 
-      if (transferYield.done) {
+      if (iteratorItem.done) {
         this.result.state = TaskStates.FINISHED;
         this.recent.state = TaskStates.FINISHED;
         this.emit(TaskStates.FINISHED);
-      }
-      else {
-        transferYield.value.then((value) => {
-          this.addResult(value);
-        }).catch((err) => {
-          console.log(err);
-        });
+        return;
       }
 
-      return;
+      let [fileID, listValue] = iteratorItem.value;
+
+      let transferYield = this.changeOwner(listValue, this.newOwner).next();
+      let transferMetadata = await transferYield.value;
+
+      this.addResult(transferMetadata);
     }
   }
 
   addResult(value) {
-    this.result.fileList[value.id] = value;
+    this.result.fileList.set(value.id, value);
     value.file.state = TransferStates.TRANSFERED;
     this.recent.changes = [value, ...this.recent.changes.slice(0, RECENT_ITEMS - 1)];
   }
@@ -132,43 +129,38 @@ class Transfer extends Task {
   * TODO Currently, every transfer results in an email AND in a new link to the file
   * being placed at the root of the users Drive.
   *
-  * @param {Object} fileList An Object containing all the Files.
+  * @param {Object} file An Object containing the file's metadata.
   * @param {string} to The user to receive ownership.
   * @return {Promise} A Promise that has a JSON object as the result.
   */
-  *changeOwner(fileList, to) {
-    let entries = Object.entries(fileList);
+  *changeOwner(file, to) {
+    yield exponentialBackoff(() => {
+      let id = file.id;
 
-    for (let index = 0; index < entries.length; index++) {
-      yield exponentialBackoff(() => {
-        let [id, file] = entries[index];
+      return new Promise((resolve, reject) => {
+        this.drive.permissions.create({
+          fileId: id,
+          transferOwnership: true,
+          emailMessage: EMAIL_MESSAGE,
+          resource: {
+            emailAddress: to,
+            role: 'owner',
+            type: 'user',
+          },
+        }, function(err, response) {
+          if (err != null) {
+            reject(err);
+            return;
+          }
 
-        return new Promise((resolve, reject) => {
-          this.drive.permissions.create({
-            fileId: id,
-            transferOwnership: true,
-            emailMessage: EMAIL_MESSAGE,
-            resource: {
-              emailAddress: to,
-              role: 'owner',
-              type: 'user',
-            },
-          }, function(err, response) {
-            if (err != null) {
-              reject(err);
-              return;
-            }
-
-            resolve({
-              response,
-              id,
-              index,
-              file,
-            });
+          resolve({
+            response,
+            id,
+            file,
           });
         });
-      }, MAX_TRIES, NAPTIME);
-    }
+      });
+    }, MAX_TRIES, NAPTIME);
   }
 
   *createFilter() {
@@ -231,10 +223,20 @@ class Transfer extends Task {
     });
   }
 
-  *cleanFiles() {
+  /**
+   * This function removes a given file (by id) from the root of the RECIPIENTS drive.
+   * It is usually used to manage the unneeded duplicate links that are created all over.
+   *
+   * @param {string} fileID The ID of the File resource.
+   * @return {Promise} This function yields a Promise.
+   */
+  *removeFileFromRoot(fileID) {
     yield exponentialBackoff(() => {
       return new Promise((resolve, reject) => {
-        this.drive.permissions.create({},
+        this.recipientDrive.files.update({
+          fileId: fileID,
+          removeParents: 'root'
+        },
           function(err, response) {
             if (err != null) {
               reject(err);
