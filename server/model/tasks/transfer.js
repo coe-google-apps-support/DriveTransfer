@@ -111,6 +111,7 @@ class Transfer extends Task {
 
       let [fileID, listValue] = iteratorItem.value;
       let transferMetadata = await this.changeOwner(listValue, this.newOwner).next().value;
+      await this.removeFileFromRoot(fileID).next().value;
 
       this.addResult(transferMetadata);
     }
@@ -124,8 +125,6 @@ class Transfer extends Task {
 
   /**
   * This function changes the owner of a Google Drive file.
-  * TODO Currently, every transfer results in an email AND in a new link to the file
-  * being placed at the root of the users Drive.
   *
   * @param {Object} file An Object containing the file's metadata.
   * @param {string} to The user to receive ownership.
