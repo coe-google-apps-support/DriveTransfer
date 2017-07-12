@@ -110,9 +110,7 @@ class Transfer extends Task {
       }
 
       let [fileID, listValue] = iteratorItem.value;
-
-      let transferYield = this.changeOwner(listValue, this.newOwner).next();
-      let transferMetadata = await transferYield.value;
+      let transferMetadata = await this.changeOwner(listValue, this.newOwner).next().value;
 
       this.addResult(transferMetadata);
     }
