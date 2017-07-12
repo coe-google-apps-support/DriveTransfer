@@ -110,7 +110,7 @@ class List extends Task {
       return new Promise((resolve, reject) => {
         this.drive.files.list({
           fields: 'files',
-          q: '\'' + id + '\' in parents and trashed=false'
+          q: `'${id}' in parents and trashed=false`,
         }, function(err, response) {
           if (err != null) {
             reject(err);
