@@ -79,7 +79,7 @@ class Transfer extends Task {
   async doUnitOfWork() {
     if (this.subState === TaskSubStates.CREATED) {
       // Send email
-      await this.sendRequest(this.newOwner).next();
+      await this.sendRequest(this.newOwner).next().value;
       this.subState = TaskSubStates.EMAIL_SENT;
     }
     else if (this.subState === TaskSubStates.EMAIL_SENT) {
@@ -89,7 +89,7 @@ class Transfer extends Task {
     }
     else if (this.subState === TaskSubStates.RECIPIENT_ACCEPTED) {
       console.log('Got creds. Will filter.');
-      await this.createFilter().next();
+      await this.createFilter().next().value;
       this.subState = TaskSubStates.EMAIL_FILTER_CREATED;
     }
     else if (this.listTask.result.state === TaskStates.RUNNING) {
