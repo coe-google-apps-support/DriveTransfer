@@ -1,4 +1,4 @@
-const chai = require('chai').assert;
+const assert = require('chai').assert;
 require('../util/map-to-json.js');
 
 describe('Map', () => {
