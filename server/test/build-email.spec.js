@@ -4,22 +4,23 @@ const chaiAsPromised = require('chai-as-promised');
 chai.use(chaiAsPromised);
 const assert = chai.assert;
 const buildEmail = require('../util/build-email.js');
+let eol = require('os').EOL;
 
 const INITIATOR = 'user1@email.com';
 const RECIPIENT = 'user2@email.com';
 const FOLDER_ID = '123456_folder';
 const TASK_ID = '123456_task';
 const TEST_EMAIL =
-`Content-Type: text/html; charset="UTF-8"\r
-MIME-Version: 1.0\r
-Content-Transfer-Encoding: 7bit\r
-to: ${RECIPIENT}\r
-from: ${INITIATOR}\r
-subject: This is the subject\r
-\r
-This is the body\r
-Folder: ${FOLDER_ID}\r
-Task: ${TASK_ID}\r
+`Content-Type: text/html; charset="UTF-8"${eol}\
+MIME-Version: 1.0${eol}\
+Content-Transfer-Encoding: 7bit${eol}\
+to: ${RECIPIENT}${eol}\
+from: ${INITIATOR}${eol}\
+subject: This is the subject${eol}\
+${eol}\
+This is the body${eol}\
+Folder: ${FOLDER_ID}${eol}\
+Task: ${TASK_ID}${eol}\
 `;
 
 describe('.buildEmail', () => {
