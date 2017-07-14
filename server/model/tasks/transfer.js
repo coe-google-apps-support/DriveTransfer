@@ -6,7 +6,7 @@ const Task = require('./task.js');
 const TaskStates = require('./task-states.js');
 const List = require('./list.js');
 const G = require('../global.js');
-const getRequestEmail = require('../../util/build-email.js').buildRequestEmail;
+const getRequestEmail = require('../../util/build-email.js');
 
 const MAX_TRIES = 4;
 const NAPTIME = 2000;
@@ -14,6 +14,7 @@ const RECENT_ITEMS = 10;
 
 const EMAIL_MESSAGE = 'drive-transfer-notification-email';
 const FILTER_QUERY = `"${EMAIL_MESSAGE}"`;
+const FILE_PATH = './resources/request-email.txt';
 
 const TransferStates = {
   UNTRANSFERED: 'UNTRANSFERED',
@@ -211,7 +212,7 @@ class Transfer extends Task {
   }
 
   *sendRequest(recipient) {
-    yield getRequestEmail(recipient, this.folderID, 'jared.rewerts@edmonton.ca', this.id).then((result) => {
+    yield getRequestEmail(FILE_PATH, recipient, this.folderID, 'jared.rewerts@edmonton.ca', this.id).then((result) => {
       let encodedEmailBody = new Buffer(result).toString('base64').replace(/\+/g, '-').replace(/\//g, '_');
 
       return exponentialBackoff(() => {
