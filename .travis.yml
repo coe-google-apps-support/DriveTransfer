@@ -4,4 +4,5 @@ node_js:
 dist: trusty
 sudo: required
 
+before_install: cd server
 install: npm install
