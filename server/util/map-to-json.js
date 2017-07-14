@@ -7,8 +7,8 @@
  */
 Map.prototype.toJSON = function() {
   let obj = Object.create(null);
-    for (let [k,v] of this) {
-        obj[k] = v;
-    }
-    return obj;
+  for (let [k, v] of this) {
+    obj[k] = v;
+  }
+  return obj;
 };
