@@ -1,5 +1,3 @@
-const retryCodes = [403, 429];
-
 /**
  * Attempts to try a function repeatedly until either success or max number of tries has been reached.
  *
@@ -11,20 +9,20 @@ const retryCodes = [403, 429];
  * @return {Promise} Rejects when toTry has failed max times. Resolves if successful once.
  */
 function exponentialBackoff(toTry, max, delay, predicate) {
-
   return toTry().catch((err) => {
     if (max <= 0) {
-      console.log('Too many failures.');
       return Promise.reject(err);
     }
 
     if (predicate == null || predicate(err)) {
-      console.log('EXPO BABY');
       // This delays the Promise by delay.
       return new Promise((resolve) => setTimeout(resolve, delay))
         .then(() => {
           return exponentialBackoff(toTry, --max, delay * 2);
         });
+    }
+    else {
+      return Promise.reject(err);
     }
   });
 }
