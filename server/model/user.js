@@ -72,7 +72,9 @@ class User {
 
   sendToken() {
     if (this.socket) {
-      this.socket.send(this.mongooseUser.tokens.access_token);
+      this.socket.send(JSON.stringify({
+        accessToken: this.mongooseUser.tokens.access_token
+      }));
     }
   }
 
