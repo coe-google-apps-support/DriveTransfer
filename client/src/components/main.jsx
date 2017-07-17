@@ -57,7 +57,24 @@ class Main extends React.Component {
     };
 
     this.showWizard = true;
+
+    let url = 'ws://localhost:3000';
+    let ws = new WebSocket(url);
+    ws.onopen = this.onOpen.bind(this);
+    ws.onmessage = this.onMessage.bind(this);
   }
+
+
+
+  onMessage(event) {
+    console.log(event);
+  }
+
+  onOpen(maybe) {
+    console.log(maybe);
+  }
+
+
 
   onClick() {
     if (this.state.buttonText === states.START) {
