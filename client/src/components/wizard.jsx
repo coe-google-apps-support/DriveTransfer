@@ -7,6 +7,7 @@ import FontIcon from 'material-ui/FontIcon';
 import State from '../model/state.js';
 import {validate} from 'email-validator';
 import load from '../util/api-load.js';
+import Socket from '../services/socket.js';
 
 const styles = {
   root: {
@@ -76,7 +77,16 @@ class Wizard extends React.Component {
     };
 
     this.pickerPromise = load('picker');
+    //this.socketNotify = this.socketNotify;
+
+    let socket = new Socket();
+    socket.subscribe(this);
   };
+
+  socketNotify(event) {
+    console.log('Message received in wizard');
+    console.log(event);
+  }
 
   /**
    * Called when the user has selected a folder.
