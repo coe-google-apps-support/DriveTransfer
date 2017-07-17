@@ -46,6 +46,7 @@ class User {
     this.clientState = 'unset';
     this.authorized = false;
     this.mongooseUser = null;
+    this.socket = null;
 
     this.promise = new Promise((resolve, reject) => {
       this._resolve = resolve;
@@ -63,6 +64,16 @@ class User {
       thisUser._resolve(thisUser.client);
       return thisUser;
     })
+  }
+
+  setSocket(socket) {
+    this.socket = socket;
+  }
+
+  sendToken() {
+    if (this.socket) {
+      this.socket.send(this.mongooseUser.tokens.access_token);
+    }
   }
 
   /************** Authorization steps **************/

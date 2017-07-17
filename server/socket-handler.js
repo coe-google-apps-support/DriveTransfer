@@ -1,5 +1,6 @@
 const url = require('url');
 const WebSocket = require('ws');
+const G = require('./model/global.js');
 
 module.exports = function(session, server) {
   const wss = new WebSocket.Server({
@@ -23,14 +24,11 @@ module.exports = function(session, server) {
     // You might use location.query.access_token to authenticate or share sessions
     // or req.headers.cookie (see http://stackoverflow.com/a/16395220/151312)
 
-    ws.on('message', function incoming(message) {
-      console.log('received: %s', message);
+    let id = req.session.id;
+    let users = G.getUsers();
+    users.getUser(id).then((user) => {
+      user.setSocket(ws);
+      user.sendToken();
     });
-
-    ws.send('something');
-
-    setInterval(() => {
-      ws.send('message from server');
-    }, 1000);
   });
 }
