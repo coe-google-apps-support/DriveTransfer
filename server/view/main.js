@@ -2,11 +2,6 @@ const path = require('path');
 const G = require('../model/global.js');
 
 exports.view = function(req, res, next) {
-  let data = {
-    clientID: '"test id"',
-    token: '"test token"',
-    key: '"test key"',
-  };
   const url = path.resolve(__dirname, '..', '..', 'client', 'src', 'static', 'index');
 
   G.getUsers().getUser(req.sessionID).then((user) => {
@@ -19,8 +14,7 @@ exports.view = function(req, res, next) {
 
     return user.promise;
   }).then((result) => {
-    data.client = JSON.stringify(result);
-    res.render(url, data);
+    res.render(url);
   }).catch((err) => {
     console.log(err);
     let customErr = new Error(`Drive Transfer has encountered an error.`);
