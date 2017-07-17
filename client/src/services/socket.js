@@ -24,8 +24,17 @@ class Socket {
   }
 
   notify(event) {
+    let value = event.data;
+    try {
+      let attempt = JSON.parse(value);
+      value = attempt;
+    }
+    catch (e) {
+      // This is probably just a string
+    }
+
     for (let sub of this.subscribers) {
-      sub.socketNotify(event);
+      sub.socketNotify(value);
     }
   }
 
