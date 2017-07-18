@@ -64,9 +64,10 @@ class User {
       user._resolve(user.client);
       return user;
     }).then((thisUser) => {
-      user.refreshToken();
+      return user.refreshToken();
+    }).then(() => {
       return user;
-    })
+    });
   }
 
   setSocket(socket) {
@@ -75,9 +76,13 @@ class User {
 
   sendToken() {
     if (this.socket) {
+      console.log('Sending tokens.');
       this.socket.send(JSON.stringify({
         accessToken: this.mongooseUser.tokens.access_token
       }));
+    }
+    else {
+      console.log('No cokets open.');
     }
   }
 
@@ -127,7 +132,12 @@ class User {
           reject(err);
         }
         else {
-          resolve(tokens);
+          this.mongooseUser.tokens = tokens;
+          MongooseUser.findOneAndUpdate({id: this.id}, this.mongooseUser).then(() => {
+            resolve(tokens);
+          }).catch((err) => {
+            console.log(`Failed updating user ${this.id}`);
+          });
         }
       });
     })
