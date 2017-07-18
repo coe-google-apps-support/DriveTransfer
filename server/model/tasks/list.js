@@ -119,14 +119,16 @@ class List extends Task {
    * Gets the children of the file denoted by id.
    *
    * @param {string} id The id of a Google Drive file or folder.
+   * @param {string} [continuationToken] An optional token that can be used to handle large lists of files.
    * @return {Promise} Contains the results of the query.
    */
-  getChildren(id) {
+  getChildren(id, continuationToken) {
     return exponentialBackoff(() => {
       return new Promise((resolve, reject) => {
         this.drive.files.list({
-          fields: 'files',
+          fields: 'files, nextPageToken',
           q: `'${id}' in parents and trashed=false`,
+          pageToken: continuationToken,
         }, function(err, response) {
           if (err != null) {
             reject(err);
@@ -138,10 +140,19 @@ class List extends Task {
             response.files[index] = Object.filterByKey(file, (key) => {
               return FIELDS.includes(key);
             });
-          })
+          });
 
           resolve(response);
         });
+      }).then((oldResponse) => {
+        if (oldResponse.nextPageToken) {
+          return this.getChildren(id, oldResponse.nextPageToken).then((response) => {
+            Array.prototype.push.apply(response.files, oldResponse.files);
+            return response;
+          });
+        }
+
+        return oldResponse;
       });
     }, MAX_TRIES, NAPTIME, this._predicate);
   }
