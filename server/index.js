@@ -6,6 +6,7 @@ const mongoose = require('mongoose');
 const app = express();
 const router = require('./router.js');
 const socketHandler = require('./socket-handler.js');
+const taskRunner = require('./task-runner.js');
 
 require('./util/map-to-json.js');
 require('./util/object-filter.js');
@@ -37,3 +38,6 @@ socketHandler(session, server);
 
 server.listen(port);
 console.log('Your server is running on port ' + port + '.');
+
+taskRunner();
+console.log('Tasks set up.');

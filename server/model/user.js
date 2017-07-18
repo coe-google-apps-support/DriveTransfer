@@ -76,13 +76,9 @@ class User {
 
   sendToken() {
     if (this.socket) {
-      console.log('Sending tokens.');
       this.socket.send(JSON.stringify({
         accessToken: this.mongooseUser.tokens.access_token
       }));
-    }
-    else {
-      console.log('No cokets open.');
     }
   }
 

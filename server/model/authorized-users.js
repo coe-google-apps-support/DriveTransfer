@@ -31,10 +31,16 @@ class AuthorizedUsers {
     this.users[user.id] = user;
   }
 
-  refreshTokens() {
-    for (let user of this.users) {
-      user.refreshToken();
-    }
+  refreshTokens(expiringWithin) {
+    Object.keys(this.users).forEach((key) => {
+      this.getUser(key).then((user) => {
+        let expiresIn = user.mongooseUser.tokens.expiry_date - new Date();
+        if (expiresIn < expiringWithin) {
+          user.refreshToken();
+          user.sendToken();
+        }
+      });
+    });
   }
 }
 
