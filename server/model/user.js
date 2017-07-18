@@ -59,10 +59,13 @@ class User {
     user.mongooseUser = mongooseUser;
 
     return user.createBasicClient().then((thisUser) => {
-      thisUser.client.setCredentials(mongooseUser.tokens);
-      thisUser.authorized = true;
-      thisUser._resolve(thisUser.client);
-      return thisUser;
+      user.client.setCredentials(mongooseUser.tokens);
+      user.authorized = true;
+      user._resolve(user.client);
+      return user;
+    }).then((thisUser) => {
+      user.refreshToken();
+      return user;
     })
   }
 
@@ -117,7 +120,18 @@ class User {
     res.redirect(url);
   }
 
-  // Receive the callback containing the code.
+  refreshToken() {
+    return new Promise((resolve, reject) => {
+      this.client.refreshAccessToken((err, tokens) => {
+        if (err) {
+          reject(err);
+        }
+        else {
+          resolve(tokens);
+        }
+      });
+    })
+  }
 
   // Swap the code for a token. Done!
   getToken(code) {

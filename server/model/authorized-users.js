@@ -30,6 +30,12 @@ class AuthorizedUsers {
   addUser(user) {
     this.users[user.id] = user;
   }
+
+  refreshTokens() {
+    for (let user of this.users) {
+      user.refreshToken();
+    }
+  }
 }
 
 module.exports = AuthorizedUsers;
