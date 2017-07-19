@@ -35,8 +35,6 @@ class Transfer extends Task {
     this.newOwner = newOwner;
     this.folderID = folderID;
 
-    this.recent = {};
-    this.recent.changes = [];
     this.result.fileList = new Map();
 
     this.subState = TaskSubStates.CREATED;
@@ -89,7 +87,6 @@ class Transfer extends Task {
     else if (this.subState === TaskSubStates.EMAIL_SENT) {
       console.log('Still waiting on credentials');
       this.result.state = TaskStates.PAUSED;
-      this.recent.state = TaskStates.PAUSED;
     }
     else if (this.subState === TaskSubStates.RECIPIENT_ACCEPTED) {
       console.log('Got creds. Will filter.');
@@ -110,7 +107,6 @@ class Transfer extends Task {
 
       if (iteratorItem.done) {
         this.result.state = TaskStates.FINISHED;
-        this.recent.state = TaskStates.FINISHED;
         this.emit(TaskStates.FINISHED);
         return;
       }
@@ -126,7 +122,6 @@ class Transfer extends Task {
   addResult(value) {
     this.result.fileList.set(value.id, value);
     value.file.state = TransferStates.TRANSFERED;
-    this.recent.changes = [value, ...this.recent.changes.slice(0, RECENT_ITEMS - 1)];
   }
 
   _transferPredicate(error) {

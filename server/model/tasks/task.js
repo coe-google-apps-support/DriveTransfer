@@ -10,9 +10,7 @@ class Task extends EventEmitter {
     this.client = null;
     this.userID = userID;
     this.result = {};
-    this.recent = {};
     this.result.state = TaskStates.CREATED;
-    this.recent.state = TaskStates.CREATED;
   }
 
   /**
@@ -29,7 +27,6 @@ class Task extends EventEmitter {
     }
 
     this.result.state = TaskStates.RUNNING;
-    this.recent.state = TaskStates.RUNNING;
     this.emit(TaskStates.RUNNING);
 
     while(this.result.state == TaskStates.RUNNING){
@@ -54,16 +51,11 @@ class Task extends EventEmitter {
    */
   pause() {
     this.result.state = TaskStates.PAUSED;
-    this.recent.state = TaskStates.PAUSED;
     this.emit(TaskStates.PAUSED);
   }
 
   async doUnitOfWork() {
     throw new Error('doUnitOfWork must be implemented in a descendant.');
-  }
-
-  getRecentWork() {
-    return this.recent;
   }
 
   getResult() {
