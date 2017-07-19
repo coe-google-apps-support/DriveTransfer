@@ -50,18 +50,24 @@ class Transfer extends Task {
 
   static fromDB(mdbTransfer) {
     let task = new Transfer(mdbTransfer.userID, mdbTransfer.taskID, mdbTransfer.folderID, mdbTransfer.newOwner);
+    task.state = mdbTransfer.state;
     task.subState = mdbTransfer.subState;
     task.result = mdbTransfer.result;
+    return task.setup();
   }
 
   saveToDB() {
     let update = {
+      taskID: this.id,
+      userID: this.userID,
+      newOwner: this.newOwner,
+      folderID: this.folderID,
       state: this.state,
       subState: this.subState,
-      result: this.result,
+      result: this.result
     }
 
-    return MongooseTransfer.findOneAndUpdate({taskID: this.id}, update).catch((err) => {
+    return MongooseTransfer.findOneAndUpdate({taskID: this.id}, update, {upsert: true}).catch((err) => {
       console.log(`Failed updating transfer task ${this.id}`);
       throw err;
     });
@@ -72,19 +78,11 @@ class Transfer extends Task {
       this.drive = Google.drive({ version: 'v3', auth: this.client });
       this.gmail = Google.gmail({ version: 'v1', auth: this.client });
 
-      return new MongooseTransfer({
-        taskID: this.id,
-        userID: this.userID,
-        newOwner: this.newOwner,
-        folderID: this.folderID,
-        state: this.state,
-        subState: this.subState,
-        result: this.result
-      }).save();
-    }).catch((err => {
+      return this.saveToDB();
+    }).catch((err) => {
       console.log(`Failed creating transfer task ${this.id}`);
       throw err;
-    })).then(() => {
+    }).then(() => {
       return this.listTask.setup();
     });
   }
