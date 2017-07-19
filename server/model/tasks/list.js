@@ -54,7 +54,7 @@ class List extends Task {
     await childrenYield.value;
 
     if (fileYield.done || childrenYield.done) {
-      this.result.state = TaskStates.FINISHED;
+      this.state = TaskStates.FINISHED;
       this.emit(TaskStates.FINISHED);
     }
     else {

@@ -16,11 +16,6 @@ const EMAIL_MESSAGE = 'drive-transfer-notification-email';
 const FILTER_QUERY = `"${EMAIL_MESSAGE}"`;
 const FILE_PATH = './resources/request-email.txt';
 
-const TransferStates = {
-  UNTRANSFERRED: 'UNTRANSFERRED',
-  TRANSFERRED: 'TRANSFERRED',
-};
-
 const TaskSubStates = {
   SENDING_EMAIL: 'Sending email to recipient',
   WAITING_FOR_CREDENTIALS: 'Waiting on recipient',
@@ -37,15 +32,21 @@ class Transfer extends Task {
     this.newOwner = newOwner;
     this.folderID = folderID;
 
-    this.result.fileList = new Map();
+    //this.result.fileList = new Map();
 
     this.subState = TaskSubStates.SENDING_EMAIL;
 
     this.listTask = new List(userID, taskID, folderID);
-    this.listTask.result.state = TaskStates.RUNNING;
+    this.listTask.state = TaskStates.RUNNING;
+    this.result = this.listTask.result;
 
     this._transferPredicate = this._transferPredicate.bind(this);
     this.activeFileIterator = this.listTask.result.fileList[Symbol.iterator]();
+  }
+
+  static fromDB(mdbTransfer) {
+    let task = new Transfer(mdbTransfer.userID, mdbTransfer.taskID, mdbTransfer.folderID, mdbTransfer.newOwner);
+
   }
 
   setup() {
@@ -88,13 +89,13 @@ class Transfer extends Task {
     }
     else if (this.subState === TaskSubStates.WAITING_FOR_CREDENTIALS) {
       console.log('Still waiting on credentials');
-      this.result.state = TaskStates.PAUSED;
+      this.state = TaskStates.PAUSED;
     }
     else if (this.subState === TaskSubStates.CREATING_FILTER) {
       console.log('Got creds. Will filter.');
       await this.createFilter().next().value;
       this.subState = TaskSubStates.LISTING;
-      this.listTask.result.state = TaskStates.RUNNING;
+      this.listTask.state = TaskStates.RUNNING;
     }
     else if (this.subState === TaskSubStates.LISTING) {
       console.log('Listing');
@@ -105,15 +106,13 @@ class Transfer extends Task {
         this.subState = TaskSubStates.TRANSFERRING;
         return;
       }
-
-      file.state = TransferStates.UNTRANSFERRED;
     }
-    else if (this.subState === TaskSubStates.TRANSFERRING){
+    else if (this.subState === TaskSubStates.TRANSFERRING) {
       console.log('Transferring');
       let iteratorItem = this.activeFileIterator.next();
 
       if (iteratorItem.done) {
-        this.result.state = TaskStates.FINISHED;
+        this.state = TaskStates.FINISHED;
         this.emit(TaskStates.FINISHED);
         return;
       }
@@ -122,16 +121,16 @@ class Transfer extends Task {
       let transferMetadata = await this.changeOwner(listValue, this.newOwner).next().value;
       await this.removeFileFromRoot(fileID).next().value;
 
-      this.addResult(transferMetadata);
+      this.addResult(fileID, transferMetadata);
     }
     else {
       console.log(`Weird substate: ${this.subState}`);
     }
   }
 
-  addResult(value) {
-    this.result.fileList.set(value.id, value);
-    value.file.state = TransferStates.TRANSFERRED;
+  addResult(id, value) {
+    let file = this.result.fileList.get(id);
+    file.permissionChange = value;
   }
 
   _transferPredicate(error) {
@@ -175,11 +174,7 @@ class Transfer extends Task {
             return;
           }
 
-          resolve({
-            response,
-            id,
-            file,
-          });
+          resolve(response);
         });
       });
     }, MAX_TRIES, NAPTIME, this._transferPredicate);
