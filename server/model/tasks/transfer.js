@@ -8,6 +8,10 @@ const List = require('./list.js');
 const G = require('../global.js');
 const getRequestEmail = require('../../util/build-email.js');
 
+require('./transfer-schema.js');
+const mongoose = require('mongoose');
+const MongooseTransfer = mongoose.model('transfers');
+
 const MAX_TRIES = 4;
 const NAPTIME = 2000;
 const RECENT_ITEMS = 10;
@@ -46,14 +50,41 @@ class Transfer extends Task {
 
   static fromDB(mdbTransfer) {
     let task = new Transfer(mdbTransfer.userID, mdbTransfer.taskID, mdbTransfer.folderID, mdbTransfer.newOwner);
+    task.subState = mdbTransfer.subState;
+    task.result = mdbTransfer.result;
+  }
 
+  saveToDB() {
+    let update = {
+      state: this.state,
+      subState: this.subState,
+      result: this.result,
+    }
+
+    return MongooseTransfer.findOneAndUpdate({taskID: this.id}, update).catch((err) => {
+      console.log(`Failed updating transfer task ${this.id}`);
+      throw err;
+    });
   }
 
   setup() {
     return super.setup().then(() => {
       this.drive = Google.drive({ version: 'v3', auth: this.client });
       this.gmail = Google.gmail({ version: 'v1', auth: this.client });
-    }).then(() => {
+
+      return new MongooseTransfer({
+        taskID: this.id,
+        userID: this.userID,
+        newOwner: this.newOwner,
+        folderID: this.folderID,
+        state: this.state,
+        subState: this.subState,
+        result: this.result
+      }).save();
+    }).catch((err => {
+      console.log(`Failed creating transfer task ${this.id}`);
+      throw err;
+    })).then(() => {
       return this.listTask.setup();
     });
   }
@@ -86,16 +117,19 @@ class Transfer extends Task {
       console.log('Email sent');
       await this.sendRequest(this.newOwner).next().value;
       this.subState = TaskSubStates.WAITING_FOR_CREDENTIALS;
+      await this.saveToDB();
     }
     else if (this.subState === TaskSubStates.WAITING_FOR_CREDENTIALS) {
       console.log('Still waiting on credentials');
       this.state = TaskStates.PAUSED;
+      await this.saveToDB();
     }
     else if (this.subState === TaskSubStates.CREATING_FILTER) {
       console.log('Got creds. Will filter.');
       await this.createFilter().next().value;
       this.subState = TaskSubStates.LISTING;
       this.listTask.state = TaskStates.RUNNING;
+      await this.saveToDB();
     }
     else if (this.subState === TaskSubStates.LISTING) {
       console.log('Listing');
@@ -104,6 +138,7 @@ class Transfer extends Task {
       if (file === undefined) {
         console.log('done listing');
         this.subState = TaskSubStates.TRANSFERRING;
+        await this.saveToDB();
         return;
       }
     }
@@ -113,7 +148,9 @@ class Transfer extends Task {
 
       if (iteratorItem.done) {
         this.state = TaskStates.FINISHED;
+        this.subState = TaskSubStates.FINISHED;
         this.emit(TaskStates.FINISHED);
+        await this.saveToDB();
         return;
       }
 
