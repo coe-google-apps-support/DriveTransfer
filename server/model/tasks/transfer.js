@@ -17,15 +17,17 @@ const FILTER_QUERY = `"${EMAIL_MESSAGE}"`;
 const FILE_PATH = './resources/request-email.txt';
 
 const TransferStates = {
-  UNTRANSFERED: 'UNTRANSFERED',
-  TRANSFERED: 'TRANSFERED',
+  UNTRANSFERRED: 'UNTRANSFERRED',
+  TRANSFERRED: 'TRANSFERRED',
 };
 
 const TaskSubStates = {
-  CREATED: TaskStates.CREATED,
-  EMAIL_SENT: 'EMAIL_SENT',
-  RECIPIENT_ACCEPTED: 'RECIPIENT_ACCEPTED',
-  EMAIL_FILTER_CREATED: 'EMAIL_FILTER_CREATED',
+  SENDING_EMAIL: 'Sending email to recipient',
+  WAITING_FOR_CREDENTIALS: 'Waiting on recipient',
+  CREATING_FILTER: 'Creating email filter',
+  LISTING: 'Finding files',
+  TRANSFERRING: 'Transferring files',
+  FINISHED: 'Done'
 }
 
 class Transfer extends Task {
@@ -37,7 +39,7 @@ class Transfer extends Task {
 
     this.result.fileList = new Map();
 
-    this.subState = TaskSubStates.CREATED;
+    this.subState = TaskSubStates.SENDING_EMAIL;
 
     this.listTask = new List(userID, taskID, folderID);
     this.listTask.result.state = TaskStates.RUNNING;
@@ -62,7 +64,7 @@ class Transfer extends Task {
       this.recipientDrive = Google.drive({ version: 'v3', auth: user.client });
       this.recipientGmail = Google.gmail({ version: 'v1', auth: user.client });
 
-      this.subState = TaskSubStates.RECIPIENT_ACCEPTED;
+      this.subState = TaskSubStates.CREATING_FILTER;
       this.run();
 
       return user;
@@ -78,30 +80,35 @@ class Transfer extends Task {
   */
   async doUnitOfWork() {
     console.log('Doing work');
-    if (this.subState === TaskSubStates.CREATED) {
+    if (this.subState === TaskSubStates.SENDING_EMAIL) {
       // Send email
       console.log('Email sent');
       await this.sendRequest(this.newOwner).next().value;
-      this.subState = TaskSubStates.EMAIL_SENT;
+      this.subState = TaskSubStates.WAITING_FOR_CREDENTIALS;
     }
-    else if (this.subState === TaskSubStates.EMAIL_SENT) {
+    else if (this.subState === TaskSubStates.WAITING_FOR_CREDENTIALS) {
       console.log('Still waiting on credentials');
       this.result.state = TaskStates.PAUSED;
     }
-    else if (this.subState === TaskSubStates.RECIPIENT_ACCEPTED) {
+    else if (this.subState === TaskSubStates.CREATING_FILTER) {
       console.log('Got creds. Will filter.');
       await this.createFilter().next().value;
-      this.subState = TaskSubStates.EMAIL_FILTER_CREATED;
+      this.subState = TaskSubStates.LISTING;
+      this.listTask.result.state = TaskStates.RUNNING;
     }
-    else if (this.listTask.result.state === TaskStates.RUNNING) {
-      console.log('Listing')
+    else if (this.subState === TaskSubStates.LISTING) {
+      console.log('Listing');
       let file = await this.listTask.doUnitOfWork();
 
-      if (file === undefined) return;
+      if (file === undefined) {
+        console.log('done listing');
+        this.subState = TaskSubStates.TRANSFERRING;
+        return;
+      }
 
-      file.state = TransferStates.UNTRANSFERED;
+      file.state = TransferStates.UNTRANSFERRED;
     }
-    else {
+    else if (this.subState === TaskSubStates.TRANSFERRING){
       console.log('Transferring');
       let iteratorItem = this.activeFileIterator.next();
 
@@ -117,11 +124,14 @@ class Transfer extends Task {
 
       this.addResult(transferMetadata);
     }
+    else {
+      console.log(`Weird substate: ${this.subState}`);
+    }
   }
 
   addResult(value) {
     this.result.fileList.set(value.id, value);
-    value.file.state = TransferStates.TRANSFERED;
+    value.file.state = TransferStates.TRANSFERRED;
   }
 
   _transferPredicate(error) {
