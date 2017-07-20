@@ -10,6 +10,7 @@ const taskRunner = require('./task-runner.js');
 
 require('./util/map-to-json.js');
 require('./util/object-filter.js');
+require('./util/object-to-map.js');
 
 const port = 3000;
 const url = 'mongodb://localhost:27017/test';
