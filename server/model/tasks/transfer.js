@@ -36,8 +36,6 @@ class Transfer extends Task {
     this.newOwner = newOwner;
     this.folderID = folderID;
 
-    //this.result.fileList = new Map();
-
     this.subState = TaskSubStates.SENDING_EMAIL;
 
     this.listTask = new List(userID, taskID, folderID);
@@ -53,10 +51,17 @@ class Transfer extends Task {
     task.state = mdbTransfer.state;
     task.subState = mdbTransfer.subState;
     task.result = mdbTransfer.result;
-    return task.setup();
+    task.result.fileList = Map.fromObject(mdbTransfer.result.fileList);
+    task.listTask.result = task.result;
+    task.activeFileIterator = task.listTask.result.fileList[Symbol.iterator]();
+
+    return task.setup().then(() => {
+      return task;
+    });
   }
 
   saveToDB() {
+    // We have to call toJSON on the fileList Map, as Mongo doesn't support Maps.
     let update = {
       taskID: this.id,
       userID: this.userID,
@@ -64,10 +69,12 @@ class Transfer extends Task {
       folderID: this.folderID,
       state: this.state,
       subState: this.subState,
-      result: this.result
-    }
+      result: {
+        fileList: this.result.fileList.toJSON(),
+      }
+    };
 
-    return MongooseTransfer.findOneAndUpdate({taskID: this.id}, update, {upsert: true}).catch((err) => {
+    return MongooseTransfer.findOneAndUpdate({taskID: this.id}, {$set: update}, {upsert: true}).catch((err) => {
       console.log(`Failed updating transfer task ${this.id}`);
       throw err;
     });
@@ -136,6 +143,7 @@ class Transfer extends Task {
       if (file === undefined) {
         console.log('done listing');
         this.subState = TaskSubStates.TRANSFERRING;
+        console.log('Saving list...')
         await this.saveToDB();
         return;
       }
@@ -169,12 +177,13 @@ class Transfer extends Task {
   }
 
   _transferPredicate(error) {
+    console.log(error);
     let firstError = error.errors[0];
     if ((error.code === 403 && firstError.reason === 'userRateLimitExceeded') ||
       (error.code === 403 && firstError.reason === 'rateLimitExceeded') ||
       (error.code === 429 && firstError.reason === 'rateLimitExceeded') ||
       (error.code === 500 && firstError.reason === 'backendError')) {
-        console.log('Retrying');
+      console.log('Retrying');
       return true;
     }
 
