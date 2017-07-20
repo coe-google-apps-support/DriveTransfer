@@ -1,6 +1,8 @@
 const Task = require('./task.js');
 const List = require('./list.js');
 const Transfer = require('./transfer.js');
+const mongoose = require('mongoose');
+const MongooseTransfer = mongoose.model('transfers');
 const G = require('../global.js');
 const uuid = require('uuid/v1');
 
@@ -10,21 +12,31 @@ class TaskManager {
   }
 
   /**
-   * Gets a Task by ID. These tasks don't need a user session to keep running.
+   * Gets a Task by ID. This Task is returned as the result of a Promise.
+   * These tasks don't need an active user session to keep running.
    *
    * @param {string} taskID A unique id for a given task.
-   * @return {Task} The task given by taskID.
+   * @return {Promise} A Promise that contains the task given by taskID.
    */
   getTask(taskID) {
     let foundTask = this.tasks.find((task) => {
       return task.id === taskID;
     });
 
-    if (foundTask === undefined) {
-      throw new Error(`No task ${taskID} found.`);
+    if (foundTask) {
+      return Promise.resolve(foundTask);
     }
 
-    return foundTask;
+    return MongooseTransfer.findOne({taskID: taskID}).then((task) => {
+      if (task == null) {
+        throw new Error(`No task ${taskID} found.`);
+      }
+
+      return Transfer.fromDB(task);
+    }).then((newTransfer) => {
+      this.tasks.push(newTransfer);
+      return newTransfer;
+    });
   }
 
   /**
@@ -82,51 +94,45 @@ class TaskManager {
    * @param {string} newOwnerEmail The email address of the owner to transfer to.
    * @param {string} newOwnerID The ID of the new owner.
    * @param {string} taskID The Task to accept or reject.
-   * @return {string} The id of this task.
+   * @return {Promise} The id of this task wrapped in a Promise.
    */
   authTransferTask(initiatorEmail, folderID, newOwnerEmail, newOwnerID, taskID) {
-    let task = this.getTask(taskID);
-    return task.authorize(newOwnerID);
-  }
-
-  runTask(taskID) {
-    let task = this.getTask(taskID);
-    task.run();
-  }
-
-  pauseTask(taskID) {
-    let task = this.getTask(taskID);
-    task.pause();
-  }
-
-  getTaskResult(taskID) {
-    let task = this.getTask(taskID);
-    return task.getResult();
-  }
-
-  getRecentWork(taskID) {
-    let task = this.getTask(taskID);
-    return task.getRecentWork();
+    return this.getTask(taskID).then((task) => {
+      return task.authorize(newOwnerID);
+    });
   }
 
   /**
-   * Gets all of a given users tasks.
-   * For now, the userID will simply be the email of the user.
-   * TODO ensure requesting user has permissions to retrieve a task.
-   *
-   * @param {string} userID The ID of a given user.
-   * @return {Array<Task>} An Array of Tasks belonging to userID.
+   * Runs a Task.
+   * @param {string} taskID The ID of the Task to run.
+   * @return {Promise} A Promise resolved after the Task is run.
    */
-  getUserTasks(userID) {
-    let foundTask = this.tasks.find((task) => {
-      return task.userID === userID;
+  runTask(taskID) {
+    return this.getTask(taskID).then((task) => {
+      task.run();
     });
+  }
 
-    if (foundTask === undefined) {
-      console.log(`No tasks for ${userID} found.`);
-    }
+  /**
+   * Pauses a Task.
+   * @param {string} taskID The ID of the Task to pause.
+   * @return {Promise} A Promise resolved after the Task is paused.
+   */
+  pauseTask(taskID) {
+    return this.getTask(taskID).then((task) => {
+      task.pause();
+    });
+  }
 
-    return foundTask;
+  /**
+   * Gets the result associated with a given task.
+   * @param {string} taskID The ID of the Task to get the result for.
+   * @return {Promise} The result wrapped in a Promise.
+   */
+  getTaskResult(taskID) {
+    return this.getTask(taskID).then((task) => {
+      return task.getResult();
+    });
   }
 }
 
