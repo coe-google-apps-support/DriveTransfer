@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "nodemon index.js",
     "debug": "node --inspect index.js",
-    "test": "mocha test/*.spec.js"
+    "test": "mocha test/**/*.spec.js"
   },
   "author": "j-rewerts",
   "license": "GPL-3.0",
