@@ -18,7 +18,9 @@ class Task extends EventEmitter {
    *
    */
   async run() {
-    if (this.state !== TaskStates.CREATED && this.state !== TaskStates.PAUSED) {
+    if (this.state !== TaskStates.CREATED &&
+      this.state !== TaskStates.PAUSED && 
+      this.state !== TaskStates.RUNNING) {
       throw new Error(`Task ${this.id} can only be run from CREATED or PAUSED, but was ${this.state}.`);
     }
     if (this.client === null) {
