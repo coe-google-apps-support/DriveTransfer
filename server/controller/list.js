@@ -1,5 +1,6 @@
 const List = require('../model/tasks/list.js');
 const G = require('../model/global.js');
+const taskManager = require('../model/tasks/task-manager.js')
 
 /**
  * Used to list all files and sub-files.
@@ -16,8 +17,7 @@ exports.list = function(req, res, next) {
   G.getUsers().getUser(req.sessionID).then((user) => {
     return user.promise;
   }).then(() => {
-    let tm = G.getTaskManager();
-    return tm.addListTask(req.sessionID, id);
+    return taskManager.addListTask(req.sessionID, id);
   }).then((taskID) => {
     console.log(`Task is ${taskID}.`);
     res.status(200).json({

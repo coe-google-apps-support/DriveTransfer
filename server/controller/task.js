@@ -1,4 +1,5 @@
 const G = require('../model/global.js');
+const taskManager = require('../model/tasks/task-manager.js');
 
 exports.run = function(req, res, next) {
   let taskID = req.query.taskID;
@@ -11,8 +12,7 @@ exports.run = function(req, res, next) {
   G.getUsers().getUser(req.sessionID).then((user) => {
     return user.promise;
   }).then(() => {
-    let tm = G.getTaskManager();
-    return tm.runTask(taskID);
+    return taskManager.runTask(taskID);
   }).then(() => {
     res.status(200).json({
       message: 'Task run'
@@ -33,8 +33,7 @@ exports.pause = function(req, res, next) {
   G.getUsers().getUser(req.sessionID).then((user) => {
     return user.promise;
   }).then(() => {
-    let tm = G.getTaskManager();
-    return tm.pauseTask(taskID);
+    return taskManager.pauseTask(taskID);
   }).then(() => {
     res.status(200).json({
       message: 'Task paused'
@@ -55,8 +54,7 @@ exports.getResult = function(req, res, next) {
   G.getUsers().getUser(req.sessionID).then((user) => {
     return user.promise;
   }).then(() => {
-    let tm = G.getTaskManager();
-    return tm.getTaskResult(taskID);
+    return taskManager.getTaskResult(taskID);
   }).then((result) => {
     res.status(200).json({
       message: result

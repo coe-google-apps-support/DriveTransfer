@@ -1,4 +1,3 @@
-const TaskManager = require('./tasks/task-manager.js');
 const Users = require('./authorized-users.js');
 const MongoClient = require('mongodb').MongoClient;
 
@@ -14,14 +13,6 @@ exports.getUsers = function() {
   }
 
   return users;
-}
-
-exports.getTaskManager = function() {
-  if (!taskManager) {
-    taskManager = new TaskManager();
-  }
-
-  return taskManager;
 }
 
 exports.getMongoClient = function() {

@@ -1,5 +1,6 @@
 const TransferTask = require('../model/tasks/transfer.js');
 const G = require('../model/global.js');
+const taskManager = require('../model/tasks/task-manager.js');
 
 /**
  * Used to transfer all files and sub-files.
@@ -25,8 +26,7 @@ exports.transfer = function(req, res, next) {
 
   if(action === 'accept' || action === 'reject'){
     G.getUsers().getUser(req.sessionID).then((user) => {
-      let tm = G.getTaskManager();
-      return tm.authTransferTask(initiator, id, to, req.sessionID, taskID);
+      return taskManager.authTransferTask(initiator, id, to, req.sessionID, taskID);
     }).then(() => {
       res.status(200).json({
         message: 'Transfer initiated.'
@@ -40,8 +40,7 @@ exports.transfer = function(req, res, next) {
     G.getUsers().getUser(req.sessionID).then((user) => {
       return user.promise;
     }).then(() => {
-      let tm = G.getTaskManager();
-      return tm.addTransferTask(req.sessionID, id, to);
+      return taskManager.addTransferTask(req.sessionID, id, to);
     }).then((taskID) => {
       res.status(200).json({
         message: taskID
