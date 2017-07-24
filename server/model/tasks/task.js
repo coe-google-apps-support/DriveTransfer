@@ -5,7 +5,7 @@ const EventEmitter = require('events');
 class Task extends EventEmitter {
   constructor(userID, taskID) {
     super();
-
+    console.log('TASK');
     this.id = taskID;
     this.client = null;
     this.userID = userID;
@@ -19,7 +19,7 @@ class Task extends EventEmitter {
    */
   async run() {
     if (this.state !== TaskStates.CREATED &&
-      this.state !== TaskStates.PAUSED && 
+      this.state !== TaskStates.PAUSED &&
       this.state !== TaskStates.RUNNING) {
       throw new Error(`Task ${this.id} can only be run from CREATED or PAUSED, but was ${this.state}.`);
     }

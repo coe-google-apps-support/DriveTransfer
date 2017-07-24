@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-const Task = require('../tasks/task.js');
 
 const schema = new Schema({
   taskID: {
@@ -32,24 +31,21 @@ const schema = new Schema({
   }]
 }, {strict: true});
 
-// schema.index({})
+schema.pre('save', function(next){
+  console.log('list saved');
+  if (this.isNew) {
+    console.log('Do async contruction here');
+  }
 
-schema.pre('init', (doc) => {
-  console.log('list created');
+  next();
 });
 
-class List extends Task {
-  setup() {
-    console.log('Setup');
-    return Promise.resolve('List setup.')
-  }
-}
-
-schema.loadClass(List);
-let model = mongoose.model('listTask', schema);
+let model = mongoose.model('list_task', schema);
 
 // For some reason, I need to FORCE mongoose to create the index.
 // https://github.com/Automattic/mongoose/issues/3393
 model.ensureIndexes().catch((err) => {
   console.log(err);
 });
+
+module.exports = model;

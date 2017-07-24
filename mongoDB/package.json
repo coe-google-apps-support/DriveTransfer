@@ -1,0 +1,16 @@
+{
+  "name": "drivetransfer-mongodb",
+  "version": "1.0.0",
+  "description": "Manages the mongoDB server.",
+  "main": "load-schemas.js",
+  "scripts": {
+    "test": "node load-schemas.js",
+    "setup": "node load-schemas.js"
+  },
+  "author": "j-rewerts",
+  "license": "GPL-3.0",
+  "dependencies": {
+    "mongodb": "^2.2.30",
+    "mongoose": "^4.11.3"
+  }
+}
