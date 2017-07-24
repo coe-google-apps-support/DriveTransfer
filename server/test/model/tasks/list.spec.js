@@ -10,17 +10,17 @@ const assert = chai.assert;
 
 const url = 'mongodb://localhost:27017/test';
 
-let List;
-before(() => {
-  loadSchemas();
-  List = mongoose.model('listTask');
-
-  return mongoose.connect(url).then(() => {
-    return List.remove({});
-  })
-});
-
 describe('List', () => {
+
+  let List;
+  before(() => {
+    loadSchemas();
+    List = mongoose.model('list_task');
+
+    return mongoose.connect(url).then(() => {
+      return List.remove({});
+    });
+  });
 
   describe('.create', () => {
     it('Creates an empty List request', () => {
@@ -48,5 +48,9 @@ describe('List', () => {
 
       return assert.isRejected(listPromise);
     });
+  });
+
+  after(() => {
+    return mongoose.disconnect();
   });
 });
