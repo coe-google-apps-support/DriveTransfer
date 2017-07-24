@@ -1,6 +1,6 @@
 const path = require('path');
 const schemaRoot = path.resolve(__dirname, 'model', 'schemas');
-const schemas = ['list.js'];
+const schemas = ['list.js', 'task.js'];
 
 module.exports = function() {
   schemas.forEach((schemaName) => {
