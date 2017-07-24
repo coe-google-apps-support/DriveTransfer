@@ -13,7 +13,7 @@ require('./util/object-filter.js');
 require('./util/object-to-map.js');
 
 const port = 3000;
-const url = 'mongodb://localhost:27017/test';
+const url = 'mongodb://localhost:27017/dev';
 const sess = {
   secret: 'fasdkh7f4qjhadf6kashfr347ajpv',
   resave: false,
