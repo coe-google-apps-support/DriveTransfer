@@ -21,20 +21,21 @@ const schema = new Schema({
     default: 'CREATED'
   },
   result: [{
-    'id': String,
-    'name': String,
-    'createdTime': Date,
-    'mimeType': String,
-    'webViewLink': String,
-    'iconLink': String,
-    'parents': [{}],
+    _id: false,
+    id: String,
+    name: String,
+    createdTime: Date,
+    mimeType: String,
+    webViewLink: String,
+    iconLink: String,
+    parents: [String],
   }]
 }, {strict: true});
 
 schema.pre('save', function(next){
-  console.log('list saved');
+  // console.log('list saved');
   if (this.isNew) {
-    console.log('Do async contruction here');
+    // console.log('Do async contruction here');
   }
 
   next();

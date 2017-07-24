@@ -4,37 +4,43 @@ const uuid = require('uuid/v1');
 const TaskStates = require('../../model/tasks/task-states.js');
 
 class ListProvider {
-  constructor() {
 
-  }
-
-  create(userID, folderID) {
+  static create(userID, folderID) {
     const taskID = uuid();
-    return List.create({taskID, userID, folderID}).catch((err) => {
+    return ListTask.create({taskID, userID, folderID}).catch((err) => {
       console.err('Failed creating task.');
     });
   }
 
-  run(taskID, userID) {
+  static run(taskID, userID) {
     // Set state and emit event.
-    return ListTask.findById(taskID).then((task) => {
+    return ListTask.findOne({taskID}).then((task, second) => {
       task.state = TaskStates.RUNNING;
       return task.save();
     });
   }
 
-  pause(taskID, userID) {
+  static pause(taskID, userID) {
     // Set state and emit event.
-    return ListTask.findById(taskID).then((task) => {
+    return ListTask.findOne({taskID}).then((task) => {
       task.state = TaskStates.PAUSED;
       return task.save();
     });
   }
 
-  getResult(taskID, userID) {
-    return ListTask.findById(taskID).then((task) => {
+  static getResult(taskID, userID) {
+    return ListTask.findOne({taskID}).then((task) => {
       return task.result;
     });
   }
 
+  static addResult(taskID, userID, value) {
+    return ListTask.findOne({taskID}).then((task) => {
+      task.result.push(value);
+      return task.save();
+    });
+  }
+
 }
+
+module.exports = ListProvider;
