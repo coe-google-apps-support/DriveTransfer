@@ -23,40 +23,16 @@ describe('Task', () => {
   });
 
   describe('.create', () => {
-    it('Creates an empty Task request', () => {
+    it('Fails when creating without a subTask', () => {
       let taskPromise = Task.create({
         taskID: 'taskID-abc123',
         userID: 'userID-123',
-        taskType: 'fake_task',
-      });
-
-      return assert.isFulfilled(taskPromise);
-    });
-
-    it('Fails when creating a Task with duplicate IDs', () => {
-      let taskPromise = Task.create({
-        taskID: 'dup-id-123',
-        userID: 'userID-123',
-        taskType: 'fake_task',
-      }).then(() => {
-        return Task.create({
-          taskID: 'dup-id-123',
-          userID: 'userID-321',
-          taskType: 'fake_task',
-        });
+        taskType: 'list_task',
       });
 
       return assert.isRejected(taskPromise);
     });
 
-    it('Fails when creating a Task with no type', () => {
-      let taskPromise = Task.create({
-        taskID: 'dup-id-123',
-        userID: 'userID-123',
-      });
-
-      return assert.isRejected(taskPromise);
-    });
   });
 
   after(() => {

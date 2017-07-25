@@ -1,15 +1,26 @@
+/**
+ * This model is used for managing Task states. It's worth noting that it can't be created really.
+ * See the schema for list_task for an example of how to use it. All task models are created
+ * indirectly. This behaviour makes it very difficult to unit test.
+ */
+
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const schema = new Schema({
-  taskID: {
-    type: String,
-    required: true,
-    unique: true,
-  },
   userID: {
     type: String,
     required: true,
+  },
+  state: {
+    type: String,
+    required: true,
+    default: 'CREATED'
+  },
+  subTask: {
+    type: Schema.Types.ObjectId,
+    refPath: 'taskType',
+    required: true
   },
   taskType: {
     type: String,
@@ -17,14 +28,6 @@ const schema = new Schema({
   }
 }, {strict: true});
 
-schema.index({taskID: 1, userID: 1}, {unique: true});
-
 let model = mongoose.model('task', schema);
-
-// For some reason, I need to FORCE mongoose to create the index.
-// https://github.com/Automattic/mongoose/issues/3393
-model.ensureIndexes().catch((err) => {
-  console.log(err);
-});
 
 module.exports = model;

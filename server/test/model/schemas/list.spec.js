@@ -23,9 +23,8 @@ describe('List', () => {
   });
 
   describe('.create', () => {
-    it('Creates an empty List request', () => {
+    it('Creates one List task', () => {
       let listPromise = List.create({
-        taskID: 'taskID-abc123',
         userID: 'userID-123',
         folderID: 'fid-123'
       });
@@ -33,21 +32,20 @@ describe('List', () => {
       return assert.isFulfilled(listPromise);
     });
 
-    it('Fails when creating a List Task with duplicate IDs', () => {
+    it('Creates multiple List tasks', () => {
       let listPromise = List.create({
-        taskID: 'dup-id-123',
         userID: 'userID-123',
         folderID: 'fid-123'
-      }).then(() => {
+      }).then((task) => {
         return List.create({
-          taskID: 'dup-id-123',
-          userID: 'userID-321',
-          folderID: 'fid-321'
+          userID: 'userID-123',
+          folderID: 'fid-123'
         });
-      });
+      })
 
-      return assert.isRejected(listPromise);
+      return assert.isFulfilled(listPromise);
     });
+
   });
 
   after(() => {

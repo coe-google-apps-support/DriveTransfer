@@ -1,11 +1,12 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
+const type = 'list_task';
 
 const schema = new Schema({
-  taskID: {
-    type: String,
+  task: {
+    type: Schema.Types.ObjectId,
+    ref: 'task',
     required: true,
-    unique: true,
   },
   userID: {
     type: String,
@@ -14,11 +15,6 @@ const schema = new Schema({
   folderID: {
     type: String,
     required: true,
-  },
-  state: {
-    type: String,
-    required: true,
-    default: 'CREATED'
   },
   result: [{
     _id: false,
@@ -32,21 +28,22 @@ const schema = new Schema({
   }]
 }, {strict: true});
 
-schema.pre('save', function(next){
-  // console.log('list saved');
-  if (this.isNew) {
-    // console.log('Do async contruction here');
+schema.pre('validate', function(next){
+  if (!this.task) {
+    mongoose.model('task').create({
+      userID: this.userID,
+      taskType: type,
+      subTask: this._id
+    }).then((task) => {
+      this.task = task._id;
+      next();
+    });
   }
-
-  next();
+  else {
+    next();
+  }
 });
 
-let model = mongoose.model('list_task', schema);
-
-// For some reason, I need to FORCE mongoose to create the index.
-// https://github.com/Automattic/mongoose/issues/3393
-model.ensureIndexes().catch((err) => {
-  console.log(err);
-});
+let model = mongoose.model(type, schema);
 
 module.exports = model;
