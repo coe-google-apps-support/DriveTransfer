@@ -2,11 +2,10 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const schema = new Schema({
-  id: {
+  sessionID: {
     type: String,
+    ref: 'sessions',
     required: true,
-    index: true,
-    unique: true,
   },
   scopes: {
     type: [String],

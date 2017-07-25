@@ -115,7 +115,7 @@ class User {
         this.authorized = true;
 
         this.mongooseUser = new MongooseUser({
-          id: this.id,
+          sessionID: this.id,
           scopes: this.scopes,
           tokens: tokens,
         });
