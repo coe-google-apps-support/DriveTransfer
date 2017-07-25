@@ -28,9 +28,8 @@ exports.oauthCallback = function(req, res, next) {
   console.log('OAUTH for ' + req.sessionID);
 
   UserProvider.giveCode(req.sessionID, req.query.code).then(() => {
-    if (req.query.state) {
-      res.redirect(req.query.state);
-    }
+    console.log('redirecting to ' + req.query.state);
+    res.redirect(req.query.state);
   }).catch((err) => {
     // TODO error page
     res.status(500).send(err);

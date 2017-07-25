@@ -8,7 +8,6 @@ const authAPI = require('./routers/auth.js');
 const list = require('./routers/list.js').list;
 const transfer = require('./routers/transfer.js').transfer;
 const task = require('./routers/task.js');
-const Redirect = require('./routers/redirect.js');
 const reset = require('./routers/reset.js').reset;
 const mainView = require('./routers/main.js');
 const login = require('./routers/login.js').login;
@@ -21,20 +20,18 @@ module.exports = function(session, app) {
 
   app.get('/api/list', authAPI.requireAuth, list);
   app.get('/api/transfer', authAPI.requireAuth, transfer);
-  app.get('/api/reset', reset);
   app.get('/api/task/run', authAPI.requireAuth, task.run);
   app.get('/api/task/pause', authAPI.requireAuth, task.pause);
-
   app.get('/view', authAPI.requireAuth, mainView.view);
+
   app.get('/login', login);
+  app.get('/api/reset', reset);
 
   app.get('/', (req, res) => {
     res.redirect('/view');
-
   });
 
-  app.get('/redirect', Redirect.redirect);
-  app.get('/auth', authAPI.requireAuth);
+  app.get('/redirect', authAPI.oauthCallback);
 
   app.use(express.static(path.resolve(__dirname, '..', 'client', 'src', 'static')));
 }
