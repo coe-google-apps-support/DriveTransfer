@@ -5,24 +5,15 @@
  * @link {https://developers.google.com/drive/v3/web/quickstart/nodejs | nodejs quickstart}
  */
 
-const fs = require('fs');
 const path = require('path');
-const readline = require('readline');
-const Google = require('googleapis');
-const OAuth2 = Google.auth.OAuth2;
-const readFile = require('../util/promisey-read-file.js').readFile;
-
-const User = require('../model/user.js');
-const Users = require('../model/authorized-users.js');
-const G = require('../model/global.js');
+const UserProvider = require('../controller/providers/user-provider.js');
 
 exports.requireAuth = function(req, res, next) {
   console.log('Setting up user auth.');
 
-  G.getUsers().getUser(req.sessionID).then((user) => {
-    if (user && user.authorized) {
+  UserProvider.getUser(req.sessionID).then((user) => {
+    if (user.isAuthorized) {
       console.log('User is already logged in.');
-
       next();
     }
     else {
@@ -36,19 +27,14 @@ exports.requireAuth = function(req, res, next) {
 exports.oauthCallback = function(req, res, next) {
   console.log('OAUTH for ' + req.sessionID);
 
-  G.getUsers().getUser(req.sessionID).then((user) => {
-    if (user == null) {
-      let err = new Error('Your session couldn\'t be found');
-      res.status(500).send(err);
-      console.log(err);
-      return;
-    }
-
-    user.getToken(req.query.code);
-    return user.promise;
-  }).then(() => {
+  UserProvider.giveCode(req.sessionID, req.query.code).then(() => {
     if (req.query.state) {
       res.redirect(req.query.state);
     }
+  }).catch((err) => {
+    // TODO error page
+    res.status(500).send(err);
+    console.log(err);
+    return;
   });
 }
