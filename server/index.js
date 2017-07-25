@@ -7,7 +7,6 @@ mongoose.Promise = global.Promise;
 const app = express();
 const router = require('./router.js');
 const socketHandler = require('./socket-handler.js');
-const taskRunner = require('./task-runner.js');
 const Config = require('./config.js');
 
 require('./util/map-to-json.js');
@@ -37,6 +36,3 @@ socketHandler(session, server);
 
 server.listen(Config.Web.PORT);
 console.log(`Your server is running on port ${Config.Web.PORT}.`);
-
-taskRunner();
-console.log('Tasks set up.');
