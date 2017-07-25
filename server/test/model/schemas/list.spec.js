@@ -1,8 +1,7 @@
-const loadSchemas = require('../../../load-schemas.js');
 const mongoose = require('mongoose');
 mongoose.Promise = global.Promise;
 const Schema = mongoose.Schema;
-
+const List = require('../../../model/schemas/list.js');
 const chai = require('chai');
 const chaiAsPromised = require('chai-as-promised');
 chai.use(chaiAsPromised);
@@ -12,14 +11,8 @@ const url = 'mongodb://localhost:27017/test';
 
 describe('List', () => {
 
-  let List;
   before(() => {
-    loadSchemas();
-    List = mongoose.model('list_task');
-
-    return mongoose.connect(url).then(() => {
-      return List.remove({});
-    });
+    return mongoose.connect(url);
   });
 
   describe('.create', () => {

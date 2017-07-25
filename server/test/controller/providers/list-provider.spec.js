@@ -1,5 +1,6 @@
-const loadSchemas = require('../../../load-schemas.js');
 const TaskStates = require('../../../model/tasks/task-states.js');
+const List = require('../../../model/schemas/list.js');
+const ListProvider = require('../../../controller/providers/list-provider.js');
 const mongoose = require('mongoose');
 mongoose.Promise = global.Promise;
 
@@ -12,12 +13,8 @@ const url = 'mongodb://localhost:27017/test';
 
 describe('ListProvider', () => {
 
-  let ListProvider;
-  let List;
   const user1 = 'userID-1';
   const folder1 = 'fid-1';
-  const user2 = 'userID-2';
-  const folder2 = 'fid-2';
   const listResult1 = {
     'id': 'file-1',
     'name': 'a file',
@@ -33,14 +30,7 @@ describe('ListProvider', () => {
 
 
   before(() => {
-    loadSchemas();
-    List = mongoose.model('list_task');
-    ListProvider = require('../../../controller/providers/list-provider.js');
     return mongoose.connect(url);
-  });
-
-  beforeEach(() => {
-    return List.remove({});
   });
 
   describe('.create', () => {

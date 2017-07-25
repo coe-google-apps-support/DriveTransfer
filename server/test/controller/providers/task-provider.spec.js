@@ -2,7 +2,9 @@ const loadSchemas = require('../../../load-schemas.js');
 const TaskStates = require('../../../model/tasks/task-states.js');
 const mongoose = require('mongoose');
 mongoose.Promise = global.Promise;
-
+const TaskProvider = require('../../../controller/providers/task-provider.js');
+const ListProvider = require('../../../controller/providers/list-provider.js');
+const Task = require('../../../model/schemas/task.js');
 const chai = require('chai');
 const chaiAsPromised = require('chai-as-promised');
 chai.use(chaiAsPromised);
@@ -12,20 +14,8 @@ const url = 'mongodb://localhost:27017/test';
 
 describe('TaskProvider', () => {
 
-  let TaskProvider;
-  let ListProvider;
-  let Task;
-
   before(() => {
-    loadSchemas();
-    Task = mongoose.model('task');
-    TaskProvider = require('../../../controller/providers/task-provider.js');
-    ListProvider = require('../../../controller/providers/list-provider.js');
     return mongoose.connect(url);
-  });
-
-  beforeEach(() => {
-    return Task.remove({});
   });
 
   describe('.run', () => {

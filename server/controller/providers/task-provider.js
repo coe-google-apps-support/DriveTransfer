@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const Task = mongoose.model('task');
+const Task = require('../../model/schemas/task.js');
 const TaskStates = require('../../model/tasks/task-states.js');
 
 class TaskProvider {
