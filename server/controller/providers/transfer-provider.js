@@ -6,9 +6,29 @@ const TaskStates = require('../../model/tasks/task-states.js');
 class TransferProvider {
 
   static create(userID, folderID, newOwner) {
-    return TransferTask.create({userID, folderID, newOwner}).catch((err) => {
-      console.error('Failed creating task.');
+    return TransferTask.create({
+      userID,
+      folderID,
+      newOwner: {
+        email: newOwner
+      }
+    }).catch((err) => {
+      console.log('Failed creating task.');
       throw err;
+    });
+  }
+
+  static acceptTransfer(taskID) {
+    return TransferTask.findOne({task: taskID}).then((task) => {
+      task.newOwner.hasAuthorized = true;
+      return task.save();
+    });
+  }
+
+  static rejectTransfer(taskID) {
+    return TransferTask.findOne({task: taskID}).then((task) => {
+      task.newOwner.isRejected = true;
+      return task.save();
     });
   }
 

@@ -15,8 +15,18 @@ const schema = new Schema({
     required: true,
   },
   newOwner: {
-    type: String,
-    required: true
+    email: {
+      type: String,
+      required: true,
+    },
+    hasAuthorized: {
+      type: Boolean,
+      default: false,
+    },
+    isRejected: {
+      type: Boolean,
+      default: false,
+    },
   },
   folderID: {
     type: String,

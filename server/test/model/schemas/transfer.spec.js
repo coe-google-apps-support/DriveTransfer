@@ -20,7 +20,7 @@ describe('Transfer', () => {
       let promise = Transfer.create({
         userID: 'userID-123',
         folderID: 'fid-123',
-        newOwner: 'snow.white@edmonton.ca',
+        newOwner: {email: 'snow.white@edmonton.ca'},
       });
 
       return assert.isFulfilled(promise);
@@ -30,12 +30,12 @@ describe('Transfer', () => {
       let promise = Transfer.create({
         userID: 'userID-123',
         folderID: 'fid-123',
-        newOwner: 'snow.white@edmonton.ca',
+        newOwner: {email: 'snow.white@edmonton.ca'},
       }).then((task) => {
         return Transfer.create({
           userID: 'userID-123',
           folderID: 'fid-123',
-          newOwner: 'snow.white@edmonton.ca',
+          newOwner: {email: 'snow.white@edmonton.ca'},
         });
       })
 
@@ -46,7 +46,7 @@ describe('Transfer', () => {
       let promise = Transfer.create({
         userID: 'userID-123',
         folderID: 'fid-123',
-        newOwner: 'snow.white@edmonton.ca',
+        newOwner: {email: 'snow.white@edmonton.ca'},
       }).then((transferTask) => {
         return Transfer.findOne(transferTask)
           .populate('task')

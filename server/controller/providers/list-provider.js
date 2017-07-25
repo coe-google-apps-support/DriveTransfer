@@ -7,7 +7,7 @@ class ListProvider {
 
   static create(userID, folderID) {
     return ListTask.create({userID, folderID}).catch((err) => {
-      console.error('Failed creating task.');
+      console.log('Failed creating task.');
       throw err;
     });
   }
