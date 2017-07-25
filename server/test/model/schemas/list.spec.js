@@ -46,6 +46,22 @@ describe('List', () => {
       return assert.isFulfilled(listPromise);
     });
 
+    it('Creates a task document', () => {
+      let listPromise = List.create({
+        userID: 'userID-123',
+        folderID: 'fid-123'
+      }).then((listTask) => {
+        return List.findOne(listTask)
+          .populate('task')
+          .exec()
+          .then((popDoc) => {
+            assert.equal(listTask.task.toString(), popDoc.task._id.toString());
+          });
+      })
+
+      return assert.isFulfilled(listPromise);
+    });
+
   });
 
   after(() => {

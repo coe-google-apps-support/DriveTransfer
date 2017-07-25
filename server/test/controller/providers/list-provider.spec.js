@@ -50,51 +50,9 @@ describe('ListProvider', () => {
     });
   });
 
-  /*describe('.run', () => {
-    it('Runs a CREATED list_task', () => {
-      let listPromise = ListProvider.create(user1, folder1).then((task) => {
-        assert.equal(task.state, TaskStates.CREATED);
-        return ListProvider.run(task._id, user1);
-      }).then((task) => {
-        assert.equal(task.state, TaskStates.RUNNING);
-      });
-
-      return assert.isFulfilled(listPromise);
-    });
-  });
-
-  describe('.pause', () => {
-    it('Pauses a CREATED list_task', () => {
-      let listPromise = ListProvider.create(user1, folder1).then((task) => {
-        assert.equal(task.state, TaskStates.CREATED);
-        return ListProvider.pause(task._id, user1);
-      }).then((task) => {
-        assert.equal(task.state, TaskStates.PAUSED);
-      });
-
-      return assert.isFulfilled(listPromise);
-    });
-
-    it('Pauses a RUNNING list_task', () => {
-      let listPromise = ListProvider.create(user2, folder2).then((task) => {
-        assert.equal(task.state, TaskStates.CREATED);
-        return ListProvider.run(task._id, user2);
-      }).then((task) => {
-        assert.equal(task.state, TaskStates.RUNNING);
-        return ListProvider.pause(task._id, user2);
-      }).then((task) => {
-        assert.equal(task.state, TaskStates.PAUSED);
-      });
-
-      return assert.isFulfilled(listPromise);
-    });
-  });*/
-
   describe('.getResult', () => {
     it('Returns a simple result', () => {
       let listPromise = ListProvider.create(user1, folder1).then((task) => {
-        console.log("CLEEEEEEEEEEEEEEEEEEEAR")
-        console.log(task);
         return ListProvider.addResult(task._id, user1, listResult1);
       }).then((task) => {
         return ListProvider.getResult(task._id, user1);
