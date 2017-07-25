@@ -4,14 +4,14 @@ const logger = require('morgan');
 const cors = require('cors');
 
 // Routing files
-const authAPI = require('./controller/auth.js');
-const list = require('./controller/list.js').list;
-const transfer = require('./controller/transfer.js').transfer;
-const task = require('./controller/task.js');
-const Redirect = require('./controller/redirect.js');
-const reset = require('./controller/reset.js').reset;
-const mainView = require('./view/main.js');
-const login = require('./controller/login.js').login;
+const authAPI = require('./routers/auth.js');
+const list = require('./routers/list.js').list;
+const transfer = require('./routers/transfer.js').transfer;
+const task = require('./routers/task.js');
+const Redirect = require('./routers/redirect.js');
+const reset = require('./routers/reset.js').reset;
+const mainView = require('./routers/main.js');
+const login = require('./routers/login.js').login;
 
 module.exports = function(session, app) {
   app.use(session);  // Use req.session to get and set user-specific properties.
