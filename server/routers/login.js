@@ -1,32 +1,21 @@
-const G = require('../model/global.js');
-const User = require('../model/user.js');
-
-const SCOPES = [
-  'https://www.googleapis.com/auth/drive',
-  'https://www.googleapis.com/auth/gmail.send',
-  'https://www.googleapis.com/auth/gmail.settings.basic',
-];
+const UserProvider = require('../controller/providers/user-provider.js');
 
 exports.login = function(req, res, next) {
-  let users = G.getUsers();
-
-  users.getUser(req.sessionID).then((user) => {
-    if (user && user.authorized) {
-      console.log('User is already logged in.');
+  UserProvider.getUser(req.sessionID).then((user) => {
+    if (user.isAuthorized) {
+      console.log('Skipping login.');
       next();
     }
     else {
-      console.log('User must log in.');
-      user = new User(SCOPES, req.sessionID);
-      users.addUser(user);
-
-      return user.createBasicClient().then((user) => {
-        let referer = req.headers.referer;
-        let url = user.getURL(referer);
-        res.redirect(url);
+      console.log('Should probs log in.');
+      let url = user.client.generateAuthUrl({
+        access_type: 'offline',
+        scope: user.scopes,
+        state: req.headers.referer,
+        prompt: 'consent',
       });
+
+      res.redirect(url);
     }
-  }).catch((err) => {
-    console.log(err);
-  });
+  }).catch((err) => {console.log('login be busted')});
 }
