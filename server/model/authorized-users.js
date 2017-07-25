@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const User = require('./user.js');
-const MongooseUser = mongoose.model('MongooseUser');
+const MongooseUser = require('./schemas/user.js');
 
 class AuthorizedUsers {
 

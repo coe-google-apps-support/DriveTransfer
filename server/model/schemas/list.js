@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
+const Task = require('./task.js');
+
 const type = 'list_task';
 
 const schema = new Schema({
@@ -30,7 +32,7 @@ const schema = new Schema({
 
 schema.pre('validate', function(next){
   if (!this.task) {
-    mongoose.model('task').create({
+    Task.create({
       userID: this.userID,
       taskType: type,
       subTask: this._id

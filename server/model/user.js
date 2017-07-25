@@ -1,40 +1,6 @@
 const readFile = require('../util/promisey-read-file.js').readFile;
 const OAuth2 = require('googleapis').auth.OAuth2;
-const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
-
-const UserSchema = new Schema({
-  id: {
-    type: String,
-    required: true,
-    index: true,
-    unique: true,
-  },
-  scopes: {
-    type: [String],
-    required: true,
-  },
-  tokens: {
-    access_token: {
-      type: String,
-      required: true,
-    },
-    token_type: {
-      type: String,
-      required: true,
-    },
-    expiry_date: {
-      type: Number,
-      required: true,
-    },
-    refresh_token: {
-      type: String,
-      required: true,
-    }
-  }
-});
-
-let MongooseUser = mongoose.model('MongooseUser', UserSchema);
+const MongooseUser = require('./schemas/user.js');
 
 class User {
   constructor(scopes, id) {
