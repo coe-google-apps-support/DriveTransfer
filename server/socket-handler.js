@@ -1,6 +1,6 @@
 const url = require('url');
 const WebSocket = require('ws');
-const G = require('./model/global.js');
+const UserProvider = require('./controller/providers/user-provider.js');
 
 module.exports = function(session, server) {
   const wss = new WebSocket.Server({
@@ -25,10 +25,10 @@ module.exports = function(session, server) {
     // or req.headers.cookie (see http://stackoverflow.com/a/16395220/151312)
 
     let id = req.session.id;
-    let users = G.getUsers();
-    users.getUser(id).then((user) => {
-      user.setSocket(ws);
-      user.sendToken();
+    UserProvider.getUser(id).then((user) => {
+      //user.setSocket(ws);
+      //user.sendToken();
+      console.log('Send tokens here.');
     });
   });
 }

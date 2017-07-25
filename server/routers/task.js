@@ -1,5 +1,3 @@
-const G = require('../model/global.js');
-const taskManager = require('../model/tasks/task-manager.js');
 const TaskProvider = require('../controller/providers/task-provider.js');
 
 exports.run = function(req, res, next) {
@@ -10,11 +8,7 @@ exports.run = function(req, res, next) {
     return;
   }
 
-  G.getUsers().getUser(req.sessionID).then((user) => {
-    return user.promise;
-  }).then(() => {
-    return TaskProvider.run(taskID);
-  }).then(() => {
+  TaskProvider.run(taskID).then(() => {
     res.status(200).json({
       message: 'Task run'
     });
@@ -31,11 +25,7 @@ exports.pause = function(req, res, next) {
     return;
   }
 
-  G.getUsers().getUser(req.sessionID).then((user) => {
-    return user.promise;
-  }).then(() => {
-    return TaskProvider.pause(taskID);
-  }).then(() => {
+  TaskProvider.pause(taskID).then(() => {
     res.status(200).json({
       message: 'Task paused'
     });
