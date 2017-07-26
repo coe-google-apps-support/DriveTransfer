@@ -7,7 +7,7 @@ mongoose.Promise = global.Promise;
 const app = express();
 const router = require('./router.js');
 const socketHandler = require('./socket-handler.js');
-const Config = require('./config.js');
+const Config = require('../shared/config.js');
 
 require('./util/map-to-json.js');
 require('./util/object-filter.js');

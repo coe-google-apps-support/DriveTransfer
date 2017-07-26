@@ -1,6 +1,6 @@
 const url = require('url');
 const WebSocket = require('ws');
-const UserProvider = require('./controller/providers/user-provider.js');
+const UserProvider = require('../shared/providers/user-provider.js');
 
 module.exports = function(session, server) {
   const wss = new WebSocket.Server({

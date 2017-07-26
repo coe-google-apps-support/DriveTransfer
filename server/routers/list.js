@@ -1,4 +1,4 @@
-const ListProvider = require('../controller/providers/list-provider.js');
+const ListProvider = require('../../shared/providers/list-provider.js');
 
 /**
  * Used to list all files and sub-files.

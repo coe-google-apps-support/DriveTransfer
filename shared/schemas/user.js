@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-const Config = require('../../config.js');
+const Config = require('../config.js');
 const OAuth2 = require('googleapis').auth.OAuth2;
 
 const schema = new Schema({

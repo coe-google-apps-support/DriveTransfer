@@ -1,7 +1,6 @@
 const mongoose = require('mongoose');
-const ListTask = require('../../model/schemas/list.js');
-const uuid = require('uuid/v1');
-const TaskStates = require('../../model/tasks/task-states.js');
+const ListTask = require('../schemas/list.js');
+const TaskStates = require('../task-states.js');
 
 class ListProvider {
 

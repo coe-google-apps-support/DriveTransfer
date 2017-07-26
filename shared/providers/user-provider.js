@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
-const User = require('../../model/schemas/user.js');
-const Config = require('../../config.js');
+const User = require('../schemas/user.js');
+const Config = require('../config.js');
 
 class UserProvider {
 

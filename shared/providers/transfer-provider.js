@@ -1,7 +1,6 @@
 const mongoose = require('mongoose');
-const TransferTask = require('../../model/schemas/transfer.js');
-const uuid = require('uuid/v1');
-const TaskStates = require('../../model/tasks/task-states.js');
+const TransferTask = require('../schemas/transfer.js');
+const TaskStates = require('../task-states.js');
 
 class TransferProvider {
 
