@@ -1,9 +1,9 @@
-const TaskStates = require('../../../model/tasks/task-states.js');
+const TaskStates = require('../../task-states.js');
 const mongoose = require('mongoose');
 mongoose.Promise = global.Promise;
-const TaskProvider = require('../../../controller/providers/task-provider.js');
-const ListProvider = require('../../../controller/providers/list-provider.js');
-const Task = require('../../../model/schemas/task.js');
+const TaskProvider = require('../../providers/task-provider.js');
+const ListProvider = require('../../providers/list-provider.js');
+const Task = require('../../schemas/task.js');
 const chai = require('chai');
 const chaiAsPromised = require('chai-as-promised');
 chai.use(chaiAsPromised);

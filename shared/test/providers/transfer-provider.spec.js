@@ -1,6 +1,6 @@
-const TaskStates = require('../../../model/tasks/task-states.js');
-const Transfer = require('../../../model/schemas/transfer.js');
-const TransferProvider = require('../../../controller/providers/transfer-provider.js');
+const TaskStates = require('../../task-states.js');
+const Transfer = require('../../schemas/transfer.js');
+const TransferProvider = require('../../providers/transfer-provider.js');
 const mongoose = require('mongoose');
 mongoose.Promise = global.Promise;
 

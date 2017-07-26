@@ -1,6 +1,6 @@
-const TaskStates = require('../../../model/tasks/task-states.js');
-const List = require('../../../model/schemas/list.js');
-const ListProvider = require('../../../controller/providers/list-provider.js');
+const TaskStates = require('../../task-states.js');
+const List = require('../../schemas/list.js');
+const ListProvider = require('../../providers/list-provider.js');
 const mongoose = require('mongoose');
 mongoose.Promise = global.Promise;
 
