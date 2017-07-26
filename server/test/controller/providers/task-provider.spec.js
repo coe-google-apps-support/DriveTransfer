@@ -1,4 +1,3 @@
-const loadSchemas = require('../../../load-schemas.js');
 const TaskStates = require('../../../model/tasks/task-states.js');
 const mongoose = require('mongoose');
 mongoose.Promise = global.Promise;
