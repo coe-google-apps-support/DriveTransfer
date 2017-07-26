@@ -5,8 +5,7 @@ bundle.min.js
 
 # Secrets
 client_secret*
-server/util/constants.js
-server/config.js
+shared/config.js
 
 # Logs
 logs
