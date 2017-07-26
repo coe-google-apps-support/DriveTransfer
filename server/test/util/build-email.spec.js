@@ -3,7 +3,7 @@ const chai = require('chai');
 const chaiAsPromised = require('chai-as-promised');
 chai.use(chaiAsPromised);
 const assert = chai.assert;
-const buildEmail = require('../util/build-email.js');
+const buildEmail = require('../../util/build-email.js');
 let eol = require('os').EOL;
 
 const INITIATOR = 'user1@email.com';

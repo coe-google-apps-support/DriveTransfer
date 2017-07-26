@@ -1,5 +1,5 @@
 const assert = require('chai').assert;
-require('../util/map-to-json.js');
+require('../../util/map-to-json.js');
 
 describe('Map', () => {
   describe('.toJSON', () => {

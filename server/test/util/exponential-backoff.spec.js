@@ -2,7 +2,7 @@ const chai = require('chai');
 const chaiAsPromised = require('chai-as-promised');
 chai.use(chaiAsPromised);
 const assert = chai.assert;
-const exponentialBackoff = require('../util/exponential-backoff.js');
+const exponentialBackoff = require('../../util/exponential-backoff.js');
 
 describe('.exponentialBackoff', () => {
 

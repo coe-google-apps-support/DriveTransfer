@@ -3,7 +3,7 @@ const chai = require('chai');
 const chaiAsPromised = require('chai-as-promised');
 chai.use(chaiAsPromised);
 const assert = chai.assert;
-let readFile = require('../util/promisey-read-file.js').readFile;
+let readFile = require('../../util/promisey-read-file.js').readFile;
 let eol = require('os').EOL;
 
 describe('.promiseyReadFile', () => {

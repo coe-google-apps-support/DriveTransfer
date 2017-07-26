@@ -1,5 +1,5 @@
 const assert = require('chai').assert;
-require('../util/object-to-map.js');
+require('../../util/object-to-map.js');
 
 describe('Map', () => {
   describe('.fromObject', () => {

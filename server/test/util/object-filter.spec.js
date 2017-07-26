@@ -1,5 +1,5 @@
 const assert = require('chai').assert;
-require('../util/object-filter.js');
+require('../../util/object-filter.js');
 
 describe('Object', () => {
   describe('.filterByKey', () => {
