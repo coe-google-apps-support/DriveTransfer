@@ -1,0 +1,22 @@
+{
+  "name": "task-server",
+  "version": "1.0.0",
+  "description": "Runs tasks for Drive Transfer users",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon index.js",
+    "debug": "node --inspect index.js",
+    "test": "mocha test/**/*.spec.js"
+  },
+  "author": "j-rewerts",
+  "license": "GPL-3.0",
+  "dependencies": {
+    "debug": "^2.6.8",
+    "mongo-oplog-filter": "^1.1.0",
+    "mongodb": "^2.2.30",
+    "mongoose": "^4.11.4",
+    "nodemon": "^1.11.0",
+    "shared": "file:..\\local_modules\\shared",
+    "task-runner-js": "^2.1.4"
+  }
+}
