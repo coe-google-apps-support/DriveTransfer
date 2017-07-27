@@ -6,6 +6,7 @@ const cors = require('cors');
 // Routing files
 const authAPI = require('./routers/auth.js');
 const list = require('./routers/list.js').list;
+const count = require('./routers/counter.js').count;
 const transfer = require('./routers/transfer.js').transfer;
 const task = require('./routers/task.js');
 const reset = require('./routers/reset.js').reset;
@@ -19,6 +20,7 @@ module.exports = function(session, app) {
   app.set('view engine', 'ejs');
 
   app.get('/api/list', authAPI.requireAuth, list);
+  app.get('/api/count', authAPI.requireAuth, count);
   app.get('/api/transfer', authAPI.requireAuth, transfer);
   app.get('/api/task/run', authAPI.requireAuth, task.run);
   app.get('/api/task/pause', authAPI.requireAuth, task.pause);

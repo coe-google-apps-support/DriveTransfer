@@ -1,6 +1,7 @@
 const TaskModel = require('shared/schemas/task.js');
 const ListModel = require('shared/schemas/list.js');
 const ListTask = require('./tasks/list.js');
+const CountTask = require('./tasks/counter.js');
 
 class TaskManager {
   constructor() {
@@ -13,9 +14,16 @@ class TaskManager {
       return;
     }
 
-    console.log(`Running ${taskID}`);
-    this.tasks[taskID] = new ListTask(taskID);
-    this.tasks[taskID].run();
+    TaskModel.findById(taskID).then((task) => {
+      if (task.taskType === 'list_task') {
+        this.tasks[taskID] = new ListTask(taskID);
+        this.tasks[taskID].run();
+      }
+      else if (task.taskType === 'count_task') {
+        this.tasks[taskID] = new CountTask(taskID);
+        this.tasks[taskID].run();
+      }
+    });
   }
 
   async pause(taskID) {
