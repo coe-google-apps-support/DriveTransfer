@@ -1,4 +1,4 @@
-const TransferProvider = require('../../shared/providers/transfer-provider.js');
+const TransferProvider = require('shared/providers/transfer-provider.js');
 
 /**
  * Used to transfer all files and sub-files.

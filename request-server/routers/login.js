@@ -1,4 +1,4 @@
-const UserProvider = require('../../shared/providers/user-provider.js');
+const UserProvider = require('shared/providers/user-provider.js');
 
 exports.login = function(req, res, next) {
   UserProvider.getUser(req.sessionID).then((user) => {

@@ -6,7 +6,7 @@
  */
 
 const path = require('path');
-const UserProvider = require('../../shared/providers/user-provider.js');
+const UserProvider = require('shared/providers/user-provider.js');
 
 exports.requireAuth = function(req, res, next) {
   console.log('Setting up user auth.');

@@ -1,13 +1,15 @@
+const Shared = require('shared');
+const mongoose = require('mongoose');
+mongoose.Promise = global.Promise;
+Shared.set(mongoose);
+const Config = require('shared/config.js');
 const express = require('express');
 const http = require('http');
 const Session = require('express-session');
 const MongoStore = require('connect-mongo')(Session);
-const mongoose = require('mongoose');
-mongoose.Promise = global.Promise;
 const app = express();
 const router = require('./router.js');
 const socketHandler = require('./socket-handler.js');
-const Config = require('../shared/config.js');
 
 require('./util/map-to-json.js');
 require('./util/object-filter.js');

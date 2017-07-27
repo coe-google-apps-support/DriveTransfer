@@ -1,4 +1,4 @@
-const TaskProvider = require('../../shared/providers/task-provider.js');
+const TaskProvider = require('shared/providers/task-provider.js');
 
 exports.run = function(req, res, next) {
   let taskID = req.query.taskID;
