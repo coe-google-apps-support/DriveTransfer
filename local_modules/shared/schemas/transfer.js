@@ -1,8 +1,8 @@
-const mongoose = require('mongoose');
+const mongoose = require('../mongoose-provider.js').get();
 const Schema = mongoose.Schema;
 const Task = require('./task.js');
 
-const type = 'list_task';
+const type = 'transfer_task';
 
 const schema = new Schema({
   task: {
@@ -13,6 +13,20 @@ const schema = new Schema({
   userID: {
     type: String,
     required: true,
+  },
+  newOwner: {
+    email: {
+      type: String,
+      required: true,
+    },
+    hasAuthorized: {
+      type: Boolean,
+      default: false,
+    },
+    isRejected: {
+      type: Boolean,
+      default: false,
+    },
   },
   folderID: {
     type: String,

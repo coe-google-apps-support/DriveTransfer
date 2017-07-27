@@ -4,7 +4,7 @@
  * indirectly. This behaviour makes it very difficult to unit test.
  */
 
-const mongoose = require('mongoose');
+const mongoose = require('../mongoose-provider.js').get();
 const Schema = mongoose.Schema;
 
 const schema = new Schema({

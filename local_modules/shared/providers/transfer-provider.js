@@ -1,4 +1,3 @@
-const mongoose = require('mongoose');
 const TransferTask = require('../schemas/transfer.js');
 const TaskStates = require('../task-states.js');
 

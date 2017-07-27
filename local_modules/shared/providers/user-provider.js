@@ -1,4 +1,3 @@
-const mongoose = require('mongoose');
 const User = require('../schemas/user.js');
 const Config = require('../config.js');
 

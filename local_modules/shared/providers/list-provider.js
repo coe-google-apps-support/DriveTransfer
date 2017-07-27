@@ -1,4 +1,3 @@
-const mongoose = require('mongoose');
 const ListTask = require('../schemas/list.js');
 const TaskStates = require('../task-states.js');
 
