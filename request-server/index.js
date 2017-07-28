@@ -12,7 +12,6 @@ const router = require('./router.js');
 const socketHandler = require('./socket-handler.js');
 
 require('./util/map-to-json.js');
-require('./util/object-filter.js');
 require('./util/object-to-map.js');
 
 const sess = {
