@@ -1,5 +1,6 @@
 const Task = require('./task.js');
 const CountProvider = require('shared/providers/counter-provider.js');
+const CountResultModel = require('shared/schemas/task.js');
 
 class Counter extends Task {
 
@@ -11,6 +12,12 @@ class Counter extends Task {
     let promise = new Promise((resolve, reject) => {
       this.doneRunning = resolve;
     })
+  }
+
+  async setup() {
+    let grPromise = CountProvider.getGreatestResult(this.taskID);
+    this.fileNumber = await grPromise;
+    return grPromise;
   }
 
   async run() {
@@ -26,7 +33,6 @@ class Counter extends Task {
       });
     }
 
-    console.log(this.fileNumber);
     this.doneRunning(this.fileNumber);
   }
 

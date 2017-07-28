@@ -3,6 +3,10 @@ class Task {
 
   }
 
+  setup() {
+    throw new Error('Implement setup() in sub-class.')
+  }
+
   run() {
     throw new Error('Implement run() in sub-class.');
   }

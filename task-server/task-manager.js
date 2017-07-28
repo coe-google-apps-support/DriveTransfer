@@ -14,16 +14,20 @@ class TaskManager {
       return;
     }
 
-    TaskModel.findById(taskID).then((task) => {
-      if (task.taskType === 'list_task') {
-        this.tasks[taskID] = new ListTask(taskID);
-        this.tasks[taskID].run();
-      }
-      else if (task.taskType === 'count_task') {
-        this.tasks[taskID] = new CountTask(taskID);
-        this.tasks[taskID].run();
-      }
-    });
+    let task = await TaskModel.findById(taskID)
+    if (task.taskType === 'list_task') {
+      this.tasks[taskID] = new ListTask(taskID);
+    }
+    else if (task.taskType === 'count_task') {
+      this.tasks[taskID] = new CountTask(taskID);
+    }
+    else {
+      console.log(`Unknown taskType ${task.taskType}`);
+      return;
+    }
+
+    await this.tasks[taskID].setup();
+    this.tasks[taskID].run();
   }
 
   async pause(taskID) {

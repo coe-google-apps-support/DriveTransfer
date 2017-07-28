@@ -1,5 +1,7 @@
 const CounterTask = require('../schemas/count.js');
+const CounterResult = require('../schemas/count_result.js');
 const TaskStates = require('../task-states.js');
+const ObjectId = require('../mongoose-provider.js').get().Types.ObjectId;
 
 class CounterProvider {
 
@@ -11,10 +13,19 @@ class CounterProvider {
   }
 
   static addResult(taskID, value) {
-    return CounterTask.findOne({task: taskID}).then((task) => {
-      task.result.push(value);
-      return task.save();
-    });
+    return CounterResult.create({task: taskID, value}).catch((err) => {
+      console.log(`Failed adding result for ${taskID}.`);
+    })
+  }
+
+  static getGreatestResult(taskID) {
+    return CounterResult.findOne({task: new ObjectId(taskID)})
+      .sort('-value')
+      .exec()
+      .then((result) => {
+        if (!result) return 0;
+        return result.value;
+      });
   }
 
 }
