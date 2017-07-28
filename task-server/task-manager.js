@@ -27,6 +27,7 @@ class TaskManager {
     }
 
     await this.tasks[taskID].setup();
+    
     this.tasks[taskID].run();
   }
 

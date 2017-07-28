@@ -6,6 +6,12 @@ const Config = require('shared/config.js');
 const TaskManager = require('./task-manager.js');
 const TaskStates = require('shared/task-states.js');
 
+// This grabs all unhandled Promise rejections and logs them. Otherwise, you get no stacktrace.
+// http://2ality.com/2016/04/unhandled-rejections.html
+process.on('unhandledRejection', (reason) => {
+    console.error(reason);
+});
+
 mongoose.connect(Config.Database.URL);
 
 const oplog = MongoOplog(Config.Database.OP_LOG_URL);
