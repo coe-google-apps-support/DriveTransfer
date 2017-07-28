@@ -1,6 +1,5 @@
 const mongoose = require('../mongoose-provider.js').get();
 const Schema = mongoose.Schema;
-const Task = require('./task.js');
 
 const type = 'count_result';
 
