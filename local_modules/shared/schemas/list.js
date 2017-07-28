@@ -18,16 +18,6 @@ const schema = new Schema({
     type: String,
     required: true,
   },
-  result: [{
-    _id: false,
-    id: String,
-    name: String,
-    createdTime: Date,
-    mimeType: String,
-    webViewLink: String,
-    iconLink: String,
-    parents: [String],
-  }]
 }, {strict: true});
 
 schema.pre('validate', function(next){

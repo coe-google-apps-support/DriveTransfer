@@ -1,5 +1,8 @@
 const ListTask = require('../schemas/list.js');
+const ListResult = require('../schemas/list_result.js');
 const TaskStates = require('../task-states.js');
+const UserProvider = require('./user-provider.js');
+const Google = require('googleapis');
 
 class ListProvider {
 
@@ -10,19 +13,31 @@ class ListProvider {
     });
   }
 
-  static getResult(taskID, userID) {
-    return ListTask.findById(taskID).then((task) => {
-      return task.result;
+  static addResult(taskID, value) {
+    value.task = taskID;
+    return ListResult.create(value).catch((err) => {
+      console.log(`Failed adding result for ${taskID}.`);
     });
   }
 
-  static addResult(taskID, userID, value) {
-    return ListTask.findById(taskID).then((task) => {
-      task.result.push(value);
-      return task.save();
+  static getDrive(taskID) {
+    return ListTask.findOne({task: taskID}).then((task) => {
+      return UserProvider.getUser(task.userID);
+    }).then((user) => {
+      let client = user.client;
+      return Google.drive({version: 'v3', auth: client});
     });
   }
 
+  static getFolder(taskID) {
+    return ListTask.findOne({task: taskID}).then((task) => {
+      return task.folderID;
+    });
+  }
+
+  static getSpecificResult(taskID, fileID) {
+    return ListResult.findOne({task: taskID, id: fileID});
+  }
 }
 
 module.exports = ListProvider;
