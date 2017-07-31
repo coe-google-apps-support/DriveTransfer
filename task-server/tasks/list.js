@@ -10,6 +10,10 @@ class List extends Task {
   constructor(taskID) {
     super(taskID);
     this.taskID = taskID;
+    this.whenDone = new Promise((resolve, reject) => {
+      this._whenDoneResolve = resolve;
+      this._whenDoneReject = reject;
+    });
   }
 
   async setup() {
@@ -19,7 +23,6 @@ class List extends Task {
     }).then((folderID) => {
       return this.getFirstFile(folderID);
     }).then((folder) => {
-      console.log(`Iterator for ${folder}`);
       this._it = this.listFiles(folder);
     });
   }
@@ -46,6 +49,7 @@ class List extends Task {
 
     if (fileYield.done || childrenYield.done) {
       this.run = false;
+      this._whenDoneResolve();
       return;
     }
 
@@ -99,6 +103,7 @@ class List extends Task {
     yield doneChildren;
     if (children.length === 0) {
       console.log(`Saving file ${file.name}`);
+      ListProvider.addResult(this.taskID, file);
       return;
     }
 
@@ -107,6 +112,7 @@ class List extends Task {
     }
 
     console.log(`Saving folder ${file.name}`);
+    ListProvider.addResult(this.taskID, file);
   }
 
   /**
