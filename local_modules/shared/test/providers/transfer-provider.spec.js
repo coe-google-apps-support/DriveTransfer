@@ -1,8 +1,11 @@
+const mongoose = require('mongoose');
+mongoose.Promise = global.Promise;
+const Schema = mongoose.Schema;
+const MongooseProvider = require('../../mongoose-provider.js').set(mongoose);
+
 const TaskStates = require('../../task-states.js');
 const Transfer = require('../../schemas/transfer.js');
 const TransferProvider = require('../../providers/transfer-provider.js');
-const mongoose = require('mongoose');
-mongoose.Promise = global.Promise;
 
 const chai = require('chai');
 const chaiAsPromised = require('chai-as-promised');

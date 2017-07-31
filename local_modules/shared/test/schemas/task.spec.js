@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 mongoose.Promise = global.Promise;
 const Schema = mongoose.Schema;
+const MongooseProvider = require('../../mongoose-provider.js').set(mongoose);
 const Task = require('../../schemas/task.js');
 const chai = require('chai');
 const chaiAsPromised = require('chai-as-promised');

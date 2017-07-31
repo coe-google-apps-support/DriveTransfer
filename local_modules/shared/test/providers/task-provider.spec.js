@@ -1,6 +1,9 @@
-const TaskStates = require('../../task-states.js');
 const mongoose = require('mongoose');
 mongoose.Promise = global.Promise;
+const Schema = mongoose.Schema;
+const MongooseProvider = require('../../mongoose-provider.js').set(mongoose);
+
+const TaskStates = require('../../task-states.js');
 const TaskProvider = require('../../providers/task-provider.js');
 const ListProvider = require('../../providers/list-provider.js');
 const Task = require('../../schemas/task.js');

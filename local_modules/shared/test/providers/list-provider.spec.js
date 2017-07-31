@@ -1,9 +1,11 @@
+const mongoose = require('mongoose');
+mongoose.Promise = global.Promise;
+const Schema = mongoose.Schema;
+const MongooseProvider = require('../../mongoose-provider.js').set(mongoose);
+
 const TaskStates = require('../../task-states.js');
 const List = require('../../schemas/list.js');
 const ListProvider = require('../../providers/list-provider.js');
-const mongoose = require('mongoose');
-mongoose.Promise = global.Promise;
-
 const chai = require('chai');
 const chaiAsPromised = require('chai-as-promised');
 chai.use(chaiAsPromised);
@@ -36,46 +38,6 @@ describe('ListProvider', () => {
   describe('.create', () => {
     it('Creates an empty List request', () => {
       let listPromise = ListProvider.create(user1, folder1);
-      return assert.isFulfilled(listPromise);
-    });
-  });
-
-  describe('.getResult', () => {
-    it('Returns a simple result', () => {
-      let listPromise = ListProvider.create(user1, folder1).then((task) => {
-        return ListProvider.addResult(task._id, user1, listResult1);
-      }).then((task) => {
-        return ListProvider.getResult(task._id, user1);
-      }).then((result) => {
-        assert.equal(listResult1.id, result[0].id);
-        assert.equal(listResult1.name, result[0].name);
-        assert.equal(listResult1.createdTime.getTime(), result[0].createdTime.getTime());
-        assert.equal(listResult1.mimeType, result[0].mimeType);
-        assert.equal(listResult1.webViewLink, result[0].webViewLink);
-        assert.equal(listResult1.iconLink, result[0].iconLink);
-        assert.sameMembers(listResult1.parents, result[0].parents);
-      });
-
-      return assert.isFulfilled(listPromise);
-    });
-  });
-
-  describe('.addResult', () => {
-    it('Adds a simple list result', () => {
-      let listPromise = ListProvider.create(user1, folder1).then((task) => {
-        return ListProvider.addResult(task._id, user1, listResult1);
-      }).then((task) => {
-        return ListProvider.getResult(task._id, user1);
-      }).then((result) => {
-        assert.equal(listResult1.id, result[0].id);
-        assert.equal(listResult1.name, result[0].name);
-        assert.equal(listResult1.createdTime.getTime(), result[0].createdTime.getTime());
-        assert.equal(listResult1.mimeType, result[0].mimeType);
-        assert.equal(listResult1.webViewLink, result[0].webViewLink);
-        assert.equal(listResult1.iconLink, result[0].iconLink);
-        assert.sameMembers(listResult1.parents, result[0].parents);
-      });
-
       return assert.isFulfilled(listPromise);
     });
   });
