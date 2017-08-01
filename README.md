@@ -18,6 +18,8 @@ This web app will allow Google Drive users to transfer file ownership in bulk.
 
 At this point, all servers should be working and the client should be building.
 
+**Optional:** [Link](https://docs.npmjs.com/cli/link) the shared local package to both the task server and the request server.
+
 ## Client
 
 The client is a very small web form that uses React. It has a web socket connection to the request-server and also issues some simple API calls to the request server. It has no method of communicating directly with the task server.
