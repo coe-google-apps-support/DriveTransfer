@@ -5,6 +5,20 @@ const Config = require('../config.js');
 
 class TransferRequestProvider {
 
+  static rejectTransfer(taskID) {
+    return TransferRequestTask.findOne({task: taskID}).then((task) => {
+      task.status = 'rejected';
+      return task.save();
+    });
+  }
+
+  static acceptTransfer(taskID) {
+    return TransferRequestTask.findOne({task: taskID}).then((task) => {
+      task.status = 'accepted';
+      return task.save();
+    });
+  }
+
   static getAppGmail() {
     return UserProvider.getUser(Config.App.USER_ID).then((user) => {
       return Google.gmail({version: 'v1', auth: user.client});
