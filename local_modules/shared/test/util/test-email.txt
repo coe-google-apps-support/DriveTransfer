@@ -6,5 +6,4 @@ from: <%= initiator %>
 subject: This is the subject
 
 This is the body
-Folder: <%= folderID %>
 Task: <%= taskID %>
