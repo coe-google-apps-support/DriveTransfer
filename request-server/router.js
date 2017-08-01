@@ -12,6 +12,7 @@ const task = require('./routers/task.js');
 const reset = require('./routers/reset.js').reset;
 const mainView = require('./routers/main.js');
 const login = require('./routers/login.js').login;
+const transferRequest = require('./routers/transfer-request.js');
 
 module.exports = function(session, app) {
   app.use(session);  // Use req.session to get and set user-specific properties.
@@ -22,6 +23,7 @@ module.exports = function(session, app) {
   app.get('/api/list', authAPI.requireAuth, list);
   app.get('/api/count', authAPI.requireAuth, count);
   app.get('/api/transfer', authAPI.requireAuth, transfer);
+  app.get('/api/request', authAPI.requireAuth, transferRequest);
   app.get('/api/task/run', authAPI.requireAuth, task.run);
   app.get('/api/task/pause', authAPI.requireAuth, task.pause);
   app.get('/view', authAPI.requireAuth, mainView.view);
