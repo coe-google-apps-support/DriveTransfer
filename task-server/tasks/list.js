@@ -1,7 +1,6 @@
 require('shared/util/object-filter.js');
 const Task = require('./task.js');
 const ListProvider = require('shared/providers/list-provider.js');
-const UserProvider = require('shared/providers/user-provider.js');
 const Config = require('shared/config.js');
 const exponentialBackoff = require('shared/util/exponential-backoff.js')
 
