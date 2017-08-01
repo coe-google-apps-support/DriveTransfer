@@ -28,6 +28,17 @@ class TaskProvider {
       return task.save();
     });
   }
+
+  /**
+   * Gets the subtask associated with this task.
+   * @param {string} taskID The ID of the task.
+   * @return {string} The ID of the subtask.
+   */
+  static getSubTask(taskID) {
+    return Task.findById(taskID).then((task) => {
+      return task.subTask;
+    });
+  }
 }
 
 module.exports = TaskProvider;

@@ -1,6 +1,7 @@
 const TransferTask = require('../schemas/transfer.js');
 const TaskStates = require('../task-states.js');
 const UserProvider = require('./user-provider.js');
+const TaskProvider = require('./task-provider.js');
 const Google = require('googleapis');
 
 class TransferProvider {
@@ -25,6 +26,12 @@ class TransferProvider {
   static getNewOwnerEmail(taskID) {
     return TransferTask.findOne({task: taskID}).then((task) => {
       return task.newOwnerEmail;
+    });
+  }
+
+  static getRequestID(taskID) {
+    return this.getRequestTask(taskID).then((taskID) => {
+      return TaskProvider.getSubTask(taskID);
     });
   }
 
