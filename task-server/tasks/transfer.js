@@ -120,15 +120,10 @@ class Transfer extends Task {
   }
 
   filterTransferRequest(doc) {
-    console.log(this.requestID)
-    console.log(doc.o2._id);
-
     if (doc.op === 'u' &&
       doc.o2 && doc.o2._id && doc.o2._id.toString() === this.requestID.toString() &&
       doc.o && doc.o.$set && doc.o.$set.status) {
 
-      console.log('Filtering');
-      console.log(doc);
       return true;
     }
 
