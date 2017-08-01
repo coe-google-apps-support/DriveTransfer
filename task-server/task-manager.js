@@ -2,6 +2,8 @@ const TaskModel = require('shared/schemas/task.js');
 const ListModel = require('shared/schemas/list.js');
 const ListTask = require('./tasks/list.js');
 const CountTask = require('./tasks/counter.js');
+const TransferTask = require('./tasks/transfer.js');
+const TransferRequestTask = require('./tasks/transfer-request.js');
 
 class TaskManager {
   constructor() {
@@ -21,13 +23,19 @@ class TaskManager {
     else if (task.taskType === 'count_task') {
       this.tasks[taskID] = new CountTask(taskID);
     }
+    else if (task.taskType === 'transfer_task') {
+      this.tasks[taskID] = new TransferTask(taskID);
+    }
+    else if (task.taskType === 'transfer_request_task') {
+      this.tasks[taskID] = new TransferRequestTask(taskID);
+    }
     else {
       console.log(`Unknown taskType ${task.taskType}`);
       return;
     }
 
     await this.tasks[taskID].setup();
-    
+
     this.tasks[taskID].run();
   }
 
