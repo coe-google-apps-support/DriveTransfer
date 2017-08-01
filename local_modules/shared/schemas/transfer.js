@@ -1,6 +1,7 @@
 const mongoose = require('../mongoose-provider.js').get();
 const Schema = mongoose.Schema;
 const Task = require('./task.js');
+const RequestTask = require('./transfer-request.js');
 
 const type = 'transfer_task';
 
@@ -10,23 +11,18 @@ const schema = new Schema({
     ref: 'task',
     required: true,
   },
+  requestTask: {
+    type: Schema.Types.ObjectId,
+    ref: 'task',
+    required: true,
+  },
   userID: {
     type: String,
     required: true,
   },
-  newOwner: {
-    email: {
-      type: String,
-      required: true,
-    },
-    hasAuthorized: {
-      type: Boolean,
-      default: false,
-    },
-    isRejected: {
-      type: Boolean,
-      default: false,
-    },
+  newOwnerEmail: {
+    type: String,
+    required: true,
   },
   folderID: {
     type: String,
@@ -44,7 +40,7 @@ const schema = new Schema({
   }]
 }, {strict: true});
 
-schema.pre('validate', function(next){
+schema.pre('validate', function(next) {
   if (!this.task) {
     Task.create({
       userID: this.userID,
@@ -52,6 +48,15 @@ schema.pre('validate', function(next){
       subTask: this._id
     }).then((task) => {
       this.task = task._id;
+      return RequestTask.create({
+        transferTask: this.task,
+        userID: this.userID,
+        recipient: {
+          email: this.newOwnerEmail
+        }
+      });
+    }).then((requestTask) => {
+      this.requestTask = requestTask.task;
       next();
     });
   }

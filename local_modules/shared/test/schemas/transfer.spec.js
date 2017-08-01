@@ -21,7 +21,7 @@ describe('Transfer', () => {
       let promise = Transfer.create({
         userID: 'userID-123',
         folderID: 'fid-123',
-        newOwner: {email: 'snow.white@edmonton.ca'},
+        newOwnerEmail: 'snow.white@edmonton.ca',
       });
 
       return assert.isFulfilled(promise);
@@ -31,12 +31,12 @@ describe('Transfer', () => {
       let promise = Transfer.create({
         userID: 'userID-123',
         folderID: 'fid-123',
-        newOwner: {email: 'snow.white@edmonton.ca'},
+        newOwnerEmail: 'snow.white@edmonton.ca',
       }).then((task) => {
         return Transfer.create({
           userID: 'userID-123',
           folderID: 'fid-123',
-          newOwner: {email: 'snow.white@edmonton.ca'},
+          newOwnerEmail: 'snow.white@edmonton.ca',
         });
       })
 
@@ -47,7 +47,7 @@ describe('Transfer', () => {
       let promise = Transfer.create({
         userID: 'userID-123',
         folderID: 'fid-123',
-        newOwner: {email: 'snow.white@edmonton.ca'},
+        newOwnerEmail: 'snow.white@edmonton.ca',
       }).then((transferTask) => {
         return Transfer.findOne(transferTask)
           .populate('task')
@@ -56,6 +56,18 @@ describe('Transfer', () => {
             assert.equal(transferTask.task.toString(), popDoc.task._id.toString());
           });
       })
+
+      return assert.isFulfilled(promise);
+    });
+
+    it('Creates a transfer_request_task', () => {
+      let promise = Transfer.create({
+        userID: 'userID-123',
+        folderID: 'fid-123',
+        newOwnerEmail: 'snow.white@edmonton.ca',
+      }).then((transferTask) => {
+        assert.exists(transferTask.requestTask);
+      });
 
       return assert.isFulfilled(promise);
     });
