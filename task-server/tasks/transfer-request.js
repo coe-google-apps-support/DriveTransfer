@@ -40,7 +40,7 @@ class TransferRequest extends Task {
   }
 
   doWork() {
-    return getRequestEmail(EMAIL_PATH, this.recipient, this.folderID, Config.App.EMAIL, this.taskID).then((result) => {
+    return getRequestEmail(EMAIL_PATH, this.recipient, Config.App.EMAIL, this.taskID).then((result) => {
       let encodedEmailBody = new Buffer(result).toString('base64').replace(/\+/g, '-').replace(/\//g, '_');
       return exponentialBackoff(
         this.sendEmail.bind(this, encodedEmailBody),
