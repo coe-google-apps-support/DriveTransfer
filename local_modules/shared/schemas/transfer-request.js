@@ -12,7 +12,7 @@ const schema = new Schema({
   },
   transferTask: {
     type: Schema.Types.ObjectId,
-    ref: 'transfer_task',
+    ref: 'task',
     required: true,
   },
   userID: {
