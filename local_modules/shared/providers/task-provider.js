@@ -30,6 +30,30 @@ class TaskProvider {
   }
 
   /**
+   * Finishes a Task.
+   * @param {string} taskID The ID of the Task to finish.
+   * @return {Promise} A Promise resolved after the Task is finished.
+   */
+  static finish(taskID) {
+    return Task.findById(taskID).then((task) => {
+      task.state = TaskStates.FINISHED;
+      return task.save();
+    });
+  }
+
+  /**
+   * Fails a Task.
+   * @param {string} taskID The ID of the Task to fail.
+   * @return {Promise} A Promise resolved after the Task is failed.
+   */
+  static fail(taskID) {
+    return Task.findById(taskID).then((task) => {
+      task.state = TaskStates.FAILED;
+      return task.save();
+    });
+  }
+
+  /**
    * Gets the subtask associated with this task.
    * @param {string} taskID The ID of the task.
    * @return {string} The ID of the subtask.

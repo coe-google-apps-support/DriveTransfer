@@ -1,6 +1,7 @@
 require('shared/util/object-filter.js');
 const Task = require('./task.js');
 const ListProvider = require('shared/providers/list-provider.js');
+const TaskProvider = require('shared/providers/task-provider.js');
 const Config = require('shared/config.js');
 const exponentialBackoff = require('shared/util/exponential-backoff.js')
 
@@ -48,6 +49,7 @@ class List extends Task {
 
     if (fileYield.done || childrenYield.done) {
       this.run = false;
+      await TaskProvider.finish(this.taskID);
       this._whenDoneResolve();
       return;
     }
