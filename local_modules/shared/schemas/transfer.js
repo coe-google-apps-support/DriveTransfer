@@ -2,6 +2,7 @@ const mongoose = require('../mongoose-provider.js').get();
 const Schema = mongoose.Schema;
 const Task = require('./task.js');
 const RequestTask = require('./transfer-request.js');
+const FilterTask = require('./transfer-filter.js');
 
 const type = 'transfer_task';
 
@@ -15,6 +16,10 @@ const schema = new Schema({
     type: Schema.Types.ObjectId,
     ref: 'task',
     required: true,
+  },
+  filterTask: {
+    type: Schema.Types.ObjectId,
+    ref: 'task',
   },
   userID: {
     type: String,
