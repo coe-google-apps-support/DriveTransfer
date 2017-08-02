@@ -10,10 +10,6 @@ class List extends Task {
   constructor(taskID) {
     super(taskID);
     this.taskID = taskID;
-    this.whenDone = new Promise((resolve, reject) => {
-      this._whenDoneResolve = resolve;
-      this._whenDoneReject = reject;
-    });
   }
 
   async setup() {
@@ -44,18 +40,15 @@ class List extends Task {
       throw new Error(`This task hasn't properly initialized.`);
     }
 
-    let fileYield = this._it.next();
-    let childrenYield = this._it.next();
+    let yielded = this._it.next();
 
-    if (fileYield.done || childrenYield.done) {
+    if (yielded.done) {
       this.run = false;
       await TaskProvider.finish(this.taskID);
-      this._whenDoneResolve();
       return;
     }
 
-    let file = await fileYield.value;
-    let children = await childrenYield.value;
+    await yielded.value;
   }
 
   _predicate(error) {
@@ -93,7 +86,14 @@ class List extends Task {
    * @param {File} file A Google Drive File Object. See here: https://developers.google.com/drive/v3/reference/files
    */
   * listFiles(file) {
-    yield Promise.resolve(file);
+    let dbFile;
+    yield ListProvider.getSpecificResult(this.taskID, file.id).then((result) => {
+      dbFile = result;
+    });
+
+    if (dbFile) {
+      return;
+    }
 
     let children;
     let doneChildren = this.getChildren(file.id).then((response) => {
@@ -103,7 +103,6 @@ class List extends Task {
 
     yield doneChildren;
     if (children.length === 0) {
-      console.log(`Saving file ${file.name}`);
       ListProvider.addResult(this.taskID, file);
       return;
     }
@@ -112,7 +111,6 @@ class List extends Task {
       yield* this.listFiles(folder);
     }
 
-    console.log(`Saving folder ${file.name}`);
     ListProvider.addResult(this.taskID, file);
   }
 
