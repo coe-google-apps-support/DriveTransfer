@@ -3,6 +3,7 @@ const Schema = mongoose.Schema;
 const Task = require('./task.js');
 const RequestTask = require('./transfer-request.js');
 const FilterTask = require('./transfer-filter.js');
+const ListTask = require('./list.js');
 
 const type = 'transfer_task';
 
@@ -20,6 +21,11 @@ const schema = new Schema({
   filterTask: {
     type: Schema.Types.ObjectId,
     ref: 'task',
+  },
+  listTask: {
+    type: Schema.Types.ObjectId,
+    ref: 'task',
+    required: true,
   },
   userID: {
     type: String,
@@ -62,6 +68,12 @@ schema.pre('validate', function(next) {
       });
     }).then((requestTask) => {
       this.requestTask = requestTask.task;
+      return ListTask.create({
+        userID: this.userID,
+        folderID: this.folderID,
+      });
+    }).then((listTask) => {
+      this.listTask = listTask.task;
       next();
     });
   }
