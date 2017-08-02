@@ -18,7 +18,7 @@ module.exports = function(req, res, next) {
   }
 
   if (action === 'rejected') {
-    TransferRequestProvider.rejectTransfer(taskID).then(() => {
+    TransferRequestProvider.rejectTransfer(taskID, req.sessionID).then(() => {
       res.status(200).json({
         message: 'Transfer rejected.'
       });
@@ -28,7 +28,7 @@ module.exports = function(req, res, next) {
     });
   }
   else if (action === 'accepted') {
-    TransferRequestProvider.acceptTransfer(taskID).then(() => {
+    TransferRequestProvider.acceptTransfer(taskID, req.sessionID).then(() => {
       res.status(200).json({
         message: 'Transfer accepted.'
       });
