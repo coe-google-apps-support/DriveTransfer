@@ -41,6 +41,12 @@ class TransferProvider {
     });
   }
 
+  static getListTask(taskID) {
+    return TransferTask.findOne({task: taskID}).then((task) => {
+      return task.listTask;
+    });
+  }
+
   static setFilterTask(transferTaskID, filterTaskID) {
     return TransferTask.findOne({task: transferTaskID}).then((task) => {
       task.filterTask = filterTaskID;
