@@ -25,8 +25,7 @@ const schema = new Schema({
       required: true,
     },
     user: {
-      type: Schema.Types.ObjectId,
-      ref: 'user',
+      type: String,
     },
   },
   status: {
