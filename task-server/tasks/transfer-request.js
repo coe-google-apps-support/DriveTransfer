@@ -2,6 +2,7 @@ const Task = require('./task.js');
 const Config = require('shared/config.js');
 const exponentialBackoff = require('shared/util/exponential-backoff.js')
 const RequestProvider = require('shared/providers/transfer-request-provider.js');
+const TaskProvider = require('shared/providers/task-provider.js');
 const getRequestEmail = require('shared/util/build-email.js');
 const EMAIL_PATH = './resources/request-email.txt';
 
@@ -10,11 +11,6 @@ class TransferRequest extends Task {
   constructor(taskID) {
     super(taskID);
     this.taskID = taskID;
-    this.whenDone = new Promise((resolve, reject) => {
-      this._whenDoneResolve = resolve;
-      this._whenDoneReject = reject;
-    });
-
     this.sendEmail = this.sendEmail.bind(this);
   }
 
@@ -47,6 +43,8 @@ class TransferRequest extends Task {
         Config.ExpoBackoff.MAX_TRIES,
         Config.ExpoBackoff.NAPTIME
       );
+    }).then(() => {
+      return TaskProvider.finish(this.taskID);
     });
   }
 
