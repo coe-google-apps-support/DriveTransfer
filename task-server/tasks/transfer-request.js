@@ -43,8 +43,6 @@ class TransferRequest extends Task {
         Config.ExpoBackoff.MAX_TRIES,
         Config.ExpoBackoff.NAPTIME
       );
-    }).then(() => {
-      return TaskProvider.finish(this.taskID);
     });
   }
 

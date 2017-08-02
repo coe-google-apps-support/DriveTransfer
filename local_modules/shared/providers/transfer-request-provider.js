@@ -1,5 +1,6 @@
 const UserProvider = require('./user-provider.js');
 const TransferRequestTask = require('../schemas/transfer-request.js');
+const TaskProvider = require('./task-provider.js');
 const Google = require('googleapis');
 const Config = require('../config.js');
 
@@ -10,6 +11,8 @@ class TransferRequestProvider {
       task.status = 'rejected';
       task.recipient.user = userID;
       return task.save();
+    }).then(() => {
+      return TaskProvider.finish(taskID);
     });
   }
 
@@ -18,6 +21,8 @@ class TransferRequestProvider {
       task.status = 'accepted';
       task.recipient.user = userID;
       return task.save();
+    }).then(() => {
+      return TaskProvider.finish(taskID);
     });
   }
 
