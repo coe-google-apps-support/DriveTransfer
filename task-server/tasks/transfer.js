@@ -189,8 +189,8 @@ class Transfer extends Task {
 
   filterFilterRequest(doc) {
     if (doc.op === 'u' &&
-      doc.o2 && doc.o2._id && doc.o2._id.toString() === this.filterID.toString() &&
-      doc.o && doc.o.$set && doc.o.$set.isFiltered) {
+      doc.o2 && doc.o2._id && doc.o2._id.toString() === this.filterTask.toString() &&
+      doc.o && doc.o.$set && doc.o.$set.state && doc.o.$set.state === TaskStates.FINISHED) {
 
       return true;
     }

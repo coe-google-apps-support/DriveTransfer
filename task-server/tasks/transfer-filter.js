@@ -2,6 +2,7 @@ const Task = require('./task.js');
 const Config = require('shared/config.js');
 const exponentialBackoff = require('shared/util/exponential-backoff.js')
 const FilterProvider = require('shared/providers/transfer-filter-provider.js');
+const TaskProvider = require('shared/providers/task-provider.js');
 
 const FILTER_QUERY = `"${Config.Tasks.Transfer.EMAIL_MESSAGE}"`;
 
@@ -10,10 +11,6 @@ class TransferFilter extends Task {
   constructor(taskID) {
     super(taskID);
     this.taskID = taskID;
-    this.whenDone = new Promise((resolve, reject) => {
-      this._whenDoneResolve = resolve;
-      this._whenDoneReject = reject;
-    });
   }
 
   async setup() {
@@ -40,7 +37,7 @@ class TransferFilter extends Task {
       this.createFilter.bind(this),
       Config.ExpoBackoff.MAX_TRIES,
       Config.ExpoBackoff.NAPTIME).then(() => {
-        return FilterProvider.setDone(this.taskID);
+        return TaskProvider.finish(this.taskID);
       });
   }
 

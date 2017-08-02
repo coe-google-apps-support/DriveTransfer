@@ -19,10 +19,6 @@ const schema = new Schema({
     type: String,
     required: true,
   },
-  isFiltered: {
-    type: Boolean,
-    default: false,
-  },
 }, {strict: true});
 
 schema.pre('validate', function(next){
