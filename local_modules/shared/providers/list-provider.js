@@ -38,6 +38,10 @@ class ListProvider {
   static getSpecificResult(taskID, fileID) {
     return ListResult.findOne({task: taskID, id: fileID});
   }
+
+  static getResultCursor(taskID) {
+    return ListResult.find({task: taskID}).cursor();
+  }
 }
 
 module.exports = ListProvider;

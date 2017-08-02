@@ -2,6 +2,8 @@ const TransferTask = require('../schemas/transfer.js');
 const TaskStates = require('../task-states.js');
 const UserProvider = require('./user-provider.js');
 const TaskProvider = require('./task-provider.js');
+const RequestProvider = require('./transfer-request-provider.js');
+const TransferResult = require('../schemas/transfer-result.js')
 const Google = require('googleapis');
 
 class TransferProvider {
@@ -61,6 +63,23 @@ class TransferProvider {
       let client = user.client;
       return Google.drive({version: 'v3', auth: client});
     });
+  }
+
+  static getRecipientDrive(taskID) {
+    return this.getRequestTask(taskID).then((task) => {
+      return RequestProvider.getRecipientDrive(task);
+    });
+  }
+
+  static addResult(taskID, fileID) {
+    return TransferResult.create({
+      task: taskID,
+      id: fileID,
+    });
+  }
+
+  static getResult(taskID, fileID) {
+    return TransferResult.findOne({task: taskID, id: fileID});
   }
 
 }
