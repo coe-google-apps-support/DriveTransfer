@@ -5,11 +5,11 @@ const TaskProvider = require('shared/providers/task-provider.js');
 const FilterProvider = require('shared/providers/transfer-filter-provider.js')
 const Config = require('shared/config.js');
 const exponentialBackoff = require('shared/util/exponential-backoff.js');
+const TaskStates = require('shared/task-states.js');
 const onChange = require('../notify-on-change.js');
 
 const TaskSubStates = {
   SENDING_EMAIL: 'Sending email to recipient',
-  WAITING_FOR_CREDENTIALS: 'Waiting on recipient',
   CREATING_FILTER: 'Creating email filter',
   LISTING: 'Finding files',
   TRANSFERRING: 'Transferring files',
@@ -27,6 +27,7 @@ class Transfer extends Task {
     this.transferState = TaskSubStates.SENDING_EMAIL;
     this.filterTransferRequest = this.filterTransferRequest.bind(this);
     this.filterFilterRequest = this.filterFilterRequest.bind(this);
+    this.filterListRequest = this.filterListRequest.bind(this);
   }
 
   async setup() {
@@ -64,6 +65,13 @@ class Transfer extends Task {
       }
 
       this.requestID = id;
+      return TransferProvider.getListTask(this.taskID);
+    }).then((listTask) => {
+      if (!listTask) {
+        throw new Error('Transfer failed fetching list task')
+      }
+
+      this.listTask = listTask;
     });
   }
 
@@ -104,9 +112,6 @@ class Transfer extends Task {
         return TransferProvider.setFilterTask(this.taskID, this.filterTask);
       });
     }
-    else if (this.transferState === TaskSubStates.WAITING_FOR_CREDENTIALS) {
-      console.log(TaskSubStates.WAITING_FOR_CREDENTIALS);
-    }
     else if (this.transferState === TaskSubStates.CREATING_FILTER) {
       console.log(TaskSubStates.CREATING_FILTER);
       TaskProvider.run(this.filterTask);
@@ -116,12 +121,15 @@ class Transfer extends Task {
     }
     else if (this.transferState === TaskSubStates.LISTING) {
       console.log(TaskSubStates.LISTING);
-      return new Promise((resolve, reject) => {
-
+      TaskProvider.run(this.listTask);
+      return onChange('tasks', this.filterListRequest).then((doc) => {
+        this.transferState = TaskSubStates.TRANSFERRING;
       });
+
     }
     else if (this.transferState === TaskSubStates.TRANSFERRING) {
       console.log(TaskSubStates.TRANSFERRING);
+      return new Promise((resolve, reject) => {});
     }
     else if (this.transferState === TaskSubStates.FINISHED) {
       console.log(TaskSubStates.FINISHED);
@@ -149,6 +157,17 @@ class Transfer extends Task {
     if (doc.op === 'u' &&
       doc.o2 && doc.o2._id && doc.o2._id.toString() === this.filterID.toString() &&
       doc.o && doc.o.$set && doc.o.$set.isFiltered) {
+
+      return true;
+    }
+
+    return false;
+  }
+
+  filterListRequest(doc) {
+    if (doc.op === 'u' &&
+      doc.o2 && doc.o2._id && doc.o2._id.toString() === this.listTask.toString() &&
+      doc.o && doc.o.$set && doc.o.$set.state && doc.o.$set.state === TaskStates.FINISHED) {
 
       return true;
     }
