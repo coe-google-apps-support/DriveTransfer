@@ -3,8 +3,7 @@ const Config = require('shared/config.js');
 const exponentialBackoff = require('shared/util/exponential-backoff.js')
 const FilterProvider = require('shared/providers/transfer-filter-provider.js');
 
-const EMAIL_MESSAGE = 'drive-transfer-notification-email';
-const FILTER_QUERY = `"${EMAIL_MESSAGE}"`;
+const FILTER_QUERY = `"${Config.Tasks.Transfer.EMAIL_MESSAGE}"`;
 
 class TransferFilter extends Task {
 
