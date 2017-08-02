@@ -5,16 +5,18 @@ const Config = require('../config.js');
 
 class TransferRequestProvider {
 
-  static rejectTransfer(taskID) {
+  static rejectTransfer(taskID, userID) {
     return TransferRequestTask.findOne({task: taskID}).then((task) => {
       task.status = 'rejected';
+      task.recipient.user = userID;
       return task.save();
     });
   }
 
-  static acceptTransfer(taskID) {
+  static acceptTransfer(taskID, userID) {
     return TransferRequestTask.findOne({task: taskID}).then((task) => {
       task.status = 'accepted';
+      task.recipient.user = userID;
       return task.save();
     });
   }
