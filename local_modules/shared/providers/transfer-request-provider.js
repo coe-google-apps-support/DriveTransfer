@@ -44,6 +44,18 @@ class TransferRequestProvider {
       return task.recipient.email;
     });
   }
+
+  static getRecipientDrive(taskID) {
+    return TransferRequestTask.findOne({task: taskID}).then((task) => {
+      if (!task.recipient.user) {
+        throw new Error(`transfer_request_task ${taskID} has no receiving user.`);
+      }
+
+      return UserProvider.getUser(task.recipient.user);
+    }).then((user) => {
+      return Google.drive({version: 'v3', auth: user.client});
+    });
+  }
 };
 
 module.exports = TransferRequestProvider;
