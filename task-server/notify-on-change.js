@@ -14,12 +14,18 @@ function onChange(collection, filter) {
 
   oplog.tail();
 
-  return new Promise((resolve, reject) => {
+  let promise = new Promise((resolve, reject) => {
     filterOP.on('update', (doc) => {
-      oplog.destroy();
+      promise.destroyOPLog();
       resolve(doc);
     });
-  })
+  });
+
+  promise.destroyOPLog = () => {
+    oplog.destroy();
+  };
+
+  return promise;
 };
 
 module.exports = onChange;
