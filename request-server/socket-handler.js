@@ -1,6 +1,9 @@
 const url = require('url');
 const WebSocket = require('ws');
 const UserProvider = require('shared/providers/user-provider.js');
+const SocketController = require('./controllers/socket-controller.js');
+
+let socketController = new SocketController();
 
 module.exports = function(session, server) {
   const wss = new WebSocket.Server({
@@ -26,8 +29,8 @@ module.exports = function(session, server) {
 
     let id = req.session.id;
     UserProvider.getUser(id).then((user) => {
-      //user.setSocket(ws);
-      //user.sendToken();
+      socketController.addSocket(id, ws);
+      socketController.send(id, JSON.stringify({accessToken: user.tokens.access_token}));
       console.log('Send tokens here.');
     });
   });
