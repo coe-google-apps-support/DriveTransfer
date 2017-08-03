@@ -23,7 +23,11 @@ class Transfer extends Task {
     this.transferState = TaskSubStates.SENDING_EMAIL;
     this.filterTransferRequest = this.filterTransferRequest.bind(this);
     this.filterFilterRequest = this.filterFilterRequest.bind(this);
-    this.filterListRequest = this.filterListRequest.bind(this);    
+    this.filterListRequest = this.filterListRequest.bind(this);
+    this.oplogWatchers = [];
+    this.safeToStop = new Promise((resolve) => {
+      this.safeToStopResolve = resolve;
+    });
   }
 
   async setup() {
@@ -73,21 +77,26 @@ class Transfer extends Task {
         TaskProvider.getState(this.taskID),
       ]);
     }).then((states) => {
+      console.log(states);
       // This transfer's task state
       if (states[3] === TaskStates.FINISHED) {
+        console.log('set to done')
         this.transferState = TaskSubStates.FINISHED;
       }
       // List task state
       if (states[2] === TaskStates.FINISHED) {
+        console.log('set to trans')
         this.transferState = TaskSubStates.TRANSFERRING;
       }
       // Filter task state
       else if (states[1] === TaskStates.FINISHED) {
+        console.log('set to list')
         this.transferState = TaskSubStates.LISTING;
       }
       // Request task state
       else if (states[0] === TaskStates.FINISHED) {
-        this.transferState = TaskSubStates.TRANSFERRING;
+        console.log('set to filter')
+        this.transferState = TaskSubStates.CREATING_FILTER;
       }
     });
   }
@@ -98,10 +107,19 @@ class Transfer extends Task {
     while (this.run) {
       await this.doWork();
     }
+
+    this.safeToStopResolve();
   }
 
   interrupt() {
-    this.run = false;
+    if (this.run) {
+      this.run = false;
+      return this.safeToStop.then(() => {
+        this.oplogWatchers.forEach((watcher) => {
+          watcher.destroyOPLog();
+        });
+      });
+    }
   }
 
   doWork() {
@@ -109,7 +127,9 @@ class Transfer extends Task {
       console.log(TaskSubStates.SENDING_EMAIL);
 
       TaskProvider.run(this.requestTask);
-      return onChange('tasks', this.filterTransferRequest).then((action) => {
+      let notifier = onChange('tasks', this.filterTransferRequest);
+      this.oplogWatchers.push(notifier);
+      return notifier.then((action) => {
         this.transferState = TaskSubStates.CREATING_FILTER;
         return TransferProvider.createFilter(this.taskID);
       }).then((filterTask) => {
@@ -123,7 +143,9 @@ class Transfer extends Task {
       console.log(TaskSubStates.CREATING_FILTER);
 
       TaskProvider.run(this.filterTask);
-      return onChange('tasks', this.filterFilterRequest).then((doc) => {
+      let notifier = onChange('tasks', this.filterFilterRequest);
+      this.oplogWatchers.push(notifier);
+      return notifier.then((doc) => {
         this.transferState = TaskSubStates.LISTING;
       });
     }
@@ -131,7 +153,9 @@ class Transfer extends Task {
       console.log(TaskSubStates.LISTING);
 
       TaskProvider.run(this.listTask);
-      return onChange('tasks', this.filterListRequest).then((doc) => {
+      let notifier = onChange('tasks', this.filterListRequest);
+      this.oplogWatchers.push(notifier);
+      return notifier.then((doc) => {
         this.transferState = TaskSubStates.TRANSFERRING;
         this.listValues = ListProvider.getResultCursor(this.listTask);
       });
