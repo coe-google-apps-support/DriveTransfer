@@ -52,6 +52,7 @@ class Main extends React.Component {
       },
       email: '',
       buttonText: states.START,
+      buttonDisabled: false,
       wizardClass: `${styles.hideable} ${styles.show}`,
       logClass: `${styles.hideable} ${styles.hidden}`,
     };
@@ -69,6 +70,7 @@ class Main extends React.Component {
         }).then((result) => {
           this.setState({
             buttonText: states.PAUSE,
+            buttonDisabled: true,
           });
           PubSub.publish('main button click', states.PAUSE);
         });
@@ -131,6 +133,7 @@ class Main extends React.Component {
           primary={true}
           onTouchTap={this.onClick.bind(this)}
           style={buttonStyle}
+          disabled={this.state.buttonDisabled}
         />
       </Paper>
     );
