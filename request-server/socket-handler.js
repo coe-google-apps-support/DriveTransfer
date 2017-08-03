@@ -30,8 +30,9 @@ module.exports = function(session, server) {
     let id = req.session.id;
     UserProvider.getUser(id).then((user) => {
       socketController.addSocket(id, ws);
+      return UserProvider.refreshToken(id);
+    }).then((user) => {
       socketController.send(id, JSON.stringify({accessToken: user.tokens.access_token}));
-      console.log('Send tokens here.');
     });
   });
 }

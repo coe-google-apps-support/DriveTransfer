@@ -50,6 +50,27 @@ class UserProvider {
       console.log(`Token retrieval failed for user ${id}.`);
     });
   }
+
+  static refreshToken(id) {
+    let user;
+    return this.getUser(id).then((dbUser) => {
+      user = dbUser;
+      return new Promise((resolve, reject) => {
+        user.client.refreshAccessToken((err, tokens) => {
+          if (err) {
+            reject(err);
+            return;
+          }
+
+          resolve(tokens);
+        });
+      });
+    }).then((tokens) => {
+      user.tokens = tokens;
+      return user.save();
+    });
+
+  }
 }
 
 module.exports = UserProvider;
