@@ -3,6 +3,7 @@ const TaskStates = require('../task-states.js');
 const UserProvider = require('./user-provider.js');
 const TaskProvider = require('./task-provider.js');
 const RequestProvider = require('./transfer-request-provider.js');
+const FilterProvider = require('./transfer-filter-provider.js');
 const TransferResult = require('../schemas/transfer-result.js')
 const Google = require('googleapis');
 
@@ -16,6 +17,23 @@ class TransferProvider {
     }).catch((err) => {
       console.log('Failed creating task.');
       throw err;
+    });
+  }
+
+  static createFilter(taskID) {
+    let filter;
+    return this.getRequestTask(taskID).then((requestTask) => {
+      return RequestProvider.getRecipientID(requestTask);
+    }).then((userID) => {
+      return FilterProvider.create(taskID, userID);
+    }).then((filterTask) => {
+      filter = filterTask;
+      return TransferTask.findOne({task: taskID});
+    }).then((task) => {
+      task.filterTask = filter.task;
+      return task.save();
+    }).then(() => {
+      return filter;
     });
   }
 
@@ -46,13 +64,6 @@ class TransferProvider {
   static getListTask(taskID) {
     return TransferTask.findOne({task: taskID}).then((task) => {
       return task.listTask;
-    });
-  }
-
-  static setFilterTask(transferTaskID, filterTaskID) {
-    return TransferTask.findOne({task: transferTaskID}).then((task) => {
-      task.filterTask = filterTaskID;
-      return task.save();
     });
   }
 

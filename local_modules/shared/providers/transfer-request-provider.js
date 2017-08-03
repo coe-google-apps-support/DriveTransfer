@@ -12,7 +12,7 @@ class TransferRequestProvider {
       task.recipient.user = userID;
       return task.save();
     }).then(() => {
-      return TaskProvider.finish(taskID);
+      return TaskProvider.fail(taskID);
     });
   }
 
@@ -22,6 +22,7 @@ class TransferRequestProvider {
       task.recipient.user = userID;
       return task.save();
     }).then(() => {
+      console.log('finishing ' + taskID);
       return TaskProvider.finish(taskID);
     });
   }
@@ -47,6 +48,12 @@ class TransferRequestProvider {
   static getRecipient(taskID) {
     return TransferRequestTask.findOne({task: taskID}).then((task) => {
       return task.recipient.email;
+    });
+  }
+
+  static getRecipientID(taskID) {
+    return TransferRequestTask.findOne({task: taskID}).then((task) => {
+      return task.recipient.user;
     });
   }
 
