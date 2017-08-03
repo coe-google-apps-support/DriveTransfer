@@ -6,6 +6,15 @@ const RequestProvider = require('./transfer-request-provider.js');
 const FilterProvider = require('./transfer-filter-provider.js');
 const TransferResult = require('../schemas/transfer-result.js')
 const Google = require('googleapis');
+const mongoose = require('../mongoose-provider.js').get();
+
+const TaskSubStates = {
+  SENDING_EMAIL: 'Sending email to recipient',
+  CREATING_FILTER: 'Creating email filter',
+  LISTING: 'Finding files',
+  TRANSFERRING: 'Transferring files',
+  FINISHED: 'Done'
+};
 
 class TransferProvider {
 
@@ -91,6 +100,35 @@ class TransferProvider {
 
   static getResult(taskID, fileID) {
     return TransferResult.findOne({task: taskID, id: fileID});
+  }
+
+  static getSubstate(taskID) {
+    taskID = mongoose.Types.ObjectId(taskID);
+    console.log(taskID);
+
+    return TransferTask.findOne({task: taskID}).then((task) => {
+      return Promise.all([
+        TaskProvider.getState(task.requestTask),
+        TaskProvider.getState(task.filterTask).catch(() => {}),
+        TaskProvider.getState(task.listTask),
+        TaskProvider.getState(task.task),
+      ]);
+    }).then((states) => {
+      if (states[3] === TaskStates.FINISHED) {
+        return TaskSubStates.FINISHED;
+      }
+      else if (states[2] === TaskStates.FINISHED) {
+        return TaskSubStates.TRANSFERRING;
+      }
+      else if (states[1] === TaskStates.FINISHED) {
+        return TaskSubStates.LISTING;
+      }
+      else if (states[0] === TaskStates.FINISHED) {
+        return TaskSubStates.CREATING_FILTER;
+      }
+
+      return 'Waiting on new owner\'s approval';
+    });
   }
 
 }
