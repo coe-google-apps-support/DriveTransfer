@@ -63,6 +63,17 @@ class TaskProvider {
       return task.subTask;
     });
   }
+
+  /**
+   * Gets the state of a created task.
+   * @param {string} taskID The ID of the task.
+   * @return {string} The state of the task. See shared/task-states.js.
+   */
+  static getState(taskID) {
+    return Task.findById(taskID).then((task) => {
+      return task.state;
+    });
+  }
 }
 
 module.exports = TaskProvider;

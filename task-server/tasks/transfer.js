@@ -23,7 +23,7 @@ class Transfer extends Task {
     this.transferState = TaskSubStates.SENDING_EMAIL;
     this.filterTransferRequest = this.filterTransferRequest.bind(this);
     this.filterFilterRequest = this.filterFilterRequest.bind(this);
-    this.filterListRequest = this.filterListRequest.bind(this);
+    this.filterListRequest = this.filterListRequest.bind(this);    
   }
 
   async setup() {
@@ -61,6 +61,34 @@ class Transfer extends Task {
       }
 
       this.listTask = listTask;
+      return TransferProvider.getFilterTask(this.taskID);
+    }).then((filterTask) => {
+      // This is only available if this transfer task has already been run before.
+      // The filter task isn't created as soon as the transfer task is.
+      this.filterTask = filterTask;
+      return Promise.all([
+        TaskProvider.getState(this.requestTask),
+        TaskProvider.getState(this.filterTask).catch(() => {}),
+        TaskProvider.getState(this.listTask),
+        TaskProvider.getState(this.taskID),
+      ]);
+    }).then((states) => {
+      // This transfer's task state
+      if (states[3] === TaskStates.FINISHED) {
+        this.transferState = TaskSubStates.FINISHED;
+      }
+      // List task state
+      if (states[2] === TaskStates.FINISHED) {
+        this.transferState = TaskSubStates.TRANSFERRING;
+      }
+      // Filter task state
+      else if (states[1] === TaskStates.FINISHED) {
+        this.transferState = TaskSubStates.LISTING;
+      }
+      // Request task state
+      else if (states[0] === TaskStates.FINISHED) {
+        this.transferState = TaskSubStates.TRANSFERRING;
+      }
     });
   }
 

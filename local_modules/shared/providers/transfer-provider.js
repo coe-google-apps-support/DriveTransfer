@@ -49,12 +49,6 @@ class TransferProvider {
     });
   }
 
-  static getRequestID(taskID) {
-    return this.getRequestTask(taskID).then((taskID) => {
-      return TaskProvider.getSubTask(taskID);
-    });
-  }
-
   static getRequestTask(taskID) {
     return TransferTask.findOne({task: taskID}).then((task) => {
       return task.requestTask;
@@ -64,6 +58,12 @@ class TransferProvider {
   static getListTask(taskID) {
     return TransferTask.findOne({task: taskID}).then((task) => {
       return task.listTask;
+    });
+  }
+
+  static getFilterTask(taskID) {
+    return TransferTask.findOne({task: taskID}).then((task) => {
+      return task.filterTask;
     });
   }
 
