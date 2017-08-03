@@ -27,14 +27,9 @@ filter.on('update', (doc) => {
   let taskID = doc.o2._id;
   if (doc.o.$set.state === TaskStates.RUNNING) {
     tm.run(taskID);
-    console.log('moving on from run');
   }
   else if (doc.o.$set.state === TaskStates.PAUSED) {
     tm.pause(taskID);
-    console.log('moving on from run');
-  }
-  else {
-    console.log(`Who cares about ${doc.o.$set.state} states?`);
   }
 });
 
