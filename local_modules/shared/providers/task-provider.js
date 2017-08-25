@@ -41,6 +41,7 @@ class TaskProvider {
   static finish(taskID) {
     return Task.findById(taskID).then((task) => {
       if (task.state === TaskStates.FAILED ||
+      task.state === TaskStates.CANCELLED ||
       task.state === TaskStates.FINISHED) {
         throw new Error(`Cannot finish task from ${task.state}.`);
       }
