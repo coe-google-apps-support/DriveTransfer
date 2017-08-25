@@ -84,7 +84,7 @@ class Transfer extends Task {
         this.transferState = TaskSubStates.FINISHED;
       }
       // List task state
-      if (states[2] === TaskStates.FINISHED) {
+      else if (states[2] === TaskStates.FINISHED) {
         console.log('set to trans')
         this.transferState = TaskSubStates.TRANSFERRING;
       }

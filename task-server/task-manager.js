@@ -12,7 +12,6 @@ class TaskManager {
   }
 
   async run(taskID) {
-    console.log('run')
     if (this.tasks[taskID]) {
       return;
     }
@@ -44,7 +43,6 @@ class TaskManager {
   }
 
   async pause(taskID) {
-    console.log('pause')
     if (this.tasks[taskID]) {
       console.log(`Pausing ${taskID}`);
       await this.tasks[taskID].interrupt();
