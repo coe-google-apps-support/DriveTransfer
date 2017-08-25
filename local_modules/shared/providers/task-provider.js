@@ -12,8 +12,12 @@ class TaskProvider {
    */
   static run(taskID) {
     return Task.findById(taskID).then((task) => {
-      task.state = TaskStates.RUNNING;
-      return task.save();
+      if (task.state === TaskStates.CREATED) {
+        task.state = TaskStates.RUNNING;
+        return task.save();
+      }
+
+      throw new Error(`Cannot run task from ${task.state}.`);
     });
   }
 
@@ -36,6 +40,11 @@ class TaskProvider {
    */
   static finish(taskID) {
     return Task.findById(taskID).then((task) => {
+      if (task.state === TaskStates.FAILED ||
+      task.state === TaskStates.FINISHED) {
+        throw new Error(`Cannot finish task from ${task.state}.`);
+      }
+
       task.state = TaskStates.FINISHED;
       return task.save();
     });
