@@ -17,7 +17,7 @@ exports.run = function(req, res, next) {
   });
 }
 
-exports.pause = function(req, res, next) {
+exports.cancel = function(req, res, next) {
   let taskID = req.query.taskID;
 
   if (taskID === null || taskID === '' || taskID === undefined) {
@@ -25,9 +25,9 @@ exports.pause = function(req, res, next) {
     return;
   }
 
-  TaskProvider.pause(taskID).then(() => {
+  TaskProvider.cancel(taskID).then(() => {
     res.status(200).json({
-      message: 'Task paused'
+      message: 'Task cancelled'
     });
   }).catch((err) => {
     console.log(err);

@@ -26,7 +26,7 @@ module.exports = function(session, app) {
   app.get('/api/transfer/state', authAPI.requireAuth, transfer.getSubstate);
   app.get('/api/request', authAPI.requireAuth, transferRequest);
   app.get('/api/task/run', authAPI.requireAuth, task.run);
-  app.get('/api/task/pause', authAPI.requireAuth, task.pause);
+  app.get('/api/task/cancel', authAPI.requireAuth, task.cancel);
   app.get('/view', authAPI.requireAuth, mainView.view);
 
   app.get('/login', login);
