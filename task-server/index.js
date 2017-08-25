@@ -28,8 +28,8 @@ filter.on('update', (doc) => {
   if (doc.o.$set.state === TaskStates.RUNNING) {
     tm.run(taskID);
   }
-  else if (doc.o.$set.state === TaskStates.PAUSED) {
-    tm.pause(taskID);
+  else if (doc.o.$set.state === TaskStates.CANCELLED) {
+    tm.cancel(taskID);
   }
 });
 

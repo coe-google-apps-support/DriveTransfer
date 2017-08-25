@@ -122,6 +122,21 @@ class Transfer extends Task {
     }
   }
 
+  cancel() {
+    if (this.run) {
+      this.run = false;
+      return this.safeToStop.then(() => {
+        this.oplogWatchers.forEach((watcher) => {
+          watcher.destroyOPLog();
+        });
+      }).then(() => {
+        return Promise.all([
+          // TODO PAUSE SUBTASKS 
+        ])
+      });
+    }
+  }
+
   doWork() {
     if (this.transferState === TaskSubStates.SENDING_EMAIL) {
       console.log(TaskSubStates.SENDING_EMAIL);

@@ -42,9 +42,9 @@ class TaskManager {
     this.tasks[taskID].run();
   }
 
-  async pause(taskID) {
+  async cancel(taskID) {
     if (this.tasks[taskID]) {
-      console.log(`Pausing ${taskID}`);
+      console.log(`Cancelling ${taskID}`);
       await this.tasks[taskID].interrupt();
       delete this.tasks[taskID];
     }
