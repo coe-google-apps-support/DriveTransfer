@@ -3,5 +3,6 @@ module.exports = {
   RUNNING: 'RUNNING',
   PAUSED: 'PAUSED',
   FINISHED: 'FINISHED',
+  CANCELLED: 'CANCELLED',
   FAILED: 'FAILED',
 };

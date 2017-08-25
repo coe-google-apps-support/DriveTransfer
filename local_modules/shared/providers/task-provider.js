@@ -54,6 +54,18 @@ class TaskProvider {
   }
 
   /**
+   * Cancels a Task.
+   * @param {string} taskID The ID of the Task to cancel.
+   * @return {Promise} A Promise resolved after the Task is cancelled.
+   */
+  static cancel(taskID) {
+    return Task.findById(taskID).then((task) => {
+      task.state = TaskStates.CANCELLED;
+      return task.save();
+    });
+  }
+
+  /**
    * Gets the subtask associated with this task.
    * @param {string} taskID The ID of the task.
    * @return {string} The ID of the subtask.
