@@ -131,8 +131,10 @@ class Transfer extends Task {
         });
       }).then(() => {
         return Promise.all([
-          // TODO PAUSE SUBTASKS 
-        ])
+          TaskProvider.cancel(this.requestTask),
+          TaskProvider.cancel(this.filterTask),
+          TaskProvider.cancel(this.listTask),
+        ]);
       });
     }
   }
