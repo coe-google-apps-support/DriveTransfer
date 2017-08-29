@@ -35,6 +35,10 @@ class TransferRequest extends Task {
     this.run = false;
   }
 
+  cancel() {
+    this.run = false;
+  }
+
   doWork() {
     return getRequestEmail(EMAIL_PATH, this.recipient, Config.App.EMAIL, this.taskID).then((result) => {
       let encodedEmailBody = new Buffer(result).toString('base64').replace(/\+/g, '-').replace(/\//g, '_');

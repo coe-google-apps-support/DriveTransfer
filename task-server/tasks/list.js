@@ -35,6 +35,10 @@ class List extends Task {
     this.run = false;
   }
 
+  cancel() {
+    this.run = false;
+  }
+
   async doWork() {
     if (!this._it) {
       throw new Error(`This task hasn't properly initialized.`);
