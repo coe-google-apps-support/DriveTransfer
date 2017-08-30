@@ -32,6 +32,10 @@ class TransferFilter extends Task {
     this.run = false;
   }
 
+  cancel() {
+    this.run = false;
+  }
+
   doWork() {
     return exponentialBackoff(
       this.createFilter.bind(this),

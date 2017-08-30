@@ -8,12 +8,13 @@ exports.run = function(req, res, next) {
     return;
   }
 
-  TaskProvider.run(taskID).then(() => {
+  TaskProvider.run(taskID).catch((err) => {
+    res.status(500).send('Error when trying to run task.');
+    return;
+  }).then(() => {
     res.status(200).json({
       message: 'Task run'
     });
-  }).catch((err) => {
-    console.log(err);
   });
 }
 
@@ -25,11 +26,12 @@ exports.cancel = function(req, res, next) {
     return;
   }
 
-  TaskProvider.cancel(taskID).then(() => {
+  TaskProvider.cancel(taskID).catch((err) => {
+    res.status(500).send('Error when trying to cancel task.');
+    return;
+  }).then(() => {
     res.status(200).json({
       message: 'Task cancelled'
     });
-  }).catch((err) => {
-    console.log(err);
   });
 }

@@ -16,7 +16,7 @@ class TaskManager {
       return;
     }
 
-    let task = await TaskModel.findById(taskID)
+    let task = await TaskModel.findById(taskID);
     if (task.taskType === 'list_task') {
       this.tasks[taskID] = new ListTask(taskID);
     }
@@ -42,10 +42,10 @@ class TaskManager {
     this.tasks[taskID].run();
   }
 
-  async pause(taskID) {
+  async cancel(taskID) {
     if (this.tasks[taskID]) {
-      console.log(`Pausing ${taskID}`);
-      await this.tasks[taskID].interrupt();
+      console.log(`Cancelling ${taskID}`);
+      await this.tasks[taskID].cancel();
       delete this.tasks[taskID];
     }
   }

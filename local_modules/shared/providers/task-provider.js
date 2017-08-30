@@ -58,6 +58,10 @@ class TaskProvider {
    */
   static fail(taskID) {
     return Task.findById(taskID).then((task) => {
+      if (task.state === TaskStates.CANCELLED) {
+        throw new Error('This task has been cancelled.');
+      }
+
       task.state = TaskStates.FAILED;
       return task.save();
     });
@@ -70,6 +74,10 @@ class TaskProvider {
    */
   static cancel(taskID) {
     return Task.findById(taskID).then((task) => {
+      if (task.state === TaskStates.FAILED) {
+        throw new Error('This task failed.');
+      }
+
       task.state = TaskStates.CANCELLED;
       return task.save();
     });

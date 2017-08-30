@@ -16,6 +16,13 @@ class TaskService {
     });
   }
 
+  static cancelTask(taskID) {
+    return Axios.get('/api/task/cancel', {
+      params: {taskID},
+      withCredentials: true
+    });
+  }
+
   static getState(taskID) {
     return Axios.get('/api/task/state', {
       params: {taskID},

@@ -122,6 +122,17 @@ class Transfer extends Task {
     }
   }
 
+  cancel() {
+    if (this.run) {
+      this.run = false;
+      return this.safeToStop.then(() => {
+        this.oplogWatchers.forEach((watcher) => {
+          watcher.destroyOPLog();
+        });
+      });
+    }
+  }
+
   doWork() {
     if (this.transferState === TaskSubStates.SENDING_EMAIL) {
       console.log(TaskSubStates.SENDING_EMAIL);
@@ -207,7 +218,6 @@ class Transfer extends Task {
   }
 
   filterTransferRequest(doc) {
-    console.log(doc)
     if (doc.op === 'u' &&
       doc.o2 && doc.o2._id && doc.o2._id.toString() === this.requestTask.toString() &&
       doc.o && doc.o.$set && doc.o.$set.state && doc.o.$set.state === TaskStates.FINISHED) {

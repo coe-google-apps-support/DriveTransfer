@@ -28,8 +28,6 @@ class TransferLog extends React.Component {
   constructor(props) {
     super(props);
 
-    PubSub.subscribe('main button click', this.buttonClicked.bind(this));
-
     this.state = {
       recent: [],
       displayState: 'Finding files...',
@@ -63,15 +61,6 @@ class TransferLog extends React.Component {
 
     clearInterval(this.state.intervalID);
     this.setState({intervalID: null});
-  }
-
-  buttonClicked(topic, text) {
-    if (text === 'RESUME') {
-      this.stopUpdating();
-    }
-    else if (text === 'PAUSE') {
-      this.startUpdating();
-    }
   }
 
   updateLog() {

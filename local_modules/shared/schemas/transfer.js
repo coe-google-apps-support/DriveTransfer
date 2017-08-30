@@ -4,6 +4,7 @@ const Task = require('./task.js');
 const RequestTask = require('./transfer-request.js');
 const FilterTask = require('./transfer-filter.js');
 const ListTask = require('./list.js');
+const TaskStates = require('../task-states.js');
 
 const type = 'transfer_task';
 
@@ -81,6 +82,32 @@ schema.pre('validate', function(next) {
     next();
   }
 });
+
+schema.methods.stateChanged = function stateChanged(state) {
+  if (state === TaskStates.CANCELLED) {
+    return mongoose.model(type).findOne({_id: this._id})
+      .populate('requestTask')
+      .populate('filterTask')
+      .populate('listTask')
+      .exec()
+      .then((doc) => {
+        doc.requestTask.state = TaskStates.CANCELLED;
+        doc.listTask.state = TaskStates.CANCELLED;
+
+        if (doc.filterTask) {
+          doc.filterTask.state = TaskStates.CANCELLED;
+          return Promise.all([
+            doc.requestTask.save(),
+            doc.listTask.save(),
+            doc.filterTask.save(),
+          ]);
+        }
+        else {
+          return Promise.all([doc.requestTask.save(), doc.listTask.save()]);
+        }
+      });
+  }
+};
 
 let model = mongoose.model(type, schema);
 
