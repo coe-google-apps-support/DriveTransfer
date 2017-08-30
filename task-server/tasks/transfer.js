@@ -129,12 +129,6 @@ class Transfer extends Task {
         this.oplogWatchers.forEach((watcher) => {
           watcher.destroyOPLog();
         });
-      }).then(() => {
-        return Promise.all([
-          TaskProvider.cancel(this.requestTask),
-          TaskProvider.cancel(this.filterTask),
-          TaskProvider.cancel(this.listTask),
-        ]);
       });
     }
   }
@@ -224,7 +218,6 @@ class Transfer extends Task {
   }
 
   filterTransferRequest(doc) {
-    console.log(doc)
     if (doc.op === 'u' &&
       doc.o2 && doc.o2._id && doc.o2._id.toString() === this.requestTask.toString() &&
       doc.o && doc.o.$set && doc.o.$set.state && doc.o.$set.state === TaskStates.FINISHED) {
