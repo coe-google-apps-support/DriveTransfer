@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Task from '../../services/task.js';
+import TransferService from '../../services/transfer.js';
 import LogItem from './log-item.jsx';
 import {List, ListItem} from 'material-ui/List';
 import Divider from 'material-ui/Divider';
@@ -26,8 +27,6 @@ const style = {
 class TransferLog extends React.Component {
   constructor(props) {
     super(props);
-
-    PubSub.subscribe('main button click', this.buttonClicked.bind(this));
 
     this.state = {
       recent: [],
@@ -64,30 +63,18 @@ class TransferLog extends React.Component {
     this.setState({intervalID: null});
   }
 
-  buttonClicked(topic, text) {
-    if (text === 'RESUME') {
-      this.stopUpdating();
-    }
-    else if (text === 'PAUSE') {
-      this.startUpdating();
-    }
-  }
-
   updateLog() {
-    Task.getRecent(this.props.taskID).then((result) => {
-      if (result.data.message.state === 'FINISHED') {
+    TransferService.getSubstate(this.props.taskID).then((result) => {
+      if (result.data.message === 'Done') {
         this.setState({displayState: 'Done!'});
         this.stopUpdating();
-        // Make a callback.
+        this.setState({
+          state: 'FINISHED'
+        });
       }
-      else if (result.data.message.changes.length > 0) {
-        this.setState({displayState: 'Transferring files...'});
+      else {
+        this.setState({displayState: result.data.message});
       }
-
-      this.setState({
-        recent: result.data.message.changes,
-        state: result.data.message.state,
-      });
     });
   }
 

@@ -23,6 +23,13 @@ class TransferService {
       });
     });
   }
+
+  static getSubstate(id) {
+    return Axios.get('/api/transfer/state', {
+      params: {id},
+      withCredentials: true
+    })
+  }
 }
 
 export default TransferService;

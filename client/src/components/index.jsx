@@ -27,14 +27,7 @@ const fillScreenStyle = {
 // http://stackoverflow.com/a/34015469/988941
 injectTapEventPlugin();
 
-class App extends React.Component {
-  contructor() {
-
-  }
-
-  triggerService(value) {
-    console.log(value);
-  }
+class App extends React.Component {  
 
   render () {
     return (

@@ -35,8 +35,7 @@ const textStyle = {
 
 const states = {
   START: 'START',
-  PAUSE: 'PAUSE',
-  RESUME: 'RESUME',
+  CANCEL: 'CANCEL',
 }
 
 class Main extends React.Component {
@@ -52,6 +51,7 @@ class Main extends React.Component {
       },
       email: '',
       buttonText: states.START,
+      buttonDisabled: false,
       wizardClass: `${styles.hideable} ${styles.show}`,
       logClass: `${styles.hideable} ${styles.hidden}`,
     };
@@ -68,26 +68,17 @@ class Main extends React.Component {
           return TaskService.startTask(taskID);
         }).then((result) => {
           this.setState({
-            buttonText: states.PAUSE,
+            buttonText: states.CANCEL,
           });
-          PubSub.publish('main button click', states.PAUSE);
         });
       }
     }
-    else if (this.state.buttonText === states.PAUSE) {
-      TaskService.pauseTask(this.state.taskID).then(() => {
+    else if (this.state.buttonText === states.CANCEL) {
+      TaskService.cancelTask(this.state.taskID).then(() => {
+        // Reset to the wizard
         this.setState({
-          buttonText: states.RESUME,
+          buttonText: states.START,
         });
-        PubSub.publish('main button click', states.RESUME);
-      });
-    }
-    else if (this.state.buttonText === states.RESUME) {
-      TaskService.startTask(this.state.taskID).then(() => {
-        this.setState({
-          buttonText: states.PAUSE,
-        });
-        PubSub.publish('main button click', states.PAUSE);
       });
     }
     else {
@@ -106,7 +97,7 @@ class Main extends React.Component {
         key='wizard'/>
     }
     else {
-      return <TransferLog pollTime={1000} taskID={this.state.taskID} key='log'/>
+      return <TransferLog pollTime={4000} taskID={this.state.taskID} key='log'/>
     }
   }
 
@@ -131,6 +122,7 @@ class Main extends React.Component {
           primary={true}
           onTouchTap={this.onClick.bind(this)}
           style={buttonStyle}
+          disabled={this.state.buttonDisabled}
         />
       </Paper>
     );

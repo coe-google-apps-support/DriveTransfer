@@ -7,6 +7,7 @@ import FontIcon from 'material-ui/FontIcon';
 import State from '../model/state.js';
 import {validate} from 'email-validator';
 import load from '../util/api-load.js';
+import Socket from '../services/socket.js';
 
 const styles = {
   root: {
@@ -76,7 +77,20 @@ class Wizard extends React.Component {
     };
 
     this.pickerPromise = load('picker');
+    this.accessToken = null;
+    //this.socketNotify = this.socketNotify;
+
+    let socket = new Socket();
+    socket.subscribe(this);
   };
+
+  socketNotify(value) {
+    console.log('Message received in wizard');
+    if (value.accessToken) {
+      this.accessToken = value.accessToken;
+      console.log(`Setting access token to ${this.accessToken}`);
+    }
+  }
 
   /**
    * Called when the user has selected a folder.
@@ -107,7 +121,9 @@ class Wizard extends React.Component {
    */
   buildPicker() {
     this.pickerPromise.then(() => {
-      const token = client.credentials.access_token;
+      if (!this.accessToken) {
+        throw new Error('No access token available. Is the server down?');
+      }
 
       let view = new google.picker.DocsView(google.picker.ViewId.FOLDERS)
         .setIncludeFolders(true)
@@ -115,7 +131,7 @@ class Wizard extends React.Component {
 
       let picker = new google.picker.PickerBuilder()
         .addView(view)
-        .setOAuthToken(token)
+        .setOAuthToken(this.accessToken)
         .setCallback(this.folderSelected.bind(this))
         .setOrigin(window.location.protocol + '//' + window.location.host)
         .setMaxItems(1)

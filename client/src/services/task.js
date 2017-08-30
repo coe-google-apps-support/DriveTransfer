@@ -1,12 +1,6 @@
 import Axios from 'axios';
 
 class TaskService {
-  static getTaskResult(taskID) {
-    return Axios.get('/api/task/getResult', {
-      params: {taskID},
-      withCredentials: true
-    });
-  }
 
   static startTask(taskID) {
     return Axios.get('/api/task/run', {
@@ -22,12 +16,20 @@ class TaskService {
     });
   }
 
-  static getRecent(taskID) {
-    return Axios.get('/api/task/getRecent', {
+  static cancelTask(taskID) {
+    return Axios.get('/api/task/cancel', {
       params: {taskID},
       withCredentials: true
     });
   }
+
+  static getState(taskID) {
+    return Axios.get('/api/task/state', {
+      params: {taskID},
+      withCredentials: true
+    });
+  }
+
 }
 
 export default TaskService;

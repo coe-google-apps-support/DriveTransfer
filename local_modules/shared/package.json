@@ -1,0 +1,17 @@
+{
+  "name": "shared",
+  "version": "1.0.0",
+  "description": "Shared resources for Drive Transfer",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha test/**/*.spec.js"
+  },
+  "author": "j-rewerts",
+  "license": "GPL-3.0",
+  "dependencies": {
+    "chai": "^4.1.0",
+    "chai-as-promised": "^7.1.1",
+    "ejs": "^2.5.7",
+    "googleapis": "^20.1.0"
+  }
+}
