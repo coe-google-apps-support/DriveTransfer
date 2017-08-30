@@ -28,6 +28,27 @@ const schema = new Schema({
   }
 }, {strict: true});
 
+/**
+ * This notifies subtasks of the state change, so they can react accordingly.
+ */
+schema.pre('save', function(next) {
+  if (this.isModified('state')) {
+    mongoose.model('task').findOne({_id: this._id})
+      .populate('subTask')
+      .exec()
+      .then((doc) => {
+        if (doc.subTask.stateChanged) {
+          return doc.subTask.stateChanged(this.state);
+        }
+      }).then(() => {
+        next();
+      });
+  }
+  else {
+    next();
+  }
+});
+
 let model = mongoose.model('task', schema);
 
 module.exports = model;
