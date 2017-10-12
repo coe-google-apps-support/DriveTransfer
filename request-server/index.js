@@ -14,26 +14,50 @@ const socketHandler = require('./socket-handler.js');
 require('./util/map-to-json.js');
 require('./util/object-to-map.js');
 
-const sess = {
-  secret: Config.Session.SECRET,
-  resave: false,
-  saveUninitialized: true,
-  store: new MongoStore({url: Config.Database.URL}),
-}
+const LONG_RETRY_TIME = 10000;
+
+/**
+ * Connects Mongoose to the MongoDB.
+ * @return {Promise} Resolved when the connection is successful.
+ */
+function connectMongoose() {
+  console.info(`Attempting Mongoose connection to ${Config.Database.URL}.`);
+  return mongoose.connect(Config.Database.URL).then(() => {
+    let session = connectSessionStore(mongoose.connection);
+    router(session, app);
+
+    const server = http.createServer(app);
+    socketHandler(session, server);
+
+    server.listen(Config.Web.PORT);
+    console.log(`Your server is running on port ${Config.Web.PORT}.`);
+  }, (err) => {
+    setTimeout(connectMongoose, LONG_RETRY_TIME);
+    return console.error(`Mongoose failed connecting to ${Config.Database.URL}.`);
+  });
+};
+
+/**
+ * Handles connecting the session store. This assumes you already have a connection to pass in.
+ * @param {Object} connection The connection to use for the session store.
+ * @return {Function} The session middleware function.
+ */
+function connectSessionStore(connection) {
+  const sess = {
+    secret: Config.Session.SECRET,
+    resave: false,
+    saveUninitialized: true,
+    store: new MongoStore({mongooseConnection: connection}),
+  };
+
+  return Session(sess);
+};
 
 // This grabs all unhandled Promise rejections and logs them. Otherwise, you get no stacktrace.
 // http://2ality.com/2016/04/unhandled-rejections.html
 process.on('unhandledRejection', (reason) => {
-    console.error(reason);
+  console.log('Unhandled Promise rejection.');
+  console.error(reason);
 });
 
-mongoose.connect(Config.Database.URL);
-
-let session = Session(sess);
-router(session, app);
-
-const server = http.createServer(app);
-socketHandler(session, server);
-
-server.listen(Config.Web.PORT);
-console.log(`Your server is running on port ${Config.Web.PORT}.`);
+connectMongoose();

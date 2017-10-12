@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon index.js",
-    "debug": "node --inspect index.js",
+    "debug": "node --inspect-brk index.js",
     "test": "mocha test/**/*.spec.js"
   },
   "author": "j-rewerts",
@@ -22,7 +22,7 @@
     "google-auth-library": "^0.10.0",
     "googleapis": "^19.0.0",
     "mongodb": "^2.2.30",
-    "mongoose": "^4.11.4",
+    "mongoose": "^4.10.8",
     "morgan": "^1.8.2",
     "nodemon": "^1.11.0",
     "request": "^2.81.0",
