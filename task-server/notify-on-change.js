@@ -10,7 +10,7 @@ const Config = require('shared/config.js');
  */
 function onChange(collection, filter) {
   const oplog = MongoOplog(Config.Database.OP_LOG_URL);
-  const filterOP = oplog.filter(`${Config.Database.OP_LOG_DB}.${collection}`, filter);
+  const filterOP = oplog.filter(`${Config.Database.NAME}.${collection}`, filter);
 
   oplog.tail();
 

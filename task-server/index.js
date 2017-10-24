@@ -15,7 +15,7 @@ process.on('unhandledRejection', (reason) => {
 mongoose.connect(Config.Database.URL);
 
 const oplog = MongoOplog(Config.Database.OP_LOG_URL);
-const filter = oplog.filter(`${Config.Database.OP_LOG_DB}.tasks`, (doc) => {
+const filter = oplog.filter(`${Config.Database.NAME}.tasks`, (doc) => {
   if (doc.o.$set && doc.o.$set.state) return true;
   return false;
 });
