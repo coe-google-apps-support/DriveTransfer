@@ -1,3 +1,8 @@
+/// This file is used to provide configuration options to Drive Transfer's request and task servers.
+/// Currently, 2 values are required to be passed in via environment variable:
+/// Config.OAuth.CLIENT_ID and Config.OAuth.CLIENT_SECRET
+/// These can be gotten from the cloud console credentials section.
+
 const Config = {};
 
 Config.ExpoBackoff = {};
@@ -51,6 +56,5 @@ if (!Config.OAuth.CLIENT_ID) {
 if (!Config.OAuth.CLIENT_SECRET) {
   throw new Error('Please set the DT_CLIENT_SECRET environment variable.');
 }
-
 
 module.exports = Config;
