@@ -1,5 +1,6 @@
 const User = require('../schemas/user.js');
 const Config = require('../config.js');
+const Google = require('googleapis');
 
 class UserProvider {
 
@@ -28,15 +29,18 @@ class UserProvider {
   }
 
   /**
-   * Gets tokens for the code provided by the OAuth flow.
+   * Gets tokens for the code provided by the OAuth flow. After getting the code, it immediately grabs the user's email.
    * @param {string} id The id of the user to get tokens for.
    * @param {string} code A temporary code that can be used to get tokens.
    * @return {Promise} A Promise resolved with the user.
    */
   static giveCode(id, code) {
+    let foundUser;
+
     return new Promise((resolve, reject) => {
       User.findOne({sessionID: id}).then((user) => {
         // Do stuff with the user.
+        foundUser = user;
         user.client.getToken(code, (err, tokens) => {
           if (err) {
             reject(err);
@@ -47,7 +51,28 @@ class UserProvider {
         });
       });
     }).catch((err) => {
-      console.log(`Token retrieval failed for user ${id}.`);
+      console.error(`Token retrieval failed for user ${id}.`);
+    }).then(() => {
+      return new Promise((resolve, reject) => {
+        const gmail = Google.gmail({version: 'v1', auth: foundUser.client});
+        gmail.users.getProfile({
+          userId: 'me'
+        }, (err, response) => {
+          if (err) {
+            reject(err);
+          }
+          else {
+            resolve(response);
+          }
+        });
+      });      
+    }).catch((err) => {
+      console.error(`Failed getting email for ${id}.`);
+    }).then((emailObject) => {
+      foundUser.emailAddress = emailObject.emailAddress;
+      return foundUser.save();
+    }).catch((err) => {
+      console.error(`Failed saving ${id}.`);
     });
   }
 

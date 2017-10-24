@@ -9,6 +9,9 @@ const schema = new Schema({
     ref: 'sessions',
     required: true,
   },
+  emailAddress: {
+    type: String,
+  },
   scopes: {
     type: [String],
     required: true,
