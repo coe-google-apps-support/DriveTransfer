@@ -28,7 +28,7 @@ class TransferRequestProvider {
   }
 
   static getAppGmail() {
-    return UserProvider.getUser(Config.App.USER_ID).then((user) => {
+    return UserProvider.getUserByEmail(Config.App.EMAIL).then((user) => {
       return Google.gmail({version: 'v1', auth: user.client});
     });
   }

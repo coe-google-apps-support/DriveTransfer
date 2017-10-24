@@ -29,6 +29,16 @@ class UserProvider {
   }
 
   /**
+   * Gets a user by their email address.
+   * @param {string} emailAddress The email of the user to grab.
+   * @return {Promise} A Promise resolved with the value of the user.
+   */
+  static getUserByEmail(emailAddress) {
+    // TODO Check if the token needs refreshing here?
+    return User.findOne({emailAddress});
+  }
+
+  /**
    * Gets tokens for the code provided by the OAuth flow. After getting the code, it immediately grabs the user's email.
    * @param {string} id The id of the user to get tokens for.
    * @param {string} code A temporary code that can be used to get tokens.
@@ -65,7 +75,7 @@ class UserProvider {
             resolve(response);
           }
         });
-      });      
+      });
     }).catch((err) => {
       console.error(`Failed getting email for ${id}.`);
     }).then((emailObject) => {
