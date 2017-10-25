@@ -29,6 +29,10 @@ class TransferRequestProvider {
 
   static getAppGmail() {
     return UserProvider.getUserByEmail(Config.App.EMAIL).then((user) => {
+      if (!user) {
+        throw new Error('Please login as drivetransfer@edmonton.ca before starting Drive Transfer.');
+      }
+      
       return Google.gmail({version: 'v1', auth: user.client});
     });
   }

@@ -35,7 +35,7 @@ class UserProvider {
    */
   static getUserByEmail(emailAddress) {
     // TODO Check if the token needs refreshing here?
-    return User.findOne({emailAddress});
+    return User.findOne({emailAddress: emailAddress});
   }
 
   /**
