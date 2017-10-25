@@ -22,7 +22,7 @@ const LONG_RETRY_TIME = 10000;
  */
 function connectMongoose() {
   console.info(`Attempting Mongoose connection to ${Config.Database.URL}.`);
-  return mongoose.connect(Config.Database.URL).then(() => {
+  return mongoose.connect(Config.Database.URL, { useMongoClient: true }).then(() => {
     let session = connectSessionStore(mongoose.connection);
     router(session, app);
 
