@@ -3,7 +3,7 @@ let instance = null;
 class Socket {
   constructor() {
     if (!instance) {
-      this.ws = new WebSocket('ws://localhost:3000');
+      this.ws = new WebSocket(`ws://lost-docker-host-1.com:3000`);
       this.ws.onopen = () => {console.log('Socket opened')};
       this.ws.onmessage = this.notify.bind(this);
       this.subscribers = [];
