@@ -1,4 +1,5 @@
 const EJS = require('ejs');
+const Config = require('../config.js');
 const readFile = require('./promisey-read-file.js').readFile;
 
 function buildRequestEmail(filePath, recipient, initiator, taskID) {
@@ -6,7 +7,9 @@ function buildRequestEmail(filePath, recipient, initiator, taskID) {
     return EJS.render(result, {
       recipient: recipient,
       initiator: initiator,
-      taskID: taskID
+      taskID: taskID,
+      host: Config.Web.HOST,
+      port: Config.Web.PORT,
     });
   });
 }
