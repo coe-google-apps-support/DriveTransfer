@@ -47,7 +47,7 @@ Config.Database.HOST = process.env.DT_MONGO_HOST || 'localhost';
 Config.Database.USER = process.env.DT_MONGO_USER;
 Config.Database.PASSWORD = process.env.DT_MONGO_PASS;
 Config.Database.URL = `mongodb://${db.HOST}:${db.PORT}/${db.NAME}?authSource=admin`;
-Config.Database.OP_LOG_URL = `mongodb://${db.HOST}:${db.PORT}/local?authSource=admin`;
+Config.Database.OP_LOG_URL = `mongodb://${Config.Database.USER}:${Config.Database.PASSWORD}@${db.HOST}:${db.PORT}/local?authSource=admin`;
 
 Config.Session = {};
 Config.Session.SECRET = process.env.DT_SESSION_SECRET || 'default-secret';
