@@ -11,9 +11,14 @@ let oplog;
 
 function connectMongoose() {
   console.info(`Attempting Mongoose connection to ${Config.Database.URL}.`);
-  mongoose.connect(Config.Database.URL, { useMongoClient: true }).then(() => {
+  mongoose.connect(Config.Database.URL, {
+    useMongoClient: true,
+    user: Config.Database.USER,
+    pass: Config.Database.PASSWORD,
+  }).then(() => {
     oplog = MongoOplog(Config.Database.OP_LOG_URL);
     const filter = oplog.filter(`${Config.Database.NAME}.tasks`, (doc) => {
+      console.log('BEEP');
       if (doc.o.$set && doc.o.$set.state) return true;
       return false;
     });
@@ -66,4 +71,4 @@ process.on('SIGINT', exitHandler.bind(null, {exit:true}));
 //catches uncaught exceptions
 process.on('uncaughtException', exitHandler.bind(null, {exit:true}));
 
-connectMongoose();
+setTimeout(connectMongoose, 5000);
