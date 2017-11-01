@@ -4,6 +4,8 @@
   "description": "Runs tasks for Drive Transfer users",
   "main": "index.js",
   "scripts": {
+    "env": "npm run start",
+    "start": "node index.js",
     "dev": "nodemon index.js",
     "debug": "node --inspect index.js",
     "test": "mocha test/**/*.spec.js"
@@ -11,6 +13,7 @@
   "author": "j-rewerts",
   "license": "GPL-3.0",
   "dependencies": {
+    "cross-env": "^5.1.1",
     "debug": "^2.6.8",
     "mongo-oplog-filter": "^1.1.0",
     "mongodb": "^2.2.30",
