@@ -37,17 +37,17 @@ Config.OAuth.SCOPES = [
 
 Config.Web = {};
 Config.Web.PORT = process.env.DT_WEB_PORT || 3000;
+Config.Web.HOST = process.env.DT_WEB_HOST || 'localhost';
 
 Config.Database = {};
 let db = Config.Database;
-Config.Database.NAME = process.env.DT_DATABASE || 'dev';
-Config.Database.REPL_NAME = process.env.DT_REPL_SET || 'test';
-Config.Database.PORT = process.env.MONGO_PORT_27017_TCP_PORT || 27017;
-Config.Database.HOST = process.env.MONGO_PORT_27017_TCP_ADDR  || 'localhost';
-Config.Database.USER = process.env.MONGO_INITDB_ROOT_USERNAME;
-Config.Database.PASSWORD = process.env.MONGO_INITDB_ROOT_PASSWORD;
-Config.Database.URL = `mongodb://${db.USER}:${db.PASSWORD}@${db.HOST}:${db.PORT}/${db.NAME}?authSource=admin&replicaSet=${db.REPL_NAME}`;
-Config.Database.OP_LOG_URL = `mongodb://${db.USER}:${db.PASSWORD}@${db.HOST}:${db.PORT}/local?authSource=admin&replicaSet=${db.REPL_NAME}`;
+Config.Database.NAME = process.env.DT_MONGO_DATABASE || 'dev';
+Config.Database.PORT = process.env.DT_MONGO_PORT || 27017;
+Config.Database.HOST = process.env.DT_MONGO_HOST || 'localhost';
+Config.Database.USER = process.env.DT_MONGO_USER;
+Config.Database.PASSWORD = process.env.DT_MONGO_PASS;
+Config.Database.URL = `mongodb://${db.HOST}:${db.PORT}/${db.NAME}?authSource=admin`;
+Config.Database.OP_LOG_URL = `mongodb://${db.HOST}:${db.PORT}/local?authSource=admin`;
 
 Config.Session = {};
 Config.Session.SECRET = process.env.DT_SESSION_SECRET || 'default-secret';
@@ -62,10 +62,10 @@ if (!Config.OAuth.CLIENT_SECRET) {
   throw new Error('Please set the DT_CLIENT_SECRET environment variable.');
 }
 if (!Config.Database.USER) {
-  throw new Error('Please set the MONGO_INITDB_ROOT_USERNAME environment variable.');
+  throw new Error('Please set the DT_MONGO_USER environment variable.');
 }
 if (!Config.Database.PASSWORD) {
-  throw new Error('Please set the MONGO_INITDB_ROOT_PASSWORD environment variable.');
+  throw new Error('Please set the DT_MONGO_PASS environment variable.');
 }
 
 module.exports = Config;
