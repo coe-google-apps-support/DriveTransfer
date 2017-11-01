@@ -22,7 +22,11 @@ const LONG_RETRY_TIME = 10000;
  */
 function connectMongoose() {
   console.info(`Attempting Mongoose connection to ${Config.Database.URL}.`);
-  return mongoose.connect(Config.Database.URL, { useMongoClient: true }).then(() => {
+  return mongoose.connect(Config.Database.URL, {
+    useMongoClient: true,
+    user: Config.Database.USER,
+    pass: Config.Database.PASSWORD
+  }).then(() => {
     let session = connectSessionStore(mongoose.connection);
     router(session, app);
 
@@ -57,7 +61,7 @@ function connectSessionStore(connection) {
 // http://2ality.com/2016/04/unhandled-rejections.html
 process.on('unhandledRejection', (reason) => {
   console.log('Unhandled Promise rejection.');
-  console.error(reason);
+  console.log(reason);
 });
 
-connectMongoose();
+setTimeout(connectMongoose, 5000);
