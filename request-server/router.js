@@ -38,5 +38,5 @@ module.exports = function(session, app) {
 
   app.get('/redirect', authAPI.oauthCallback);
 
-  app.use(express.static(path.resolve(__dirname, '..', 'client', 'src', 'static')));
+  app.use(express.static(path.resolve(__dirname, 'static')));
 }

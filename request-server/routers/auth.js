@@ -18,8 +18,7 @@ exports.requireAuth = function(req, res, next) {
     }
     else {
       console.log('User must log in.');
-      const url = path.resolve(__dirname, '..', '..', 'client', 'src', 'static', 'login');
-      res.render(url);
+      res.render('login');
     }
   });
 }
