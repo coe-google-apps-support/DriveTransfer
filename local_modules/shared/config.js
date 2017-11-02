@@ -4,6 +4,8 @@
 /// The first 2 can be gotten from the cloud console credentials section.
 /// The latter 2 are for authenticating to the MongoDB database.
 
+const file = require('dotenv').config();
+
 const Config = {};
 
 Config.ExpoBackoff = {};
@@ -24,20 +26,23 @@ Config.Tasks.FIELDS = [
 Config.Tasks.Transfer = {};
 Config.Tasks.Transfer.EMAIL_MESSAGE = 'drive-transfer-notification-email';
 
+Config.Web = {};
+Config.Web.PORT = process.env.DT_WEB_PORT || 3000;
+Config.Web.HOST = process.env.DT_WEB_HOST || 'localhost';
+Config.Web.PROTOCOL = process.env.DT_WEB_PROTOCOL || 'http';
+Config.Web.URL = `${Config.Web.PROTOCOL}://${Config.Web.HOST}:${Config.Web.PORT}`;
+Config.Web.WEBSOCKET_URL = `ws://${Config.Web.HOST}:${Config.Web.PORT}`;
+
 Config.OAuth = {};
 Config.OAuth.CLIENT_ID = process.env.DT_CLIENT_ID;
 Config.OAuth.CLIENT_SECRET = process.env.DT_CLIENT_SECRET;
-Config.OAuth.REDIRECT_URL = process.env.DT_REDIRECT || 'http://localhost:3000/redirect';
+Config.OAuth.REDIRECT_URL = `${Config.Web.URL}/redirect`;
 Config.OAuth.SCOPES = [
   'https://www.googleapis.com/auth/drive',
   'https://www.googleapis.com/auth/gmail.send',
   'https://www.googleapis.com/auth/gmail.readonly',
   'https://www.googleapis.com/auth/gmail.settings.basic',
 ];
-
-Config.Web = {};
-Config.Web.PORT = process.env.DT_WEB_PORT || 3000;
-Config.Web.HOST = process.env.DT_WEB_HOST || 'localhost';
 
 Config.Database = {};
 let db = Config.Database;
