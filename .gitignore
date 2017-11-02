@@ -5,6 +5,8 @@ bundle.min.js
 
 # Secrets
 client_secret*
+docker-compose.yml
+.env
 
 # Logs
 logs
