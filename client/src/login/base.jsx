@@ -59,7 +59,7 @@ class App extends React.Component {
       <MuiThemeProvider muiTheme={muiTheme}>
         <div style={fillScreenStyle}>
           <Paper zDepth={0} style={baseDisplay}>
-            <img width='200px' height='200px' src='icon.png'/>
+            <img width='200px' height='200px' src='/icon.png'/>
             <h1 style={textStyle}>Drive Transfer</h1>
             <RaisedButton
               label='Login'
