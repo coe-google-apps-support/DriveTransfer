@@ -10,7 +10,6 @@ const MongoStore = require('connect-mongo')(Session);
 const app = express();
 const router = require('./router.js');
 const socketHandler = require('./socket-handler.js');
-
 require('./util/map-to-json.js');
 require('./util/object-to-map.js');
 
@@ -37,7 +36,9 @@ function connectMongoose() {
     console.log(`Your server is running on port ${Config.Web.PORT}.`);
   }, (err) => {
     setTimeout(connectMongoose, LONG_RETRY_TIME);
-    return console.error(`Mongoose failed connecting to ${Config.Database.URL}.`);
+    console.error(`Mongoose failed connecting to ${Config.Database.URL}.`);
+    console.error(err);
+    return;
   });
 };
 

@@ -36,8 +36,10 @@ function connectMongoose() {
       }
     });
   }, (err) => {
+    console.error(`Mongoose failed connecting to ${Config.Database.URL}.`);
+    console.error(err);
     setTimeout(connectMongoose, LONG_RETRY_TIME);
-    return console.error(`Mongoose failed connecting to ${Config.Database.URL}.`);
+    return;
   });
 }
 
