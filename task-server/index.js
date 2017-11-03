@@ -44,7 +44,8 @@ function connectMongoose() {
 // This grabs all unhandled Promise rejections and logs them. Otherwise, you get no stacktrace.
 // http://2ality.com/2016/04/unhandled-rejections.html
 process.on('unhandledRejection', (reason) => {
-    console.error(reason);
+  console.log('Unhandled rejection.');
+  console.error(reason);
 });
 
 function exitHandler(options, err) {
@@ -69,6 +70,6 @@ process.on('exit', exitHandler.bind(null,{cleanup:true}));
 process.on('SIGINT', exitHandler.bind(null, {exit:true}));
 
 //catches uncaught exceptions
-process.on('uncaughtException', exitHandler.bind(null, {exit:true}));
+process.on('uncaughtException', exitHandler.bind(null, {exit:false}));
 
 setTimeout(connectMongoose, 5000);

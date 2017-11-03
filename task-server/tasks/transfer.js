@@ -105,9 +105,19 @@ class Transfer extends Task {
     this.run = true;
 
     while (this.run) {
-      await this.doWork();
+      try {
+        await this.doWork();
+      } 
+      catch (err) {
+        console.error(err);
+        console.log(`Stopping task ${this.taskID} due to error.`);
+        break;
+      }
     }
 
+    if (this.listValues.cursor) {
+      this.listValues.close();
+    }    
     this.safeToStopResolve();
   }
 
@@ -168,29 +178,45 @@ class Transfer extends Task {
       this.oplogWatchers.push(notifier);
       return notifier.then((doc) => {
         this.transferState = TaskSubStates.TRANSFERRING;
+        console.log(TaskSubStates.TRANSFERRING);
         this.listValues = ListProvider.getResultCursor(this.listTask);
       });
     }
     else if (this.transferState === TaskSubStates.TRANSFERRING) {
-      console.log(TaskSubStates.TRANSFERRING);
-
       let fileID;
+      // Using an error to break out of a Promise chain seems terrible. There are a lot of people that do it though,
+      // so I'm in good company.
+      // https://github.com/petkaantonov/bluebird/issues/581
+      let notMineError = new Error(`That isn't your file to transfer!`);
       let doneError = new Error('Finished iterating list.');
+      
       return this.listValues.next().then((file) => {
         if (!file) {
           this.transferState = TaskSubStates.FINISHED;
           throw doneError;
         }
+        else if (!file.ownedByMe) {
+          throw notMineError;
+        }
 
         fileID = file.id;
+        
         return exponentialBackoff(
           this.transfer.bind(this, fileID, this.newOwnerEmail),
           Config.ExpoBackoff.MAX_TRIES,
           Config.ExpoBackoff.NAPTIME,
           this.transferPredicate
         );
-      }).then((transferResult) => {
-        return TransferProvider.addResult(this.taskID, fileID);
+      }).catch((err) => {
+        // Catches an error that occurs randomly. We need to catch and dispose so we can still remove the file from the root.
+        if ((err.errors && err.errors[0] && err.errors[0].reason === 'invalidSharingRequest') || (err.reason === 'invalidSharingRequest')) {
+          return;
+        }
+        else {
+          throw err;
+        }        
+      }).then(() => {
+        return TransferProvider.addResult(this.taskID, fileID);   
       }).then(() => {
         return exponentialBackoff(
           this.removeFileFromRoot.bind(this, fileID),
@@ -199,14 +225,14 @@ class Transfer extends Task {
           this.transferPredicate
         );
       }).catch((err) => {
-        if (err !== doneError) {
-          throw err;
+        if (err !== doneError && err !== notMineError) {
+          console.log(`Actual error while tranferring ${this.taskID}.`);
+          console.error(err);
         }
       });
     }
     else if (this.transferState === TaskSubStates.FINISHED) {
       console.log(TaskSubStates.FINISHED);
-
       this.interrupt();
       return TaskProvider.finish(this.taskID);
     }
