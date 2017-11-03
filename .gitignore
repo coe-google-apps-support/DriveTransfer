@@ -1,3 +1,6 @@
+# VS Code configs
+.vscode
+
 # Build files
 bundle.js
 bundle.min.js
