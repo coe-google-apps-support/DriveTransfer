@@ -37,6 +37,10 @@ const schema = new Schema({
     type: [String],
     required: true,
   },
+  ownedByMe: {
+    type: Boolean,
+    required: true,
+  },
 }, {strict: true});
 
 schema.index({task: 1, id: 1}, {unique: true});

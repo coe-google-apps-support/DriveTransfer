@@ -21,6 +21,7 @@ Config.Tasks.FIELDS = [
   'webViewLink',
   'iconLink',
   'parents',
+  'ownedByMe',
 ];
 
 Config.Tasks.Transfer = {};

@@ -39,8 +39,13 @@ class ListProvider {
     return ListResult.findOne({task: taskID, id: fileID});
   }
 
+  /**
+   * Gets a Cursor for iterating through large sets of Documents.
+   * @param {string} taskID The ID of the list task.
+   * @return {Cursor} A Mongoose cursor. Note that this must be closed manually by calling Cursor.close().
+   */
   static getResultCursor(taskID) {
-    return ListResult.find({task: taskID}).cursor();
+    return ListResult.find({task: taskID}).addCursorFlag('noCursorTimeout', true).cursor();
   }
 }
 
