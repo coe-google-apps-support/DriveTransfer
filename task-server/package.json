@@ -20,7 +20,7 @@
     "mongodb": "^2.2.30",
     "mongoose": "^4.10.8",
     "nodemon": "^1.11.0",
-    "shared": "file:..\\local_modules\\shared",
+    "shared": "file:../local_modules/shared",
     "task-runner-js": "^2.1.4"
   }
 }
