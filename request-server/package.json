@@ -7,7 +7,9 @@
     "start": "node index.js",
     "dev": "nodemon index.js",
     "debug": "node --inspect-brk index.js",
-    "test": "mocha test/**/*.spec.js"
+    "test": "mocha test/**/*.spec.js",
+    "snyk-protect": "snyk protect",
+    "prepare": "npm run snyk-protect"
   },
   "author": "j-rewerts",
   "license": "GPL-3.0",
@@ -23,20 +25,22 @@
     "express-session": "^1.15.4",
     "google-auth-library": "^0.10.0",
     "googleapis": "^19.0.0",
-    "mongodb": "^2.2.30",
-    "mongoose": "^4.10.8",
-    "morgan": "^1.8.2",
-    "nodemon": "^1.11.0",
-    "request": "^2.81.0",
-    "request-promise-native": "^1.0.4",
+    "mongodb": "^2.2.33",
+    "mongoose": "^4.13.0",
+    "morgan": "^1.9.1",
+    "nodemon": "^1.14.11",
+    "request": "^2.84.0",
+    "request-promise-native": "^1.0.5",
     "shared": "file:../local_modules/shared",
     "uuid": "^3.1.0",
-    "ws": "^3.1.0"
+    "ws": "^3.3.1",
+    "snyk": "^1.114.0"
   },
   "devDependencies": {
     "chai": "^3.5.0",
     "mocha": "^3.4.2",
     "nock": "^9.0.14",
     "raw-loader": "^0.5.1"
-  }
+  },
+  "snyk": true
 }
