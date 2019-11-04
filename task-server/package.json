@@ -18,7 +18,7 @@
     "dotenv": "^4.0.0",
     "mongo-oplog-filter": "^1.1.0",
     "mongodb": "^2.2.30",
-    "mongoose": "^4.10.8",
+    "mongoose": "^5.7.5",
     "nodemon": "^1.11.0",
     "shared": "file:../local_modules/shared",
     "task-runner-js": "^2.1.4"
